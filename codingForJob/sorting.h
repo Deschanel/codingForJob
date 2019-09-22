@@ -2,6 +2,15 @@
 #include "common.h"
 /* 排序 */
 using namespace std;
+
+template<typename T>
+struct node  //双向链表节点
+{
+	struct node *pre;
+	T data;
+	struct node *next;
+};
+
 template <typename T>
 class sorting
 {
@@ -13,6 +22,11 @@ public:
 	void bubbleSortC(T arr[], int len);  //冒泡排序，high为最后一个交换顺序的那个  所有冒泡排序最好是O(n),最差O(n平方)
 	void mergeSort(T arr[], int low, int high);  //归并排序 最好最差O(nlogn)
 	void merge(T arr[], int low, int high, int mid);  //归并排序的二份合并操作
+	
+	node<T> *createOneNode(T value);
+	void selectionSort();  //选择排序
+	node<T> *selectionSortMax(node<T> *p, int n);
+	void removeNode(node<T> *p);
 	~sorting(){}
 };
 
@@ -156,5 +170,109 @@ void sorting<T>::merge(T arr[], int low, int high, int mid)   //high是哨兵
 		i++;
 	}
 	delete[] arrP;
+}
+
+template<typename T>
+node<T> * sorting<T>::createOneNode(T value)  //创造一个新节点
+{
+	node<T> *p = (node<T> *)malloc(sizeof(node<T>));
+	if (p == nullptr)
+	{
+		cout << "申请动态内存失败" << endl;
+		return nullptr;
+	}
+	p->pre = nullptr;
+	p->data = value;
+	p->next = nullptr;
+	return p;
+}
+
+template<typename T>
+inline void sorting<T>::selectionSort()  //选择排序主实现,O(n平方)
+{
+	/* 初始化链表 */
+	//初始化节点
+	node<T> *head, *p, *tmp,*trail;
+	tmp = createOneNode(NULL);
+	trail = createOneNode(NULL);
+	p = tmp;
+	head = tmp;
+	int length = 10, oldlength = 10;
+	for (int i=length; i>=1; i--) //尾插法初始化
+	{
+		tmp = createOneNode(i);
+		tmp->pre = p;
+		p->next = tmp;
+		p = tmp;
+	}
+	p->next = trail;
+	trail->pre = p;
+	cout << "初始化完成" << endl;
+
+	cout << "排序前 ";
+	tmp = head->next;
+	for (int i = length; i >= 1; i--)
+	{
+		cout << tmp->data << " ";
+		tmp = tmp->next;
+	}
+	cout << endl;
+
+	//排序主功能实现
+	while (length > 1)
+	{
+		//插入到前面
+		tmp = selectionSortMax(head->next, length);
+		//把当前最大节点与前后连接性断开
+		removeNode(tmp);
+		//把tmp插入到trail前面
+		tmp->next = trail;
+		tmp->pre = trail->pre;
+		trail->pre->next = tmp;
+		trail->pre = tmp;
+		//向前进
+		trail = trail->pre;
+		length--;
+	}
+
+	cout << "排序后 ";
+	tmp = head->next;
+	while (tmp->next != nullptr)
+	{
+		cout << tmp->data << " ";
+		tmp = tmp->next;
+	}
+	cout << endl;
+
+	//删除指针
+	delete head;
+	head = nullptr;
+	delete p;
+	p = nullptr;
+	delete tmp;
+	tmp = nullptr;
+}
+
+template<typename T>
+node<T>* sorting<T>::selectionSortMax(node<T>* p, int n)  //选择最大值
+{
+	node<T> *tmp = p;
+	while (n > 1)
+	{
+		if (p->data <= p->next->data)
+		{
+			tmp = p;
+		}
+		p = p->next;
+		n--;
+	}
+	return tmp;
+}
+
+template<typename T>
+void sorting<T>::removeNode(node<T>* p)  //删除节点
+{
+	p->next->pre = p->pre;
+	p->pre->next = p->next;
 }
 

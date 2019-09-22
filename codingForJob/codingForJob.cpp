@@ -46,5 +46,7 @@ int main()
 	//getFib(12);
 	//bubbleSort();
 	//fibSearch();
+	sorting<int> s;
+	s.selectionSort();
 	return 1;
 }
