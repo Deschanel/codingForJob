@@ -188,7 +188,7 @@ node<T> * sorting<T>::createOneNode(T value)  //创造一个新节点
 }
 
 template<typename T>
-inline void sorting<T>::selectionSort()  //选择排序主实现,O(n平方)
+inline void sorting<T>::selectionSort()  //选择排序主实现,最好最坏O(n平方)
 {
 	/* 初始化链表 */
 	//初始化节点
