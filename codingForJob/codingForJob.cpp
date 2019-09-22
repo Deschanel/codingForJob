@@ -22,7 +22,7 @@ void getFib(int n)
 	cout << fib.getFib(n);
 }
 
-//冒泡排序--原始版本
+//冒泡排序--多版本--向量
 void bubbleSort()
 {
 	int arr[] = {2, 5, 9, 3, 6, 2};
@@ -33,11 +33,19 @@ void bubbleSort()
 	s.bubbleSortC(arr, len);
 }
 
+//斐波那契查找--向量
 void fibSearch()
 {
 	int arr[] = { 2, 3, 5, 7, 8, 9, 10, 13, 15 };
 	searching<int> s;
 	cout << s.fibSearch(arr, 5, 9, 9, 13);
+}
+
+//选择查找--链表
+void selectionSort()
+{
+	sorting<int> s;
+	s.selectionSort();
 }
 
 int main()
@@ -46,7 +54,5 @@ int main()
 	//getFib(12);
 	//bubbleSort();
 	//fibSearch();
-	sorting<int> s;
-	s.selectionSort();
 	return 1;
 }
