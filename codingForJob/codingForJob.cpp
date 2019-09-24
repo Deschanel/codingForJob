@@ -48,11 +48,18 @@ void selectionSort()
 	s.selectionSort();
 }
 
+void insertionSort()
+{
+	sorting<int> s;
+	s.insertionSort();
+}
+
 int main()
 {
 	//getLCS();
 	//getFib(12);
 	//bubbleSort();
 	//fibSearch();
+	insertionSort();
 	return 1;
 }

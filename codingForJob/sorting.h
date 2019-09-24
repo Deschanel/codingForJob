@@ -24,8 +24,11 @@ public:
 	void merge(T arr[], int low, int high, int mid);  //归并排序的二份合并操作
 	
 	node<T> *createOneNode(T value);
+
 	void selectionSort();  //选择排序
-	node<T> *selectionSortMax(node<T> *p, int n);
+	node<T> *selectionSortMax(node<T> *p, int n); //选择排序
+	void insertionSort();  //插入排序
+	node<T> *noMoreThan(node<T> *p, int n, T value);  //插入排序
 	void removeNode(node<T> *p);
 	~sorting(){}
 };
@@ -197,7 +200,7 @@ inline void sorting<T>::selectionSort()  //选择排序主实现,最好最坏O(n平方)
 	trail = createOneNode(NULL);
 	p = tmp;
 	head = tmp;
-	int length = 10, oldlength = 10;
+	int length = 10;
 	for (int i=length; i>=1; i--) //尾插法初始化
 	{
 		tmp = createOneNode(i);
@@ -209,7 +212,7 @@ inline void sorting<T>::selectionSort()  //选择排序主实现,最好最坏O(n平方)
 	trail->pre = p;
 	cout << "初始化完成" << endl;
 
-	cout << "排序前 ";
+	cout << "选择排序排序前 ";
 	tmp = head->next;
 	for (int i = length; i >= 1; i--)
 	{
@@ -235,7 +238,7 @@ inline void sorting<T>::selectionSort()  //选择排序主实现,最好最坏O(n平方)
 		length--;
 	}
 
-	cout << "排序后 ";
+	cout << "选择排序排序后 ";
 	tmp = head->next;
 	while (tmp->next != nullptr)
 	{
@@ -251,6 +254,8 @@ inline void sorting<T>::selectionSort()  //选择排序主实现,最好最坏O(n平方)
 	p = nullptr;
 	delete tmp;
 	tmp = nullptr;
+	delete trail;
+	trail = nullptr;
 }
 
 template<typename T>
@@ -264,6 +269,92 @@ node<T>* sorting<T>::selectionSortMax(node<T>* p, int n)  //选择最大值
 			tmp = p;
 		}
 		p = p->next;
+		n--;
+	}
+	return tmp;
+}
+
+template<typename T>
+inline void sorting<T>::insertionSort()
+{
+	/* 初始化链表 */
+	//初始化节点
+	node<T> *head, *p, *tmp, *trail, *tmpp;
+	tmp = createOneNode(NULL);
+	trail = createOneNode(NULL);
+	p = tmp;
+	head = tmp;
+	int length = 10;
+	for (int i = length; i >= 1; i--) //尾插法初始化
+	{
+		tmp = createOneNode(i);
+		tmp->pre = p;
+		p->next = tmp;
+		p = tmp;
+	}
+	p->next = trail;
+	trail->pre = p;
+	cout << "初始化完成" << endl;
+
+	cout << "插入排序排序前 ";
+	tmp = head->next;
+	for (int i = length; i >= 1; i--)
+	{
+		cout << tmp->data << " ";
+		tmp = tmp->next;
+	}
+	cout << endl;
+
+	//插入排序主实现
+	p = head->next;
+	tmpp = p;
+	for (int i=0; i<length; ++i)
+	{
+		tmp = noMoreThan(p, i, p->data);  //查找p之前(不包括p)的不大于p的最大值
+		//把当前节点与前后连接性断开
+		removeNode(p);
+		p->next = tmp->next;
+		p->pre = tmp;
+		tmp->next->pre = p;
+		tmp->next = p;
+		tmpp = tmpp->next;
+		p = tmpp;
+	}
+
+	cout << "选择排序排序后 ";
+	tmp = head->next;
+	while (tmp->next != nullptr)
+	{
+		cout << tmp->data << " ";
+		tmp = tmp->next;
+	}
+	cout << endl;
+
+	//删除指针
+	delete head;
+	head = nullptr;
+	delete p;
+	p = nullptr;
+	delete tmp;
+	tmp = nullptr;
+	delete trail;
+	trail = nullptr;
+	delete tmpp;
+	tmpp = nullptr;
+}
+
+template<typename T>
+node<T>* sorting<T>::noMoreThan(node<T>* p, int n, T value)
+{
+	node<T> *tmp = p->pre;
+	while (n > 0)
+	{
+		if (p->data <= value)
+		{
+			tmp = p;
+			break;
+		}
+		p = p->pre;
 		n--;
 	}
 	return tmp;
