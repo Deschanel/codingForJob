@@ -33,6 +33,9 @@
     <ClInclude Include="search.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="stackAndQueueApplication.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

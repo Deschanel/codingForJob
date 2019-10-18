@@ -4,6 +4,7 @@
 #include "fibonacci.h"
 #include "sorting.h"
 #include "search.h"
+#include "stackAndQueueApplication.h"
 
 using namespace std;
 
@@ -54,12 +55,19 @@ void insertionSort()
 	s.insertionSort();
 }
 
+void saqApp()
+{
+	stackAndqueueApplication s;
+	std::cout << s.kuoHaoParn() << endl;
+}
+
 int main()
 {
 	//getLCS();
 	//getFib(12);
 	//bubbleSort();
 	//fibSearch();
-	insertionSort();
+	//insertionSort();
+	saqApp();
 	return 1;
 }
