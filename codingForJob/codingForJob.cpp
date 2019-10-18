@@ -57,8 +57,8 @@ void insertionSort()
 
 void saqApp()
 {
-	stackAndqueueApplication s;
-	std::cout << s.kuoHaoParn() << endl;
+	stackAndQueueApplication s;
+	std::cout << s.zhanhunxi() << endl;
 }
 
 int main()
