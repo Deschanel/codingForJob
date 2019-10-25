@@ -135,6 +135,7 @@ int reverseNum_2(int x)  //改进
 		int tmp = x % 10;
 		int tmp_1 = x / 10;
 		result += tmp;
+		x = tmp_1;
 	}
 }
 
