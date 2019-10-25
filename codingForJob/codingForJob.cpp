@@ -3,19 +3,158 @@
 
 #include "pch.h"
 #include <iostream>
+#include <vector>
+#include <map>
+#include <stack>
+
+using namespace std;
+
+vector<int> twoSum_1(vector<int> &nums, int target)   //暴力解法
+{
+	vector<int> result;
+	for (int i=0; i<nums.size(); ++i)
+	{
+		for (int j = 0; j < nums.size(); ++j)
+		{
+			if (i == j)
+			{
+				continue;
+			}
+			if (nums.at(i) + nums.at(j) == target)
+			{
+				result.push_back(i);
+				result.push_back(j);
+				return result;
+			}
+		}
+	}
+	return result;
+}
+
+vector<int> twoSum_2(vector<int> &nums, int target)  //两个map表, 改进一
+{
+	map<int, int> tmp;
+	vector<int> result;
+	for (int i=0; i<nums.size(); ++i)
+	{
+		tmp.insert(pair<int, int>(nums.at(i), i));
+	}
+	for (int i=0; i<nums.size(); ++i)
+	{
+		int want = target - nums.at(i);
+		if (tmp.find(want) != tmp.end() && tmp.at(want) != i)
+		{
+			result.push_back(i);
+			result.push_back(tmp.at(want));
+			return result;
+		}
+	}
+	return result;
+}
+
+vector<int> twoSum_3(vector<int> &nums, int target)  //一个map表, 改进二
+{
+	map<int, int> tmp;
+	vector<int> result;
+	for (int i = 0; i < nums.size(); ++i)
+	{
+		int want = target - nums.at(i);
+		if (tmp.find(want) != tmp.end() && tmp.at(want) != i)
+		{
+			if (i < tmp.at(want))
+			{
+				result.push_back(i);
+				result.push_back(tmp.at(want));
+			}
+			else
+			{
+				result.push_back(tmp.at(want));
+				result.push_back(i);
+			}
+			return result;
+		}
+		tmp.insert(pair<int, int>(nums.at(i), i));
+	}
+	return result;
+}
+
+int reverseNum_1(int x)  //这个方法慢
+{
+	int result = 0, minNum = -pow(2, 31), maxNum = pow(2, 31) - 1;
+	stack<int> s;
+	if (x > 0)
+	{
+		while (x > 0)
+		{
+			int tmp = x % 10;
+			s.push(tmp);
+			x /= 10;
+		}
+		int i = 0;
+		while (!s.empty())
+		{
+			result += (s.top()*pow(10, i));
+			if (result < minNum || result > maxNum)
+			{
+				return 0;
+			}
+			s.pop();
+			i++;
+		}
+	}
+	else
+	{
+		x = abs(x);
+		while (x > 0)
+		{
+			int tmp = x % 10;
+			s.push(tmp);
+			x /= 10;
+		}
+		int i = 0;
+		while (!s.empty())
+		{
+			result += (s.top()*pow(10, i));
+			if (result < minNum || result > maxNum)
+			{
+				return 0;
+			}
+			s.pop();
+			i++;
+		}
+		result *= -1;
+	}
+	return result;
+}
+
+int reverseNum_2(int x)
+{
+	int result = 0, minNum = -pow(2, 31), maxNum = pow(2, 31) - 1;
+	while (x > 0)
+	{
+		int tmp = x % 10;
+		int tmp_1 = x / 10;
+		result += tmp;
+	}
+}
 
 int main()
 {
-    std::cout << "Hello World!\n"; 
+	//两数之和
+	/*
+	vector<int> nums, result;
+	nums.push_back(2);
+	nums.push_back(7);
+	nums.push_back(11);
+	nums.push_back(15);
+	result = twoSum_3(nums, 9);
+	for (int i=0; i<result.size(); ++i)
+	{
+		std::cout << result.at(i) << " ";
+	}
+	std::cout << endl;
+	*/
+	//反转整数
+	int test = 120;
+	std::cout << reverseNum_1(test) << endl;
 }
-
-// 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
-// 调试程序: F5 或调试 >“开始调试”菜单
-
-// 入门提示: 
-//   1. 使用解决方案资源管理器窗口添加/管理文件
-//   2. 使用团队资源管理器窗口连接到源代码管理
-//   3. 使用输出窗口查看生成输出和其他消息
-//   4. 使用错误列表窗口查看错误
-//   5. 转到“项目”>“添加新项”以创建新的代码文件，或转到“项目”>“添加现有项”以将现有代码文件添加到项目
-//   6. 将来，若要再次打开此项目，请转到“文件”>“打开”>“项目”并选择 .sln 文件
