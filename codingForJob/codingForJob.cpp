@@ -127,7 +127,7 @@ int reverseNum_1(int x)  //这个方法慢
 	return result;
 }
 
-int reverseNum_2(int x)
+int reverseNum_2(int x)  //改进
 {
 	int result = 0, minNum = -pow(2, 31), maxNum = pow(2, 31) - 1;
 	while (x > 0)
