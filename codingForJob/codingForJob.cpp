@@ -305,7 +305,6 @@ int romanToInt_2(string s)
 	return result;
 }
 
-<<<<<<< HEAD
 string longestCommonPrefix(vector<string>& strs)  //最长公共子前缀
 {
 	string result = "";
@@ -370,23 +369,6 @@ struct ListNode {
 	ListNode *next;
 	ListNode(int x) : val(x), next(NULL) {}
 };
-ListNode* mergeTwoLists(ListNode* l1, ListNode* l2)
-{
-	if (!l1)
-	{
-		return l2;
-	}
-	if (!l2)
-	{
-		return l1;
-	}
-	ListNode *l;
-=======
-struct ListNode {
-	int val;
-	ListNode *next;
-	ListNode(int x) : val(x), next(NULL) {}
-};
 
 ListNode* mergeTwoLists(ListNode* l1, ListNode* l2)
 {
@@ -425,12 +407,29 @@ ListNode* mergeTwoLists(ListNode* l1, ListNode* l2)
 	{
 		l->next = l1;
 	}
-	else if(l2)
+	else if (l2)
 	{
 		l->next = l2;
 	}
 	return result;
->>>>>>> 4de9c5e58ba86a80ac0ffa1259b90ffa059e7d89
+}
+
+int removeDuplicates(vector<int>& nums)
+{
+	if (nums.size() < 2)
+	{
+		return nums.size();
+	}
+	int pre = 0;
+	for (int i = 1; i < nums.size(); ++i)
+	{
+		if (nums.at(i) != nums.at(pre))
+		{
+			swap(nums.at(i), nums.at(pre + 1));
+			pre++;
+		}
+	}
+	return pre + 1;
 }
 
 int main()
@@ -449,43 +448,42 @@ int main()
 	}
 	std::cout << endl;
 	*/
+
 	//反转整数
 	/*
 	int test = -123;
 	std::cout << reverseNum(test) << endl;
 	*/
+
 	//回文数
 	/*
 	int test = 10;
 	std::cout << isPalindrome_2(test) << endl;
 	*/
+
 	//罗马数到int
 	/*
 	string s = "MCMXCIV";
 	std::cout << romanToInt_1(s) << endl;
 	*/
-<<<<<<< HEAD
+
 	//最长公共前缀
 	/*
 	vector<string> strs = {"flower","flow","flowht"};
 	std::cout << longestCommonPrefix(strs) << endl;
 	*/
+
 	//判断有效括号
 	/*
 	string s = "))";
 	std::cout << isBracketsValid(s) << endl;
 	*/
-	//合并两个有序链表
-	ListNode *l1 = new ListNode(1);
-	ListNode *l1t = l1;
-	ListNode *l2 = new ListNode(1);
-=======
+
 	//合并两个有序链表 
 	/*
 	ListNode *l1 = new ListNode(1);
 	ListNode *l2 = new ListNode(1);
 	ListNode *l1t = l1;
->>>>>>> 4de9c5e58ba86a80ac0ffa1259b90ffa059e7d89
 	ListNode *l2t = l2;
 	l1->next = new ListNode(2);
 	l2->next = new ListNode(3);
@@ -493,10 +491,15 @@ int main()
 	l2 = l2->next;
 	l1->next = new ListNode(4);
 	l2->next = new ListNode(4);
-<<<<<<< HEAD
 	ListNode *l = mergeTwoLists(l1t, l2t);
-=======
-	mergeTwoLists(l1t, l2t);
 	*/
->>>>>>> 4de9c5e58ba86a80ac0ffa1259b90ffa059e7d89
+	//删除排序数组中的重复项
+	vector<int> v = { 1,1,2 };
+	int len = removeDuplicates(v);
+	std::cout << len << endl;
+	for (int i = 0; i < len; ++i)
+	{
+		std::cout << v.at(i) << " ";
+	}
+	std::cout << endl;
 }
