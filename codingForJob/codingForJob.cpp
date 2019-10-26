@@ -7,6 +7,7 @@
 #include <map>
 #include <stack>
 #include <string>
+#include <queue>
 
 using namespace std;
 
@@ -304,6 +305,7 @@ int romanToInt_2(string s)
 	return result;
 }
 
+<<<<<<< HEAD
 string longestCommonPrefix(vector<string>& strs)  //最长公共子前缀
 {
 	string result = "";
@@ -379,6 +381,56 @@ ListNode* mergeTwoLists(ListNode* l1, ListNode* l2)
 		return l1;
 	}
 	ListNode *l;
+=======
+struct ListNode {
+	int val;
+	ListNode *next;
+	ListNode(int x) : val(x), next(NULL) {}
+};
+
+ListNode* mergeTwoLists(ListNode* l1, ListNode* l2)
+{
+	if (!l1)
+	{
+		return l2;
+	}
+	else if (!l2)
+	{
+		return l1;
+	}
+	queue<int> q;
+	while (l1 && l2)
+	{
+		if (l1->val <= l2->val)
+		{
+			q.push(l1->val);
+			l1 = l1->next;
+		}
+		else
+		{
+			q.push(l2->val);
+			l2 = l2->next;
+		}
+	}
+	ListNode *l = new ListNode(q.front());
+	ListNode *result = l;
+	q.pop();
+	while (!q.empty())
+	{
+		l->next = new ListNode(q.front());
+		q.pop();
+		l = l->next;
+	}
+	if (l1)
+	{
+		l->next = l1;
+	}
+	else if(l2)
+	{
+		l->next = l2;
+	}
+	return result;
+>>>>>>> 4de9c5e58ba86a80ac0ffa1259b90ffa059e7d89
 }
 
 int main()
@@ -412,6 +464,7 @@ int main()
 	string s = "MCMXCIV";
 	std::cout << romanToInt_1(s) << endl;
 	*/
+<<<<<<< HEAD
 	//最长公共前缀
 	/*
 	vector<string> strs = {"flower","flow","flowht"};
@@ -426,6 +479,13 @@ int main()
 	ListNode *l1 = new ListNode(1);
 	ListNode *l1t = l1;
 	ListNode *l2 = new ListNode(1);
+=======
+	//合并两个有序链表 
+	/*
+	ListNode *l1 = new ListNode(1);
+	ListNode *l2 = new ListNode(1);
+	ListNode *l1t = l1;
+>>>>>>> 4de9c5e58ba86a80ac0ffa1259b90ffa059e7d89
 	ListNode *l2t = l2;
 	l1->next = new ListNode(2);
 	l2->next = new ListNode(3);
@@ -433,5 +493,10 @@ int main()
 	l2 = l2->next;
 	l1->next = new ListNode(4);
 	l2->next = new ListNode(4);
+<<<<<<< HEAD
 	ListNode *l = mergeTwoLists(l1t, l2t);
+=======
+	mergeTwoLists(l1t, l2t);
+	*/
+>>>>>>> 4de9c5e58ba86a80ac0ffa1259b90ffa059e7d89
 }
