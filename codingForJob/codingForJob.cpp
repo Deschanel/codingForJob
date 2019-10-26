@@ -7,6 +7,7 @@
 #include <map>
 #include <stack>
 #include <string>
+#include <queue>
 
 using namespace std;
 
@@ -304,6 +305,56 @@ int romanToInt_2(string s)
 	return result;
 }
 
+struct ListNode {
+	int val;
+	ListNode *next;
+	ListNode(int x) : val(x), next(NULL) {}
+};
+
+ListNode* mergeTwoLists(ListNode* l1, ListNode* l2)
+{
+	if (!l1)
+	{
+		return l2;
+	}
+	else if (!l2)
+	{
+		return l1;
+	}
+	queue<int> q;
+	while (l1 && l2)
+	{
+		if (l1->val <= l2->val)
+		{
+			q.push(l1->val);
+			l1 = l1->next;
+		}
+		else
+		{
+			q.push(l2->val);
+			l2 = l2->next;
+		}
+	}
+	ListNode *l = new ListNode(q.front());
+	ListNode *result = l;
+	q.pop();
+	while (!q.empty())
+	{
+		l->next = new ListNode(q.front());
+		q.pop();
+		l = l->next;
+	}
+	if (l1)
+	{
+		l->next = l1;
+	}
+	else if(l2)
+	{
+		l->next = l2;
+	}
+	return result;
+}
+
 int main()
 {
 	//两数之和
@@ -331,6 +382,22 @@ int main()
 	std::cout << isPalindrome_2(test) << endl;
 	*/
 	//罗马数到int
+	/*
 	string s = "MCMXCIV";
 	std::cout << romanToInt_1(s) << endl;
+	*/
+	//合并两个有序链表 
+	/*
+	ListNode *l1 = new ListNode(1);
+	ListNode *l2 = new ListNode(1);
+	ListNode *l1t = l1;
+	ListNode *l2t = l2;
+	l1->next = new ListNode(2);
+	l2->next = new ListNode(3);
+	l1 = l1->next;
+	l2 = l2->next;
+	l1->next = new ListNode(4);
+	l2->next = new ListNode(4);
+	mergeTwoLists(l1t, l2t);
+	*/
 }
