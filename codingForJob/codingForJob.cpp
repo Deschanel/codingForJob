@@ -423,13 +423,93 @@ int removeDuplicates(vector<int>& nums)
 	int pre = 0;
 	for (int i = 1; i < nums.size(); ++i)
 	{
-		if (nums.at(i) != nums.at(pre))
-		{
-			swap(nums.at(i), nums.at(pre + 1));
+		//解释一下下面
+		/*
+			由于是排好序的，因此必然有后面的大于等于前面的。
+			这里把i代表的值直接与pre+1代表的值互换，那么问题来了，如果pre+1代表的值与pre代表的值相等，swap是显然的，如果pre+1代表的值大于pre代表的值不就不对了嘛
+			这里其实不用担心，因为呢，i是遍历，因此i肯定会在之前某时刻(不妨假定为时刻1)遍历到此时刻(不妨假定为时刻2)的pre+1，而如果时刻1的i代表的值大于时刻1的pre代表的值的话，就会swap，也就是
+			时刻2的pre+1代表的值是经过swap的，是重复的值；如果时刻1的i代表的值小于等于时刻1的pre代表的值的话，那么就说明[0， pre(时刻1)]里面有了i(时刻1)代表的值，因此就是不需要的
+			因此，[pre+1, i)之间的值要不就是经过swap的值，要不就是不需要的重复的值，因此不会有以上的问题出现。
+		*/
+		if (nums.at(i) > nums.at(pre)) 								
+		{                             
+			swap(nums.at(i), nums.at(pre + 1));  //这里i是一直大于等于pre+1的，所以pre+1不会溢出
 			pre++;
 		}
 	}
 	return pre + 1;
+}
+
+int removeElement(vector<int>& nums, int val)
+{
+	if ((nums.size() == 0) || (nums.size() == 1 && nums.at(0) == val))
+	{
+		return 0;
+	}
+	if (nums.size() == 1 && nums.at(0) != val)
+	{
+		return 1;
+	}
+	int pre = 0;
+	int i = 0;
+	for (; i<nums.size(); ++i)
+	{
+		if (nums.at(i) == val)
+		{
+			pre = i;
+			break;
+		}
+	}
+	if (i >= nums.size())
+	{
+		return nums.size();
+	}
+	for (; i < nums.size(); ++i)
+	{
+		if (nums.at(i) != val)
+		{
+			swap(nums.at(i), nums.at(pre));
+			pre++;
+		}
+	}
+	return pre;
+}
+
+int strStr(string haystack, string needle)
+{
+	if (needle == "")
+	{
+		return 0;
+	}
+	if (haystack == "")
+	{
+		return -1;
+	}
+	bool result = false;
+	for (int i=0; i<haystack.size(); ++i)
+	{
+		if (haystack.at(i) == needle.at(0))
+		{
+			result = true;
+			for (int j=1; j<needle.size(); ++j)
+			{
+				if (i + j >= haystack.size())
+				{
+					return -1;
+				}
+				if (haystack.at(i + j) != needle.at(j))
+				{
+					result = false;
+					break;
+				}
+			}
+			if (result)
+			{
+				return i;
+			}
+		}
+	}
+	return -1;
 }
 
 int main()
@@ -493,13 +573,32 @@ int main()
 	l2->next = new ListNode(4);
 	ListNode *l = mergeTwoLists(l1t, l2t);
 	*/
+
 	//删除排序数组中的重复项
-	vector<int> v = { 1,1,2 };
+	/*
+	vector<int> v = {1,1,2};
 	int len = removeDuplicates(v);
+	std::cout << len << endl;
+	for (int i=0; i<len; ++i)
+	{
+		std::cout << v.at(i) << " ";
+	}
+	std::cout << endl;
+	*/
+
+	//移除元素
+	/*
+	vector<int> v = {3,5};
+	int len = removeElement(v, 3);
 	std::cout << len << endl;
 	for (int i = 0; i < len; ++i)
 	{
 		std::cout << v.at(i) << " ";
 	}
 	std::cout << endl;
+	*/
+	//实现 strStr(),给定一个 haystack 字符串和一个 needle 字符串，在 haystack 字符串中找出 needle 字符串出现的第一个位置 (从0开始)。如果不存在，则返回  -1。
+	string haystack = "aaaaa";
+	string needle = "baa";
+	std::cout << strStr(haystack, needle) << endl;
 }
