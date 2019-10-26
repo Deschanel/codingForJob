@@ -304,6 +304,83 @@ int romanToInt_2(string s)
 	return result;
 }
 
+string longestCommonPrefix(vector<string>& strs)  //最长公共子前缀
+{
+	string result = "";
+	if (strs.size() == 0)
+	{
+		return result;
+	}
+	if (strs.size() == 1)
+	{
+		return strs.at(0);
+	}
+	string tmp = strs.at(0);
+	for (int i=0; i<tmp.size(); ++i)
+	{
+		for (int j=1; j<strs.size(); ++j)
+		{
+			if (strs.at(j).size() <= i || strs.at(j).at(i) != tmp.at(i))
+			{
+				return result;
+			}
+		}
+		result += tmp.at(i);
+	}
+	return result;
+}
+
+bool isBracketsValid(string s)
+{
+	if (s.size() == 0)
+	{
+		return true;
+	}
+	stack<char> st;
+	for (auto c : s)
+	{
+		if (c == '(' || c == '[' || c == '{')
+		{
+			st.push(c);
+		}
+		else if(c == ')' && !st.empty() && st.top() == '(')
+		{
+			st.pop();
+		}
+		else if (c == ']' && !st.empty() && st.top() == '[')
+		{
+			st.pop();
+		}
+		else if (c == '}' && !st.empty() && st.top() == '{')
+		{
+			st.pop();
+		}
+		else
+		{
+			return false;
+		}
+	}
+	return st.empty();
+}
+
+struct ListNode {
+	int val;
+	ListNode *next;
+	ListNode(int x) : val(x), next(NULL) {}
+};
+ListNode* mergeTwoLists(ListNode* l1, ListNode* l2)
+{
+	if (!l1)
+	{
+		return l2;
+	}
+	if (!l2)
+	{
+		return l1;
+	}
+	ListNode *l;
+}
+
 int main()
 {
 	//两数之和
@@ -331,6 +408,30 @@ int main()
 	std::cout << isPalindrome_2(test) << endl;
 	*/
 	//罗马数到int
+	/*
 	string s = "MCMXCIV";
 	std::cout << romanToInt_1(s) << endl;
+	*/
+	//最长公共前缀
+	/*
+	vector<string> strs = {"flower","flow","flowht"};
+	std::cout << longestCommonPrefix(strs) << endl;
+	*/
+	//判断有效括号
+	/*
+	string s = "))";
+	std::cout << isBracketsValid(s) << endl;
+	*/
+	//合并两个有序链表
+	ListNode *l1 = new ListNode(1);
+	ListNode *l1t = l1;
+	ListNode *l2 = new ListNode(1);
+	ListNode *l2t = l2;
+	l1->next = new ListNode(2);
+	l2->next = new ListNode(3);
+	l1 = l1->next;
+	l2 = l2->next;
+	l1->next = new ListNode(4);
+	l2->next = new ListNode(4);
+	ListNode *l = mergeTwoLists(l1t, l2t);
 }
