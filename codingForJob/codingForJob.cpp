@@ -558,9 +558,197 @@ string countAndSay(int n)  //递归版本
 	return result;
 }
 
-string countAndSay_1(int n)  //迭代版本
+int maxSubArray_1(vector<int>& nums)  //暴力解法
 {
+	if (nums.size() == 0)
+	{
+		return 0;
+	}
+	int result = nums.at(0);
+	for (int i=0; i<nums.size(); ++i)
+	{
+		int tmp = 0;
+		for (int j=i; j<nums.size(); ++j)
+		{
+			tmp += nums.at(j);
+			if (tmp > result)
+			{
+				result = tmp;
+			}
+		}
+	}
+	return result;
+}
 
+int maxSubArray_2(vector<int>& nums)  //分而治之
+{
+	if (nums.size() == 1)
+	{
+		return nums.at(0);
+	}
+	if (nums.size() == 0)
+	{
+		return 0;
+	}
+	vector<int> left_nums;
+	vector<int> right_nums;
+	for (int i=0; i< nums.size(); ++i)
+	{
+		if (i < nums.size() / 2)
+		{
+			left_nums.push_back(nums.at(i));
+		}
+		else
+		{
+			right_nums.push_back(nums.at(i));
+		}
+	}
+	int max_left = maxSubArray_2(left_nums);  //左侧最大值
+	int max_right = maxSubArray_2(right_nums);  //右侧最大值
+	int max_l = nums.at(nums.size() / 2);
+	int tmp = 0;
+	for (int i=nums.size() / 2; i>=0; --i)
+	{
+		tmp += nums.at(i);
+		max_l = max(max_l, tmp);
+	}
+	tmp = 0;
+	int max_r = nums.at(nums.size() / 2 + 1);
+	for (int i=nums.size()/2+1; i<nums.size(); ++i)
+	{
+		tmp += nums.at(i);
+		max_r = max(tmp, max_r);
+	}
+	int result = max(max_left, max_right);
+	return max(result, max_l+max_r);
+}
+
+int maxSubArray_3(vector<int>& nums)  //动态规划
+{
+	if (nums.size() == 1)
+	{
+		return nums.at(0);
+	}
+	if (nums.size() == 0)
+	{
+		return 0;
+	}
+	int sum = 0;   //前面的最大子序列和。初始化是0
+	int result = nums.at(0);
+	for (auto num : nums)
+	{
+		if (sum > 0)  //如果前面的最大子序列和是正的，就说明对当前的num元素有增益效果，所以要加上，这里不会发生num前一个元素没包含的情况，也就是sum中包含当前遍历数的前一个元素，这里可以用数学归纳法来证明，因此不会断开
+		{
+			sum += num;
+		}
+		else   //否则的话从当前位置重新开始寻找
+		{
+			sum = num;
+		}
+		result = max(sum, result);
+	}
+	return result;
+}
+
+int lengthOfLastWord(string s)  //最后一个单词的长度
+{
+	if (s.size() == 0)
+	{
+		return 0;
+	}
+	int result = 0;
+	int start = s.size()-1;
+	for (int i = s.size() - 1; i>=0; --i)
+	{
+		if (s.at(i) != ' ')
+		{
+			start = i;
+			break;
+		}
+	}
+	for (int i=start; i>=0; --i)
+	{
+		if (s.at(i) != ' ')
+		{
+			result++;
+		}
+		else
+		{
+			break;
+		}
+	}
+	return result;
+}
+
+vector<int> plusOne(vector<int>& digits)
+{
+	int i = digits.size() - 1;
+	while (i > -1 && digits.at(i) == 9)
+	{
+		digits[i] = 0;
+		i--;
+	}
+	if (i == -1)
+	{
+		digits.insert(digits.begin(), 1);
+	}
+	else
+	{
+		digits[i] += 1;
+	}
+	return digits;
+}
+
+string addBinary(string a, string b) //普通方法
+{
+	int i = a.size()-1, j = b.size()-1;
+	int p = 0;
+	string result;
+	while (i > -1 || j > -1)
+	{
+		if (j <= -1)
+		{
+			result = std::to_string((static_cast<int>(a.at(i) - '0') + p) % 2) + result;
+			if (static_cast<int>(a.at(i) - '0') + p == 2)
+			{
+				p = 1;
+			}
+			else
+			{
+				p = 0;
+			}
+		}else if (i <= -1)
+		{
+			result = std::to_string((static_cast<int>(b.at(j) - '0') + p) % 2) + result;
+			if (static_cast<int>(b.at(j) - '0') + p == 2)
+			{
+				p = 1;
+			}
+			else
+			{
+				p = 0;
+			}
+		}
+		else
+		{
+			result = std::to_string((static_cast<int>(b.at(j) + a.at(i) - '0' - '0') + p) % 2) + result;
+			if (static_cast<int>(b.at(j) + a.at(i) - '0' - '0') + p < 2)
+			{
+				p = 0;
+			}
+			else
+			{
+				p = 1;
+			}
+		}
+		j--;
+		i--;
+	}
+	if (p == 1)
+	{
+		result = std::to_string(1) + result;
+	}
+	return result;
 }
 
 int main()
@@ -662,8 +850,36 @@ int main()
 	*/
 
 	//报数
+	//报数序列是一个整数序列，按照其中的整数的顺序进行报数，得到下一个数。
 	/*
-		报数序列是一个整数序列，按照其中的整数的顺序进行报数，得到下一个数。
-	*/
 	std::cout << countAndSay(7) << endl;
+	*/
+
+	//最大子序和
+	//给定一个整数数组 nums ，找到一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和
+	/*
+	vector<int> v = {-2,1,-3,4,-1,2,1,-5,4};
+	std::cout << maxSubArray_3(v) << endl;
+	*/
+
+	//最后一个单词的长度
+	/*
+	string s = "a ";
+	std::cout << lengthOfLastWord(s) << endl;
+	*/
+
+	//加一
+	//给定一个由整数组成的非空数组所表示的非负整数，在该数的基础上加一。
+	/*
+	vector<int> v = {8, 9};
+	v = plusOne(v);
+	for (auto i : v)
+	{
+		std::cout << i << " " << endl;
+	}
+	*/
+
+	//二进制求和
+	string a = "1", b = "111";
+	std::cout << addBinary(a, b) << endl;
 }
