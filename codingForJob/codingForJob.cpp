@@ -512,6 +512,57 @@ int strStr(string haystack, string needle)
 	return -1;
 }
 
+int searchInsert(vector<int>& nums, int target)
+{
+	if (nums.size() == 0 || nums.at(0) > target)
+	{
+		return 0;
+	}
+	for (int i=0; i<nums.size(); ++i)
+	{
+		if (nums.at(i) == target)
+		{
+			return i;
+		}
+		else if(nums.at(i) > target && i > 0 && nums.at(i-1) < target)
+		{
+			return i;
+		}
+	}
+	return nums.size();
+}
+
+string countAndSay(int n)  //递归版本
+{
+	if (n < 2)
+	{
+		return std::to_string(n);
+	}
+	string preStr = countAndSay(n - 1);
+	int pre = 0;
+	string result;
+	for (int i=0; i< preStr.size(); ++i)
+	{
+		if (preStr.at(i) != preStr.at(pre))
+		{
+			result += std::to_string(i - pre);
+			result += preStr.at(pre);
+			pre = i;
+		}
+		if (i == preStr.size() - 1)
+		{
+			result += std::to_string(i - pre + 1);
+			result += preStr.at(pre);
+		}
+	}
+	return result;
+}
+
+string countAndSay_1(int n)  //迭代版本
+{
+
+}
+
 int main()
 {
 	//两数之和
@@ -598,7 +649,21 @@ int main()
 	std::cout << endl;
 	*/
 	//实现 strStr(),给定一个 haystack 字符串和一个 needle 字符串，在 haystack 字符串中找出 needle 字符串出现的第一个位置 (从0开始)。如果不存在，则返回  -1。
+	/*
 	string haystack = "aaaaa";
 	string needle = "baa";
 	std::cout << strStr(haystack, needle) << endl;
+	*/
+
+	//给定一个排序数组和一个目标值，在数组中找到目标值，并返回其索引。如果目标值不存在于数组中，返回它将会被按顺序插入的位置。你可以假设数组中无重复元素
+	/*
+	vector<int> v = {1,3,5,6};
+	std::cout << searchInsert(v, 5) << endl;
+	*/
+
+	//报数
+	/*
+		报数序列是一个整数序列，按照其中的整数的顺序进行报数，得到下一个数。
+	*/
+	std::cout << countAndSay(7) << endl;
 }
