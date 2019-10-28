@@ -699,7 +699,7 @@ vector<int> plusOne(vector<int>& digits)
 	return digits;
 }
 
-string addBinary(string a, string b) //普通方法
+string addBinary_1(string a, string b) //普通方法
 {
 	int i = a.size()-1, j = b.size()-1;
 	int p = 0;
@@ -750,6 +750,141 @@ string addBinary(string a, string b) //普通方法
 	}
 	return result;
 }
+
+string addBinary_2(string a, string b) //短的在前面补0
+{
+	while (a.size() > b.size())
+	{
+		b = '0' + b;
+	}
+	while (a.size() < b.size())
+	{
+		a = '0' + a;
+	}
+	for (int i=a.size() -1; i>0; --i)
+	{
+		a[i] = a[i] - '0' + b[i];
+		if (a[i] >= '2')
+		{
+			a[i] = (a[i] - '0') % 2 + '0';
+			a[i - 1] = a[i - 1] + 1;
+		}
+	}
+	a[0] = a[0] + b[0] - '0';
+	if (a[0] >= '2')
+	{
+		a[0] = (a[0] - '0') % 2 + '0';
+		a = '1' + a;
+	}
+	return a;
+}
+
+int mySqrt_1(int x)  //暴力解法
+{
+	if (x == 0)
+	{
+		return 0;
+	}
+	int i = 1;
+	while (i*i < x)
+	{
+		i++;
+	}
+	return i - 1;
+}
+
+int mySqrt_2(int x)  //二分查找,当x>=4时。x/2的平方大于等于x的平方根
+{
+	if (x == 0 || x == 1)
+	{
+		return x;
+	}
+	long long left = 0, right = x;
+	while (left < right)
+	{
+		long long mid = (right + left) >> 1;
+		long long s = mid * mid;
+		(x < s) ? (right = mid) : (left = mid + 1);
+	}
+	return --left;
+}
+
+int climbStairs_1(int n)  //动态规划递归----超时了
+{
+	if (n == 1)
+	{
+		return 1;
+	}
+	if (n == 2)
+	{
+		return 2;
+	}
+	return climbStairs_1(n - 1) + climbStairs_1(n - 2);
+}
+
+int climbStairs_2(int n)  //动态规划迭代----就是斐波那契数列啊
+{
+	if (n == 1)
+	{
+		return 1;
+	}
+	if (n == 2)
+	{
+		return 2;
+	}
+	int pre = 1, now = 2;
+	while (n > 2)
+	{
+		now = now + pre;
+		pre = now - pre;
+		n--;
+	}
+	return now;
+}
+
+ListNode* deleteDuplicates_1(ListNode* head) //vector解决
+{
+	if (!head)
+	{
+		return nullptr;
+	}
+	vector<int> v;
+	v.push_back(head->val);
+	head = head->next;
+	while (head)
+	{
+		if (v.at(v.size() - 1) < head->val)
+		{
+			v.push_back(head->val);
+		}
+		head = head->next;
+	}
+	ListNode *p = new ListNode(v.at(0));
+	ListNode *result = p;
+	for (int i = 1; i < v.size(); ++i)
+	{
+		p->next = new ListNode(v.at(i));
+		p = p->next;
+	}
+	return result;
+}
+ListNode* deleteDuplicates_2(ListNode* head)  //链表解决
+{
+	ListNode *p = new ListNode(head->val);
+	ListNode *result = p;
+	while (head)
+	{
+		if (p->val < head->val)
+		{
+			p->next = head;
+			p = p->next;
+		}
+		head = head->next;
+	}
+	p->next = NULL;  //如果head中最后的数字有好几个的话，在while中已经加入到p中一个了，因此要把后面重复的删掉，就是令next为null
+	return result;
+}
+
 
 int main()
 {
@@ -880,6 +1015,28 @@ int main()
 	*/
 
 	//二进制求和
+	/*
 	string a = "1", b = "111";
-	std::cout << addBinary(a, b) << endl;
+	std::cout << addBinary_1(a, b) << endl;
+	*/
+
+	//x 的平方根
+	/*
+	std::cout << mySqrt_2(3) << endl;
+	*/
+
+	//爬楼梯
+	/*
+	std::cout << climbStairs_2(4) << endl;
+	*/
+
+	//删除排序链表中的重复元素
+	ListNode *l1 = new ListNode(1);
+	ListNode *l1t = l1, *p;
+	l1->next = new ListNode(1);
+	l1 = l1->next;
+	l1->next = new ListNode(2);
+	l1 = l1->next;
+	l1->next = new ListNode(4);
+	p = deleteDuplicates_1(l1t);
 }
