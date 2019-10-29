@@ -885,6 +885,104 @@ ListNode* deleteDuplicates_2(ListNode* head)  //链表解决
 	return result;
 }
 
+void merge_1(vector<int>& nums1, int m, vector<int>& nums2, int n)  //使用sort函数
+{
+	if (n < 1)
+	{
+		return;
+	}
+	for (int i=m; i<m+n; ++i)
+	{
+		nums1[i] = nums2.at(i - m);
+	}
+	std::sort(nums1.begin(), nums1.end());
+}
+
+void merge_2(vector<int>& nums1, int m, vector<int>& nums2, int n)  //双指针,从前往后
+{
+	vector<int> tmp;
+	for (int i=0; i<m; ++i)
+	{
+		tmp.push_back(nums1.at(i));
+	}
+	int i = 0, j = 0, k = 0;
+	while (i<n && j<m)
+	{
+		if (nums2.at(i) < tmp.at(j))
+		{
+			nums1[k] = nums2.at(i);
+			++i;
+		}
+		else
+		{
+			nums1[k] = tmp.at(j);
+			++j;
+		}
+		++k;
+	}
+	while (j < m)
+	{
+		nums1[k++] = tmp[j++];
+	}
+	while (i<n)
+	{
+		nums1[k++] = nums2[i++];
+	}
+}
+
+void merge_3(vector<int>& nums1, int m, vector<int>& nums2, int n)  //双指针,从后往前
+{
+	int i = m-1, j = n-1, k = m + n-1;
+	while (i>=0 && j>=0)
+	{
+		if (nums2.at(j) >= nums1.at(i))
+		{
+			nums1.at(k) = nums2.at(j);
+			--j;
+		}
+		else
+		{
+			nums1.at(k) = nums1.at(i);
+			--i;
+		}
+		--k;
+	}
+	while (j >= 0)
+	{
+		nums1[k--] = nums2[j--];
+	}
+	while (i >= 0)
+	{
+		nums1[k--] = nums1[i--];
+	}
+}
+
+struct TreeNode {
+	int val;
+	TreeNode *left;
+	TreeNode *right;
+	TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+bool isSameTree(TreeNode* p, TreeNode* q)  //递归
+{
+	if (p == nullptr && q == nullptr)
+	{
+		return true;
+	}
+	else if ((p == nullptr && q != nullptr) || (p != nullptr && q == nullptr))
+	{
+		return false;
+	}
+	else if (p->val == q->val && isSameTree(p->left, q->left) && isSameTree(p->right, q->right))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
 
 int main()
 {
@@ -1031,6 +1129,7 @@ int main()
 	*/
 
 	//删除排序链表中的重复元素
+	/*
 	ListNode *l1 = new ListNode(1);
 	ListNode *l1t = l1, *p;
 	l1->next = new ListNode(1);
@@ -1039,4 +1138,21 @@ int main()
 	l1 = l1->next;
 	l1->next = new ListNode(4);
 	p = deleteDuplicates_1(l1t);
+	*/
+
+	//合并两个有序数组
+	/*
+	vector<int> nums1 = {1,2,3,0,0,0};
+	vector<int> nums2 = {2,5,6};
+	merge_3(nums1, 3, nums2, 3);
+	for (int num : nums1)
+	{
+		std::cout << num << " ";
+	}
+	std:; cout << endl;
+	*/
+
+	//相同的树
+	
+
 }
