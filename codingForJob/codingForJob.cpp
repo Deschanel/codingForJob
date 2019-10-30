@@ -984,15 +984,6 @@ bool isSameTree(TreeNode* p, TreeNode* q)  //递归
 	}
 }
 
-bool isSymmetric_1(TreeNode* root) //递归是否是对称的
-{
-	if (!root)
-	{
-		return true;
-	}
-	return isSymmetric_1_item(root->left, root->right);
-}
-
 bool isSymmetric_1_item(TreeNode* left, TreeNode* right)
 {
 	if (!left && !right)
@@ -1011,6 +1002,14 @@ bool isSymmetric_1_item(TreeNode* left, TreeNode* right)
 	{
 		return false;
 	}
+}
+bool isSymmetric_1(TreeNode* root) //递归是否是对称的
+{
+	if (!root)
+	{
+		return true;
+	}
+	return isSymmetric_1_item(root->left, root->right);
 }
 
 bool isSymmetric_2(TreeNode* root) //迭代是否是对称的
@@ -1046,6 +1045,25 @@ bool isSymmetric_2(TreeNode* root) //迭代是否是对称的
 		rights.push(right->left);
 	}
 	return lefts.empty() && rights.empty();
+}
+
+int maxDepth(TreeNode* root)  //最大深度递归版本
+{
+	if (!root)
+	{
+		return 0;
+	}
+	return max(maxDepth(root->left), maxDepth(root->right)) + 1;
+}
+
+vector<vector<int>> levelOrderBottom(TreeNode* root)
+{
+	vector<vector<int>> result;
+	if (!root)
+	{
+		return result;
+	}
+	
 }
 
 int main()
@@ -1217,7 +1235,14 @@ int main()
 	*/
 
 	//相同的树
-	
+	//isSameTree
+
 	//对称二叉树
+	//isSymmetric_1
 	
+	//二叉树的最大深度
+	//maxDepth
+
+	//二叉树的层次遍历 II
+	//levelOrderBottom
 }
