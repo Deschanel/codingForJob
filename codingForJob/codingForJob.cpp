@@ -1167,6 +1167,22 @@ TreeNode* sortedArrayToBST(vector<int>& nums)  //自己解法
 	return sortedArrayToBST_item(nums, 0, nums.size());
 }
 
+bool isBalanced(TreeNode* root)  //自己解法
+{
+	if (!root)
+	{
+		return true;
+	}
+	if (abs(maxDepth(root->left) - maxDepth(root->right)) < 2 && isBalanced(root->left) && isBalanced(root->right))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 int main()
 {
 	//两数之和
@@ -1349,4 +1365,7 @@ int main()
 
 	//将有序数组转换为二叉搜索树
 	//TreeNode* sortedArrayToBST
+
+	//平衡二叉树
+	//bool isBalanced
 }
