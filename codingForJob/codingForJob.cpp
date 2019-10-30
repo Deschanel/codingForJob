@@ -986,11 +986,31 @@ bool isSameTree(TreeNode* p, TreeNode* q)  //递归
 
 bool isSymmetric_1(TreeNode* root) //看一下中序遍历序列是否是对称的
 {
-	if (!root || (!root->left && !root->right))
+	if (!root)
 	{
 		return true;
 	}
-	return isSymmetric_1(root->left) && isSymmetric_1(root->right);
+	return isSymmetric_1_item(root->left, root->right);
+}
+
+bool isSymmetric_1_item(TreeNode* left, TreeNode* right)
+{
+	if (!left && !right)
+	{
+		return true;
+	}
+	if (!left || !right)
+	{
+		return false;
+	}
+	if (left->val == right->val)
+	{
+		return isSymmetric_1_item(left->left, right->right) && isSymmetric_1_item(left->right, right->left);
+	}
+	else
+	{
+		return false;
+	}
 }
 
 int main()
