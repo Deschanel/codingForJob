@@ -984,6 +984,15 @@ bool isSameTree(TreeNode* p, TreeNode* q)  //递归
 	}
 }
 
+bool isSymmetric_1(TreeNode* root) //看一下中序遍历序列是否是对称的
+{
+	if (!root || (!root->left && !root->right))
+	{
+		return true;
+	}
+	return isSymmetric_1(root->left) && isSymmetric_1(root->right);
+}
+
 int main()
 {
 	//两数之和
@@ -1154,5 +1163,6 @@ int main()
 
 	//相同的树
 	
-
+	//对称二叉树
+	
 }
