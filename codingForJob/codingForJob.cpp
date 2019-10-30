@@ -1013,6 +1013,41 @@ bool isSymmetric_1_item(TreeNode* left, TreeNode* right)
 	}
 }
 
+bool isSymmetric_2(TreeNode* root) //迭代是否是对称的
+{
+	if (!root)
+	{
+		return true;
+	}
+	TreeNode *left = root->left, *right = root->right;
+	stack<TreeNode *> lefts, rights;
+	lefts.push(left);
+	rights.push(right);
+	while (!lefts.empty() && !rights.empty())
+	{
+		left = lefts.top();
+		right = rights.top();
+		lefts.pop(); rights.pop();
+		if (!left && !right)
+		{
+			continue;  //因为两边可能都把null压入栈了，所以应该是跳过，不是返回
+		}
+		if (!left || !right)
+		{
+			return false;
+		}
+		if (left->val != right->val)
+		{
+			return false;
+		}
+		lefts.push(left->left);
+		rights.push(right->right);
+		lefts.push(left->right);
+		rights.push(right->left);
+	}
+	return lefts.empty() && rights.empty();
+}
+
 int main()
 {
 	//两数之和
