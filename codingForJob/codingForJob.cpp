@@ -1183,6 +1183,23 @@ bool isBalanced(TreeNode* root)  //自己解法
 	}
 }
 
+int minDepth(TreeNode* root)
+{
+	if (!root)
+	{
+		return 0;
+	}
+	if (!root->right)  //由于要一直到叶子节点，因此如果右侧为空的话要遍历左侧
+	{
+		return minDepth(root->left) + 1;
+	}
+	if (!root->left)  //由于要一直到叶子节点，因此如果左侧为空的话要遍历右侧
+	{
+		return minDepth(root->right) + 1;
+	}
+	return min(minDepth(root->left), minDepth(root->right)) + 1;
+}
+
 int main()
 {
 	//两数之和
@@ -1364,8 +1381,11 @@ int main()
 	//levelOrderBottom
 
 	//将有序数组转换为二叉搜索树
-	//TreeNode* sortedArrayToBST
+	//sortedArrayToBST
 
 	//平衡二叉树
-	//bool isBalanced
+	//isBalanced
+
+	// 二叉树的最小深度
+	//minDepth
 }
