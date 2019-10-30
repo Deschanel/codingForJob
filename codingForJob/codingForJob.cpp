@@ -984,7 +984,7 @@ bool isSameTree(TreeNode* p, TreeNode* q)  //递归
 	}
 }
 
-bool isSymmetric_1(TreeNode* root) //看一下中序遍历序列是否是对称的
+bool isSymmetric_1(TreeNode* root) //递归是否是对称的
 {
 	if (!root)
 	{
