@@ -1056,14 +1056,115 @@ int maxDepth(TreeNode* root)  //最大深度递归版本
 	return max(maxDepth(root->left), maxDepth(root->right)) + 1;
 }
 
-vector<vector<int>> levelOrderBottom(TreeNode* root)
+vector<TreeNode *> levelOrderBottom_item(vector<TreeNode *> v)
+{
+	vector<TreeNode *> result;
+	for (int i=0; i<v.size(); ++i)
+	{
+		TreeNode* tmp = v.at(i);
+		if (tmp->left)
+		{
+			result.push_back(tmp->left);
+		}
+		if (tmp->right)
+		{
+			result.push_back(tmp->right);
+		}
+	}
+	return result;
+}
+vector<vector<int>> levelOrderBottom(TreeNode* root)  //自己的做法
 {
 	vector<vector<int>> result;
 	if (!root)
 	{
 		return result;
 	}
-	
+	vector<vector<TreeNode *>> r_t;
+	vector<TreeNode *> tmp;
+	tmp.push_back(root);
+	while (true)
+	{
+		tmp = levelOrderBottom_item(tmp);
+		if (tmp.size() < 1)
+		{
+			break;
+		}
+		r_t.push_back(tmp);
+	}
+	for (int i=r_t.size()-1; i>=0; --i)
+	{
+		vector<int> r_tmp;
+		for (auto tn : r_t.at(i))
+		{
+			r_tmp.push_back(tn->val);
+		}
+		result.push_back(r_tmp);
+	}
+	return result;
+}
+
+void levelOrderBottom_c_item(vector<vector<int>> &result, queue<TreeNode *> q)
+{
+	if (q.empty())
+	{
+		return;
+	}
+	queue<TreeNode *> q_tmp;
+	vector<int> r_tmp;
+	while (!q.empty())
+	{
+		TreeNode *tmp = q.front();
+		q.pop();
+		r_tmp.push_back(tmp->val);
+		if (tmp->left)
+		{
+			q_tmp.push(tmp->left);
+		}
+		if (tmp->right)
+		{
+			q_tmp.push(tmp->right);
+		}
+	}
+	levelOrderBottom_c_item(result, q_tmp);
+	result.push_back(r_tmp);
+}
+vector<vector<int>> levelOrderBottom_c(TreeNode* root)  //递归逆序
+{
+	vector<vector<int>> result;
+	queue<TreeNode *> q;
+	if (root)
+	{
+		q.push(root);
+	}
+	levelOrderBottom_c_item(result, q);
+	return result;
+}
+
+
+TreeNode* sortedArrayToBST_item(vector<int>& nums, int start, int end)
+{
+	if (start == end)
+	{
+		return nullptr;
+	}
+	int tmp = nums.at((start+end) / 2);
+	TreeNode *result = new TreeNode(tmp);
+	result->left = sortedArrayToBST_item(nums, start, (start + end) / 2);
+	result->right = sortedArrayToBST_item(nums, (start + end) / 2 + 1, end);
+	return result;
+}
+TreeNode* sortedArrayToBST(vector<int>& nums)  //自己解法
+{
+	if (nums.size() == 0)
+	{
+		return nullptr;
+	}
+	if (nums.size() == 1)
+	{
+		return new TreeNode(nums.at(0));
+	}
+	return sortedArrayToBST_item(nums, 0, nums.size());
 }
 
 int main()
@@ -1245,4 +1346,7 @@ int main()
 
 	//二叉树的层次遍历 II
 	//levelOrderBottom
+
+	//将有序数组转换为二叉搜索树
+	//TreeNode* sortedArrayToBST
 }
