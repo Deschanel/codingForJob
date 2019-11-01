@@ -1200,6 +1200,99 @@ int minDepth(TreeNode* root)
 	return min(minDepth(root->left), minDepth(root->right)) + 1;
 }
 
+bool hasPathSum(TreeNode* root, int sum)
+{
+	if (!root)
+	{
+		return false;
+	}
+	sum -= root->val;
+	if (!root->left && !root->right)
+	{
+		return (sum == 0);
+	}
+	return hasPathSum(root->left, sum) || hasPathSum(root->right, sum);
+}
+
+void generate_item(vector<vector<int>>& result, int numRows)
+{
+	vector<int> pre = result.at(result.size() - 1);
+	vector<int> now(numRows, 1);
+	for (int i = 1; i < numRows - 1; ++i)
+	{
+		now.at(i) = pre.at(i - 1) + pre.at(i);
+	}
+	result.push_back(now);
+}
+vector<vector<int>> generate(int numRows) 
+{
+	vector<vector<int>> result;
+	if (numRows == 0)
+	{
+		return result;
+	}
+	for (int i = 1; i <= min(numRows, 2); ++i)
+	{
+		vector<int> tmp(i, 1);
+		result.push_back(tmp);
+	}
+	for (int i = 3; i <= numRows; ++i)
+	{
+		generate_item(result, i);
+	}
+	return result;
+}
+
+vector<int> getRow(int rowIndex) 
+{
+	if (rowIndex <= 1)
+	{
+		return vector<int>(rowIndex + 1, 1);
+	}
+	vector<int> pre = getRow(rowIndex - 1);
+	vector<int> result(rowIndex + 1, 1);
+	for (int i = 1; i < rowIndex; ++i)
+	{
+		result.at(i) = pre.at(i - 1) + pre.at(i);
+	}
+	return result;
+}
+
+int maxProfit_1(vector<int>& prices) 
+{
+	int result = 0;
+	for (int i = 0; i < prices.size(); ++i)
+	{
+		for (int j = i + 1; j < prices.size(); ++j)
+		{
+			result = max(result, prices.at(j) - prices.at(i));
+		}
+	}
+	return result;
+}
+
+int maxProfit_2(vector<int>& prices) 
+{
+	if (prices.size() == 0)
+	{
+		return 0;
+	}
+	int minPrice = prices.at(0);
+	int maxp = 0;
+	for (auto i : prices)
+	{
+		if (i < minPrice)
+		{
+			minPrice = i;
+		}
+		else if (i - minPrice > maxp)
+		{
+			maxp = i - minPrice;
+		}
+	}
+	return maxp;
+}
+
 int main()
 {
 	//两数之和
@@ -1388,4 +1481,16 @@ int main()
 
 	// 二叉树的最小深度
 	//minDepth
+
+	//路径总和  
+	//hasPathSum
+
+	//杨辉三角
+	//generate
+
+	//杨辉三角2
+	//getRow
+
+	//买卖股票的最佳时机
+	//maxProfit_2
 }
