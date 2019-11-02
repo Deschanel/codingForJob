@@ -8,6 +8,7 @@
 #include <stack>
 #include <string>
 #include <queue>
+#include <set>
 
 using namespace std;
 
@@ -1421,6 +1422,107 @@ int singleNumber_4(vector<int>& nums)  //异或,元素异或自身为0，因此�
 	}
 	return result;
 }
+
+bool hasCycle_1(ListNode* head)  //set看是否重复
+{
+	set<ListNode*> s;
+	while (head)
+	{
+		if (s.find(head) == s.end())
+		{
+			s.insert(head);
+		}
+		else
+		{
+			return true;
+		}
+		head = head->next;
+	}
+	return false;
+}
+
+bool hasCycle_2(ListNode* head)  //快慢指针,这里是快1步，实际上快几步都行
+{
+	if (!head || !head->next)
+	{
+		return false;
+	}
+	ListNode* fast = head->next->next;
+	ListNode* slow = head->next;
+	while (fast)
+	{
+		for (int i=0; i<2; ++i)
+		{
+			if (!fast)
+			{
+				return false;
+			}
+			if (fast == slow)
+			{
+				return true;
+			}
+			fast = fast->next;
+		}
+		slow = slow->next;
+	}
+	return false;
+}
+
+class MinStack {
+public:
+	/** initialize your data structure here. */
+	stack<int> s;
+	int minValue;
+	MinStack() {
+
+	}
+
+	void push(int x) {
+		if (s.empty() || this->minValue > x)
+		{
+			this->minValue = x;
+		}
+		s.push(x);
+	}
+
+	void pop() {   //这里可不可以改进呢
+		if (minValue == s.top())
+		{
+			s.pop();
+			if (s.empty())
+			{
+				this->minValue = NULL;
+				return;
+			}
+			stack<int> s_tmp;
+			this->minValue = s.top();
+			while (!s.empty())
+			{
+				this->minValue = min(this->minValue, s.top());
+				s_tmp.push(s.top());
+				s.pop();
+			}
+			while (!s_tmp.empty())
+			{
+				s.push(s_tmp.top());
+				s_tmp.pop();
+			}
+		}
+		else
+		{
+			s.pop();
+		}
+	}
+
+	int top() {
+		return s.top();
+	}
+
+	int getMin() {
+		return this->minValue;
+	}
+};
+
 int main()
 {
 	//两数之和
@@ -1636,4 +1738,7 @@ int main()
 	vector<int> nums = {2,2,1};
 	cout << singleNumber_4(nums) << endl;
 	*/
+
+	//环形链表
+	//hasCycle_1;
 }
