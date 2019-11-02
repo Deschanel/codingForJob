@@ -1293,6 +1293,134 @@ int maxProfit_2(vector<int>& prices)
 	return maxp;
 }
 
+int maxProfit_ii(vector<int>& prices) //买卖股票最大利润II
+{
+	if (prices.size() == 0)
+	{
+		return 0;
+	}
+	int minPrice = prices.at(0);
+	int sum = 0;
+	int prePrice = prices.at(0);
+	for (int i = 1; i < prices.size(); ++i)
+	{
+		if (prices.at(i) <= prePrice)
+		{
+			sum += (prePrice - minPrice);
+			minPrice = prices.at(i);
+		}
+		else if (i == prices.size() - 1 && prices.at(i) > minPrice)
+		{
+			sum += (prices.at(i) - minPrice);
+		}
+		prePrice = prices.at(i);
+	}
+	return sum;
+}
+
+bool isPalindrome(string s) //前后指针
+{
+	if (s.size() < 2)
+	{
+		return true;
+	}
+	int i = 0, j = s.size() - 1;
+	while (j - i >= 1)
+	{
+		int iNum = static_cast<int>(s.at(i));
+		int jNum = static_cast<int>(s.at(j));
+		if (iNum < 48 || (iNum > 57 && iNum < 65) || (iNum > 90 && iNum < 97) || iNum > 122)
+		{
+			++i;
+			continue;
+		}
+		if (jNum < 48 || (jNum > 57 && jNum < 65) || (jNum > 90 && jNum < 97) || jNum > 122)
+		{
+			--j;
+			continue;
+		}
+		if (iNum > 47 && iNum < 58 && iNum != jNum)
+		{
+			return false;
+		}
+		if (iNum != jNum)
+		{
+			if (iNum > 64 && iNum < 91)
+			{
+				if (jNum - iNum != 32)
+				{
+					return false;
+				}
+			}
+			else if (iNum > 96 && iNum < 123)
+			{
+				if (iNum - jNum != 32)
+				{
+					return false;
+				}
+			}
+		}
+		++i; --j;
+	}
+	return true;
+}
+
+int singleNumber_1(vector<int>& nums)  //map表，如果没有键值就添加，否则先前存在的话就是重复的，就删除
+{
+	map<int, int> m;
+	for (auto i : nums)
+	{
+		if (m.find(i) == m.end())
+		{
+			m.insert(pair<int, int>(i, 1));
+		}
+		else
+		{
+			m.erase(i);
+		}
+	}
+	return m.begin()->first;
+}
+
+int singleNumber_2(vector<int>& nums)  //先排序，再双指针
+{
+	sort(nums.begin(), nums.end());
+	for (int i=0, j=1; j<nums.size(); i+=2, j+=2)  //因为重复元素出现两次，故为+2
+	{
+		if (nums.at(i) != nums.at(j))
+		{
+			return nums.at(i);
+		}
+	}
+	return nums.at(nums.size() - 1);
+}
+
+int singleNumber_3(vector<int>& nums)  //先排序，然后当前元素与前后比较
+{
+	sort(nums.begin(), nums.end());
+	if (nums.size() == 1 || nums.at(0) < nums.at(1))
+	{
+		return nums.at(0);
+	}
+	for (int i=1; i<nums.size()-1; ++i)
+	{
+		if (nums.at(i) > nums.at(i - 1) && nums.at(i) < nums.at(i + 1))
+		{
+			return nums.at(i);
+		}
+	}
+	return nums.at(nums.size() - 1);
+}
+
+int singleNumber_4(vector<int>& nums)  //异或,元素异或自身为0，因此，只剩下单独的
+{	
+	int result = nums.at(0);
+	for (int i = 1; i < nums.size(); ++i)
+	{
+		result = result ^ nums.at(i);
+	}
+	return result;
+}
 int main()
 {
 	//两数之和
@@ -1493,4 +1621,19 @@ int main()
 
 	//买卖股票的最佳时机
 	//maxProfit_2
+
+	//买卖股票的最佳时机 II
+	//maxProfit_ii
+
+	//验证回文串
+	/*
+	string s = "";
+	std::cout << isPalindrome(s) << endl;
+	*/
+
+	//只出现一次的数字
+	/*
+	vector<int> nums = {2,2,1};
+	cout << singleNumber_4(nums) << endl;
+	*/
 }
