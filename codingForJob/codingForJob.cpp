@@ -1633,12 +1633,12 @@ string convertToTitle(int n)  //Excel表列名称
 	string result = "";
 	while (n > 0)
 	{
-		int tmp = (n % 26 > 0 ? n % 26 - 1 : 25);
+		int tmp = (n % 26 > 0 ? n % 26 - 1 : 25);   //由于题目中A是1，而这里A下标为0，因此要减一，而且n>=1的，如果要是余数为0的话，就是说n是26的倍数(非0),因此应该是Z，也即是下标为25的数
 		result = p[tmp] + result;
 		n /= 26;
-		if (tmp == 25 && n == 1)
+		if (tmp == 25)  //当余数为0时，也就是说26的倍数，当前加的数p[tmp]成了z(就是26)，是从前一位借的1，所以前一位应该减去1，就是n--，比如26的话应该是z，26进制的话是A0，但是没有0，只能0变为26，A就要减去1变成没有了，故为z，26%26=0，p[tmp]="z",n /= 26为1，因为p[tmp]借了1，因此这个1应该减去1
 		{
-			break;
+			n--;
 		}
 	}
 	return result;
@@ -1870,5 +1870,5 @@ int main()
 	//twoSum_ii
 
 	//Excel表列名称
-	cout << convertToTitle(26) << endl;;
+	cout << convertToTitle(701) << endl;;
 }
