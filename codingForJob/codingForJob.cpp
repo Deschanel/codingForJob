@@ -1523,6 +1523,127 @@ public:
 	}
 };
 
+ListNode *getIntersectionNode_1(ListNode *headA, ListNode *headB)  //相交链表,两个vector
+{
+	if (!headA || !headB)
+	{
+		return nullptr;
+	}
+	vector<ListNode *> a, b;
+	while (headA)
+	{
+		a.push_back(headA);
+		headA = headA->next;
+	}
+	while (headB)
+	{
+		b.push_back(headB);
+		headB = headB->next;
+	}
+	int i = a.size() - 1, j = b.size() - 1;
+	for (; i>=0 && j>=0; --i, --j)
+	{
+		if (a.at(i) != b.at(j))
+		{
+			break;
+		}
+	}
+	if (i == a.size() - 1)
+	{
+		return nullptr;
+	}
+	i++;
+	return a.at(i);
+}
+
+ListNode *getIntersectionNode_2(ListNode *headA, ListNode *headB)  //相交链表,将较长的那个多出来的部分可以裁剪掉
+{
+	if (!headA || !headB)
+	{
+		return nullptr;
+	}
+	int iA = 0, iB = 0;
+	ListNode *tmpA = headA, *tmpB = headB;
+	while (headA || headB)
+	{
+		if (headA)
+		{
+			++iA;
+			headA = headA->next;
+		}
+		if (headB)
+		{
+			++iB;
+			headB = headB->next;
+		}
+	}
+	while (iA > iB)
+	{
+		tmpA = tmpA->next;
+		--iA;
+	}
+	while (iB > iA)
+	{
+		tmpB = tmpB->next;
+		--iB;
+	}
+	while (tmpA && tmpB)
+	{
+		if (tmpA == tmpB)
+		{
+			break;
+		}
+		tmpA = tmpA->next;
+		tmpB = tmpB->next;
+	}
+	return tmpA;
+}
+
+vector<int> twoSum_ii(vector<int>& numbers, int target)  //两数之和 II - 输入有序数组
+{                                                        //因为是已经排好序的，因此可以用前后双指针，当和大于target，则让右边指针减一，小于的话就让左边指针加一
+	int i = 0, j = numbers.size() - 1;
+	while (i != j)
+	{
+		if (numbers.at(i) + numbers.at(j) == target)
+		{
+			break;
+		}
+		else if (numbers.at(i) + numbers.at(j) > target)
+		{
+			--j;
+		}
+		else if (numbers.at(i) + numbers.at(j) < target)
+		{
+			++i;
+		}
+	}
+	if (i == j)
+	{
+		return {};
+	}
+	else
+	{
+		return {i+1, j+1};
+	}
+}
+
+string convertToTitle(int n)  //Excel表列名称
+{
+	string p = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	string result = "";
+	while (n > 0)
+	{
+		int tmp = (n % 26 > 0 ? n % 26 - 1 : 25);
+		result = p[tmp] + result;
+		n /= 26;
+		if (tmp == 25 && n == 1)
+		{
+			break;
+		}
+	}
+	return result;
+}
+
 int main()
 {
 	//两数之和
@@ -1741,4 +1862,13 @@ int main()
 
 	//环形链表
 	//hasCycle_1;
+
+	//相交链表
+	//getIntersectionNode
+
+	//两数之和 II - 输入有序数组
+	//twoSum_ii
+
+	//Excel表列名称
+	cout << convertToTitle(26) << endl;;
 }
