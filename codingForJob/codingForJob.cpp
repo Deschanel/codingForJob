@@ -1695,6 +1695,81 @@ int majorityElement_2(vector<int>& nums)  //求众数--自己做法二
 	return NULL;
 }
 
+int majorityElement_3(vector<int>& nums)  //由于众数个数是大于n/2的，因此经过排序后，中间下界位置肯定是众数
+{
+	sort(nums.begin(), nums.end());
+	return nums.at(nums.size() / 2);
+}
+
+int majorityElement_4(vector<int>& nums)  //Boyer-Moore 投票算法
+{		
+	//如果我们把众数记为 +1 ，把其他数记为 -1 ，将它们全部加起来，显然和大于 0 ，从结果本身我们可以看出众数比其他数多。
+	//只要计数器等于0也就是说前面的众数与非众数数目相同，无法判断 ，我们就将 nums 中之前访问的数字全部忘记 ，并把当前数字当做候选的众数，直至最后计数器不为0的话的返回的数
+	int count = 0;
+	int candidate = NULL;
+	for (int i : nums)
+	{
+		if (count == 0)
+		{
+			candidate = i;
+		}
+		count += (i == candidate ? 1 : -1);
+	}
+	return candidate;
+}
+
+int titleToNumber(string s)  //Excel表列序号
+{
+	int result = 0;
+	for (int i = s.size() - 1; i >= 0; --i)
+	{
+		result += (pow(26, s.size() - 1 - i)* (s.at(i) - 'A' + 1));
+	}
+	return result;
+}
+
+int trailingZeroes(int n) //由于阶乘中肯定存在2的倍数大于5的倍数，因此这里用5的倍数来算
+{
+	//这里我们注意到，其实最后的0的个数，就是所有5的倍数，能够拆分成几个最小单位5来相乘，所有5的倍数拆出n/5个0，但是25的倍数拆出5后能继续拆出5，所以再加上n/25个0
+	//而125的倍数经过上两个过程拆除了2个5后，还剩下5，共有n/125个0，同理625的倍数拆出3个5(5的三次方)后还剩下一个5，就是还有n/625个0，以此类推
+	int result = 0;
+	for (int i = 1; i <= log(n) / log(5); ++i)
+	{
+		result += (n / pow(5, i));
+	}
+	return result;
+}
+
+void rotate(vector<int>& nums, int k)
+{
+	if (k >= nums.size())
+	{
+		k = k - nums.size();
+	}
+	if (k == 0 || nums.size() == 1)
+	{
+		return;
+	}
+	int tmp = nums.at(0);
+	int pre = 0;
+	while (true)
+	{
+		int i = k + pre;
+		if (i >= nums.size())
+		{
+			i -= nums.size();
+		}
+		int t = nums.at(i);
+		nums.at(i) = tmp;
+		pre = i;
+		tmp = t;
+		if (pre == 0)
+		{
+			break;
+		}
+	}
+}
+
 int main()
 {
 	//两数之和
@@ -1927,4 +2002,22 @@ int main()
 
 	//求众数
 	//majorityElement
+
+	//Excel表列序号
+	/*
+	string s = "ZY";
+	cout << titleToNumber(s) << endl;
+	*/
+
+	//阶乘后的零
+	//trailingZeroes
+
+	//旋转数组
+	vector<int> v = {-1,-100,3,99};
+	rotate(v, 2);
+	for (int i : v)
+	{
+		cout << i << " ";
+	}
+	cout << endl;
 }
