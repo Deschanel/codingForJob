@@ -1644,6 +1644,57 @@ string convertToTitle(int n)  //Excel表列名称
 	return result;
 }
 
+int majorityElement_1(vector<int>& nums)  //求众数--自己做法一
+{
+	int comp = nums.size() / 2;
+	multimap<int, int> m;
+	for (int i : nums)
+	{
+		if (m.find(i) != m.end())
+		{
+			m.find(i)->second += 1;
+		}
+		else
+		{
+			m.insert(pair<int, int>(i, 1));
+		}
+	}
+	for (multimap<int, int>::iterator i = m.begin(); i != m.end(); i++)
+	{
+		if (i->second > comp)
+		{
+			return i->first;
+		}
+	}
+	return NULL;
+}
+
+int majorityElement_2(vector<int>& nums)  //求众数--自己做法二
+{
+	if (nums.size() == 1)
+	{
+		return nums.at(0);
+	}
+	int comp = nums.size() / 2;
+	multimap<int, int> m;
+	for (int i : nums)
+	{
+		if (m.find(i) != m.end())
+		{
+			m.find(i)->second += 1;
+			if (m.find(i)->second > comp)
+			{
+				return i;
+			}
+		}
+		else
+		{
+			m.insert(pair<int, int>(i, 1));
+		}
+	}
+	return NULL;
+}
+
 int main()
 {
 	//两数之和
@@ -1870,5 +1921,10 @@ int main()
 	//twoSum_ii
 
 	//Excel表列名称
-	cout << convertToTitle(701) << endl;;
+	/*
+	cout << convertToTitle(701) << endl;
+	*/
+
+	//求众数
+	//majorityElement
 }
