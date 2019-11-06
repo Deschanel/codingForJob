@@ -1762,7 +1762,7 @@ void rotate_2(vector<int>& nums, int k)  //环状替换
 	}
 	k = k % nums.size();
 	int count = 0;
-	for (int i = 0; count < nums.size(); ++i)
+	for (int i = 0; count < nums.size(); ++i)  //所有元素都弄过一次，否则不会退出,因为有可能比如k=2，n=4，0->2->0就完了，但是1和3还没换呢，所以这里必须要再从1开始，也就是每个元素都要遍历一遍,所以count=nums.size才退出
 	{
 		int preIndex = i; //先前的元素的下标
 		int preTmp = nums.at(i); //先前元素
@@ -1774,7 +1774,7 @@ void rotate_2(vector<int>& nums, int k)  //环状替换
 			preIndex = nowIndex;
 			preTmp = nowTmp;
 			++count;
-		} while (i != preIndex);
+		} while (i != preIndex);  //当前的环完了，再换下一个环
 	}
 }
 
