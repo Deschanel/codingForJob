@@ -1740,33 +1740,62 @@ int trailingZeroes(int n) //由于阶乘中肯定存在2的倍数大于5的倍�
 	return result;
 }
 
-void rotate(vector<int>& nums, int k)
+void rotate_1(vector<int>& nums, int k)   //旋转数组--暴力解法，每次旋转一个
 {
-	if (k >= nums.size())
+	for (int i=0; i<k; ++i)
 	{
-		k = k - nums.size();
+		int tmp, pre = nums.at(nums.size() - 1);
+		for (int j=0; j<nums.size(); ++j)
+		{
+			tmp = nums.at(j);
+			nums.at(j) = pre;
+			pre = tmp;
+		}
 	}
-	if (k == 0 || nums.size() == 1)
+}
+
+void rotate_2(vector<int>& nums, int k)  //环状替换
+{
+	if (k == 0 && nums.size() < 2)
 	{
 		return;
 	}
-	int tmp = nums.at(0);
-	int pre = 0;
-	while (true)
+	k = k % nums.size();
+	int count = 0;
+	for (int i = 0; count < nums.size(); ++i)
 	{
-		int i = k + pre;
-		if (i >= nums.size())
+		int preIndex = i; //先前的元素的下标
+		int preTmp = nums.at(i); //先前元素
+		do 
 		{
-			i -= nums.size();
-		}
-		int t = nums.at(i);
-		nums.at(i) = tmp;
-		pre = i;
-		tmp = t;
-		if (pre == 0)
-		{
-			break;
-		}
+			int nowIndex = (preIndex + k) % nums.size();  //当前元素下标
+			int nowTmp = nums.at(nowIndex);  //当前元素
+			nums.at(nowIndex) = preTmp;
+			preIndex = nowIndex;
+			preTmp = nowTmp;
+			++count;
+		} while (i != preIndex);
+	}
+}
+
+void rotate_3(vector<int>& nums, int k)  //反转--很骚
+{
+	//这个方法基于这个事实：当我们旋转数组 k 次， k%n个尾部元素会被移动到头部，剩下的元素会被向后移动。也就是反转三次，第一次整体反转，之后的第二三次是第一次反转完后前k个和后面的单独反转
+	k = k % nums.size();
+	reverseRotate(nums, 0, nums.size() - 1);
+	reverseRotate(nums, 0, k - 1); //0到k-1一共k个数
+	reverseRotate(nums, k, nums.size() - 1);
+}
+
+void reverseRotate(vector<int> &nums, int start, int end)
+{
+	while (start < end)
+	{
+		int tmp = nums.at(end);
+		nums.at(end) = nums.at(start);
+		nums.at(start) = tmp;
+		++start;
+		--end;
 	}
 }
 
@@ -2014,7 +2043,7 @@ int main()
 
 	//旋转数组
 	vector<int> v = {-1,-100,3,99};
-	rotate(v, 2);
+	rotate_1(v, 2);
 	for (int i : v)
 	{
 		cout << i << " ";
