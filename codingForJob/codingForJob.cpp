@@ -9,6 +9,7 @@
 #include <string>
 #include <queue>
 #include <set>
+#include <bitset>
 
 using namespace std;
 
@@ -1778,15 +1779,6 @@ void rotate_2(vector<int>& nums, int k)  //环状替换
 	}
 }
 
-void rotate_3(vector<int>& nums, int k)  //反转--很骚
-{
-	//这个方法基于这个事实：当我们旋转数组 k 次， k%n个尾部元素会被移动到头部，剩下的元素会被向后移动。也就是反转三次，第一次整体反转，之后的第二三次是第一次反转完后前k个和后面的单独反转
-	k = k % nums.size();
-	reverseRotate(nums, 0, nums.size() - 1);
-	reverseRotate(nums, 0, k - 1); //0到k-1一共k个数
-	reverseRotate(nums, k, nums.size() - 1);
-}
-
 void reverseRotate(vector<int> &nums, int start, int end)
 {
 	while (start < end)
@@ -1797,6 +1789,110 @@ void reverseRotate(vector<int> &nums, int start, int end)
 		++start;
 		--end;
 	}
+}
+
+void rotate_3(vector<int>& nums, int k)  //反转--很骚
+{
+	//这个方法基于这个事实：当我们旋转数组 k 次， k%n个尾部元素会被移动到头部，剩下的元素会被向后移动。也就是反转三次，第一次整体反转，之后的第二三次是第一次反转完后前k个和后面的单独反转
+	k = k % nums.size();
+	reverseRotate(nums, 0, nums.size() - 1);
+	reverseRotate(nums, 0, k - 1); //0到k-1一共k个数
+	reverseRotate(nums, k, nums.size() - 1);
+}
+
+uint32_t reverseBits_1(uint32_t n)  //颠倒二进制位，就是反转,左移右移操作
+{
+	uint32_t result = 0;
+	for (int i = 0; i < 32; ++i)
+	{
+		result <<= 1;  //移位之后再加n与1的按位且
+		result += (n & 1);
+		n >>= 1;
+	}
+	return result;
+}
+
+uint32_t reverseBits_2(uint32_t n)  //颠倒二进制位，就是反转,用bitset
+{
+	bitset<32> result = n;
+	for (int i=0; i<16; ++i)
+	{
+		if (result[i] != result[31 - i])
+		{
+			result[i] = !result[i];
+			result[31 - i] = !result[31 - i];
+		}
+	}
+	return result.to_ulong();
+}
+
+int hammingWeight_1(uint32_t n)   //位1的个数,右移来做
+{
+	int count = 0;
+	for (int i=0; i<32; ++i)
+	{
+		if (n & 1 > 0)
+		{
+			++count;
+		}
+		n >>= 1;
+	}
+	return count;
+}
+
+int hammingWeight_2(uint32_t n)   //位1的个数,bitset来做
+{
+	bitset<32> tmp = n;
+	int count = 0;
+	for (int i=0; i<32; ++i)
+	{
+		if (tmp[i] > 0)
+		{
+			++count;
+		}
+	}
+	return count;
+}
+
+int hammingWeight_3(uint32_t n)  //骚操作，在二进制表示中，数字n中最低位的1总是对应n−1中的0.因此，将n和n−1进行与运算总是能把n中最低位的1变成0，并保持其他位不变。这样就消灭了一个1，计数器就加1
+{
+	int count = 0;
+	while (n != 0)
+	{
+		++count;
+		n &= (n - 1);
+	}
+	return count;
+}
+
+int rob(vector<int>& nums)  //很秀的一个动态规划题
+{
+	//这个题第一眼看上去，应该就能确定是用动态规划做，否则貌似没有其它办法.
+	/*
+	假设前i-1个房子已经有了最大值result[i-1]，前i-2个房子有了最大值result[i-2]，这时小偷走到了第i个房子，那他到底进不进去呢？
+	如果要是进去，就说明第i-1个房子没有进去，也即是说在第i-1个房子他偷得的金额为0，也就是说，在进入第i个房子门但是还未偷钱时，他拥有的钱是前i-2个房子的最大值result[i-2]，此时最大值为result[i-2]+第i个房子的钱
+	那要是不进去，那就走了，那他现在身上的钱就是前i-1个房子的最大值result[i-1]
+	对于以上两种情况，小偷是贪婪的，因此肯定是取最大值啊
+	所以递推式应该是result[i] = max(result[i-1], result[i-2]+nums.at(i))
+	*/
+	if (nums.size() == 1)
+	{
+		return nums.at(0);
+	}
+	if (nums.size() == 2)
+	{
+		return max(nums.at(0), nums.at(1));
+	}
+	int preMax = 0;  //代表result[i-2]
+	int result = 0; 
+	//迭代版本
+	for (int i : nums)
+	{
+		int tmp = result;
+		result = max(preMax + i, result);
+		preMax = tmp;
+	}
+	return result;
 }
 
 int main()
@@ -2042,6 +2138,7 @@ int main()
 	//trailingZeroes
 
 	//旋转数组
+	/*
 	vector<int> v = {-1,-100,3,99};
 	rotate_1(v, 2);
 	for (int i : v)
@@ -2049,4 +2146,18 @@ int main()
 		cout << i << " ";
 	}
 	cout << endl;
+	*/
+
+	//颠倒二进制位
+	//reverseBits_2
+
+	//位1的个数
+	/*
+	uint32_t n = 00000000000000000000000000001011;
+	cout << hammingWeight_2(n) << endl;
+	*/
+
+	//打家劫舍
+	vector<int> nums = {2,7,9,3,1};
+	cout << rob(nums) << endl;
 }
