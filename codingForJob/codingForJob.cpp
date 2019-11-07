@@ -1895,6 +1895,53 @@ int rob(vector<int>& nums)  //很秀的一个动态规划题
 	return result;
 }
 
+bool isHappy_1(int n)  //快乐数
+{   //经过大量实践，发现不是快乐数的话会有4->16->37->58->89->145->42->20->4->...的循环，所以你懂的
+	while (true)
+	{
+		int sum = 0;
+		while (n > 0)
+		{
+			int tmp = n % 10;
+			sum += tmp * tmp;
+			n /= 10;
+		}
+		if (sum == 4)
+		{
+			return false;
+		}
+		else if (sum == 1)
+		{
+			return true;
+		}
+		n = sum;
+	}
+	return false;
+}
+
+int squareSum(int n)  //平方和相加
+{
+	int sum = 0;
+	while (n > 0)
+	{
+		int tmp = n % 10;
+		sum += pow(tmp, 2);
+		n /= 10;
+	}
+	return sum;
+}
+bool isHappy_2(int n)  //快乐数，快慢指针
+{  //其实也是用了无论是否是快乐数都会产生循环
+	int slow = n, fast = n;
+	do 
+	{  //因为循环，slow与fast总会在某个地方相遇
+		slow = squareSum(slow);
+		fast = squareSum(fast);
+		fast = squareSum(fast);
+	} while (slow != fast);
+	return slow == 1;
+}
+
 int main()
 {
 	//两数之和
@@ -2158,6 +2205,11 @@ int main()
 	*/
 
 	//打家劫舍
+	/*
 	vector<int> nums = {2,7,9,3,1};
 	cout << rob(nums) << endl;
+	
+
+	//快乐数
+	//isHappy
 }
