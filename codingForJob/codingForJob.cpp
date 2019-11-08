@@ -10,6 +10,7 @@
 #include <queue>
 #include <set>
 #include <bitset>
+#include <cmath>
 
 using namespace std;
 
@@ -1942,6 +1943,202 @@ bool isHappy_2(int n)  //快乐数，快慢指针
 	return slow == 1;
 }
 
+ListNode* removeElements(ListNode* head, int val)
+{
+	while  (head && head->val == val)
+	{
+		head = head->next;
+	}
+	if(!head)
+	{
+		return nullptr;
+	}
+	ListNode *result = head;
+	ListNode *tmp = head;
+	head = head->next;
+	while (head)
+	{
+		if(head->val == val)
+		{
+			tmp->next = head->next;
+		}
+		else
+		{
+			tmp = tmp->next;
+		}
+		head = head->next;
+	}
+	return result;
+}
+
+bool isPrime(int n)
+{
+	if(n <= 3)
+	{
+		return true;
+	}
+	for (int i = 2; i <sqrt(n)+1; ++i)
+	{
+		if(n % i == 0)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+int countPrimes_1(int n)   //计数质数,超时了
+{
+	int result = 0;
+	for(int i=2; i<n; ++i)
+	{
+		if(isPrime(i))
+		{
+			++result;
+		}
+	}
+	return result;
+}
+
+int countPrimes_2(int n)   //计数质数,厄拉多塞筛法
+{
+	int result = 0;
+	vector<bool> flag(n, true);
+	for (int i = 2; i < n; i++)
+	{
+		if(flag.at(i))
+		{
+			++result;
+			for (int j = i*2; j < n; j+=i)
+			{
+				flag.at(j) = false;
+			}
+		}
+	}
+	return result;
+}
+
+bool isIsomorphic_1(string s, string t)  //同构字符串
+{
+	if(s.size() ==  0 && t.size() == 0)
+        {
+            return true;
+        }
+        map<char, char> a_m;
+        map<char, char> b_m;
+        for (int i = 0; i < s.size(); ++i)
+        {
+			//key为s中的字符
+            if(a_m.find(s.at(i)) != a_m.end())
+            {
+                if(a_m.find(s.at(i))->second != t.at(i))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                a_m.insert(pair<char, char>(s.at(i), t.at(i)));
+            }
+			//key为t中的字符
+            if(b_m.find(t.at(i)) != b_m.end())
+            {
+                if(b_m.find(t.at(i))->second != s.at(i))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                b_m.insert(pair<char, char>(t.at(i), s.at(i)));
+            }
+        }
+        return true;
+}
+
+bool isIsomorphic_2(string s, string t)  //同构字符串,骚操作
+{
+	if(s.size() ==  0 && t.size() == 0)
+        {
+            return true;
+        }
+	for (int i = 0; i < s.size(); i++)
+	{
+		if(s.find(s.at(i)) != t.find(t.at(i)))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+ListNode* reverseList_1(ListNode* head)  //反转链表,简单版本
+{
+	if(!head)
+	{
+		return nullptr;
+	}
+	if(!head->next)
+	{
+		return head;
+	}
+	stack<ListNode *> s;
+	while (head)
+	{
+		s.push(head);
+		head = head->next;
+	}
+	ListNode * tmp = s.top();
+	s.pop();
+	ListNode *result = tmp;
+	while (!s.empty())
+	{
+		tmp->next = s.top();
+		s.pop();
+		tmp = tmp->next;
+	}
+	return result;
+}
+
+ListNode* reverseList_2(ListNode* head)  //反转链表,递归版本
+{
+	if(!head)
+	{
+		return nullptr;
+	}
+	if(!head->next)
+	{
+		return head;
+	}
+	ListNode *tmp = reverseList_2(head->next);
+	head->next = nullptr;
+	ListNode *result = tmp;
+	while (true)
+	{
+		if(!tmp->next)
+		{
+			break;
+		}
+		tmp = tmp->next;
+	}
+	tmp->next = head;
+	return result;
+}
+
+ListNode* reverseList_3(ListNode* head)  //反转链表,迭代版本
+{
+	ListNode *pre = nullptr;
+	ListNode *now = head;
+	while (now)
+	{
+		ListNode *tmp = now->next;
+		now->next = pre;
+		pre = now;
+		now = tmp;
+	}
+	return pre;
+}
+
 int main()
 {
 	//两数之和
@@ -2212,4 +2409,16 @@ int main()
 
 	//快乐数
 	//isHappy
+
+	//移除链表元素
+	//removeElements
+
+	//计数质数
+	//countPrimes_2
+
+	//同构字符串
+	//isIsomorphic_2
+
+	//反转链表
+
 }
