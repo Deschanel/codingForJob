@@ -2056,7 +2056,7 @@ bool isIsomorphic_1(string s, string t)  //同构字符串
         return true;
 }
 
-bool isIsomorphic_2(string s, string t)  //同构字符串,骚操作
+bool isIsomorphic_2(string s, string t)  //同构字符串,骚操作，当前元素在字符串中的第一个出现的位置不一样就错误，否则正确
 {
 	if(s.size() ==  0 && t.size() == 0)
         {
@@ -2137,6 +2137,384 @@ ListNode* reverseList_3(ListNode* head)  //反转链表,迭代版本
 		now = tmp;
 	}
 	return pre;
+}
+
+bool containsDuplicate_1(vector<int>& nums)  //存在重复元素，set表
+{
+	set<int> s;
+	for (int i : nums)
+	{
+		if (s.find(i) != s.end())
+		{
+			return true;
+		}
+		else
+		{
+			s.insert(i);
+		}
+	}
+	return false;
+}
+
+bool containsDuplicate_2(vector<int>& nums)  //存在重复元素，先排序
+{
+	if (nums.size() == 0)
+	{
+		return false;
+	}
+	sort(nums.begin(), nums.end());
+	for (int i=0; i<nums.size()-1; ++i)
+	{
+		if (nums.at(i) == nums.at(i + 1))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+bool containsNearbyDuplicate_1(vector<int>& nums, int k)  //存在重复元素II,笨办法,超时了
+{
+	if (k == 0 || nums.size() == 0)
+	{
+		return false;
+	}
+	if (k > nums.size() - 1)
+	{
+		k = nums.size() - 1;
+	}
+	for (int i=0; i<nums.size()-1; ++i)
+	{
+		int tmp = nums.at(i);
+		for (int j=1; j<=k; ++j)
+		{
+			if (i + j > nums.size() - 1)
+			{
+				break;
+			}
+			if (tmp == nums.at(i + j))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool containsNearbyDuplicate_2(vector<int>& nums, int k)  //存在重复元素II,map试一下
+{
+	if (k == 0 || nums.size() == 0)
+	{
+		return false;
+	}
+	if (k > nums.size() - 1)
+	{
+		k = nums.size() - 1;
+	}
+	map<int, int> m;
+	for (int i=0; i<nums.size(); ++i)
+	{
+		if (m.find(nums.at(i)) != m.end())
+		{
+			if (abs(m.find(nums.at(i))->second - i) <= k)
+			{
+				return true;
+			}
+			else
+			{
+				m.find(nums.at(i))->second = i;
+			}
+		}
+		else
+		{
+			m.insert(pair<int, int>(nums.at(i), i));
+		}
+	}
+	return false;
+}
+
+class MyStack_1 {  //队列实现栈，pop里有个临时queue
+public:
+	/** Initialize your data structure here. */
+	queue<int> q;
+	int topNum;
+	MyStack_1() {
+
+	}
+
+	/** Push element x onto stack. */
+	void push(int x) {
+		q.push(x);
+		topNum = x;
+	}
+
+	/** Removes the element on top of the stack and returns that element. */
+	int pop() {
+		queue<int> tmp; //临时queue，来存储还没pop的元素
+		while (1 < q.size())
+		{
+			topNum = q.front();
+			tmp.push(q.front());
+			q.pop();
+			if (q.size() == 1)
+			{
+				break;
+			}
+		}
+		int result = q.front();
+		q.pop();
+		q = tmp;
+		return result;
+	}
+
+	/** Get the top element. */
+	int top() {
+		return topNum;
+	}
+
+	/** Returns whether the stack is empty. */
+	bool empty() {
+		return q.empty();
+	}
+};
+
+class MyStack_2 {   //队列实现栈，没有临时queue
+public:
+	/** Initialize your data structure here. */
+	queue<int> q;
+	int topNum;
+	MyStack_2() {
+
+	}
+
+	/** Push element x onto stack. */
+	void push(int x) {
+		q.push(x);
+		int i = 1;
+		int qSize = q.size();
+		while (i < qSize)  //反转
+		{
+			topNum = q.front();
+			q.pop();
+			q.push(topNum);
+			++i;
+		}
+		topNum = x;
+	}
+
+	/** Removes the element on top of the stack and returns that element. */
+	int pop() {
+		int result = q.front();
+		q.pop();
+		topNum = q.front();
+		return result;
+	}
+
+	/** Get the top element. */
+	int top() {
+		return topNum;
+	}
+
+	/** Returns whether the stack is empty. */
+	bool empty() {
+		return q.empty();
+	}
+};
+
+TreeNode* invertTree(TreeNode* root)   //递归版本
+{
+	if (!root || (!root->left && !root->right))
+	{
+		return root;
+	}
+	if (!root->left && root->right && !root->right->left && !root->right->right)
+	{
+		root->left = root->right;
+		root->right = nullptr;
+	}
+	else if (!root->right && root->left && !root->left->left && !root->left->right)
+	{
+		root->right = root->left;
+		root->left = nullptr;
+	}
+	else if (root->left && root->right && !root->left->left && !root->left->right && !root->right->left && !root->right->right)
+	{
+		TreeNode *tmp = root->left;
+		root->left = root->right;
+		root->right = tmp;
+	}
+	else
+	{
+		TreeNode *ltmp = invertTree(root->left);
+		TreeNode *rtmp = invertTree(root->right);
+		root->left = rtmp;
+		root->right = ltmp;
+	}
+	return root;
+}
+
+bool isPowerOfTwo_1(int n)  //2的幂，bitset做，二进制只能有一个1，否则不行
+{
+	if (n < 1)
+	{
+		return false;
+	}
+	bitset<32> b(n);
+	int sum = 0;
+	for (int i=0; i<b.size(); ++i)
+	{
+		sum += b[i] * b[i];
+	}
+	if (sum == 1)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool isPowerOfTwo_2(int n)  //转换成二进制，里面只能有一个1
+{
+	if (n < 1)
+	{
+		return false;
+	}
+	int sum = 0;
+	while (n > 0)
+	{
+		int tmp = n % 2;
+		sum += tmp * tmp;
+		n /= 2;
+	}
+	if (sum == 1)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+class MyQueue {  //也可以用两个栈实现
+public:
+	/** Initialize your data structure here. */
+	stack<int> s;
+	int frontNum;
+	MyQueue() {
+
+	}
+
+	void reverseStack(stack<int> &s)
+	{
+		if (s.empty() || s.size() == 1)
+		{
+			return;
+		}
+		int tmp1 = s.top();
+		s.pop();
+		reverseStack(s);
+		int tmp2 = s.top();
+		s.pop();
+		reverseStack(s);
+		s.push(tmp1);
+		reverseStack(s);
+		s.push(tmp2);
+	}
+	/** Push element x to the back of queue. */
+	void push(int x) {
+		reverseStack(s);  //由于先插入的在上面，因此要先反转回原来样子(后插入的在顶部)，然后插入，这样就是整体满足越往后插入越靠上
+		s.push(x);
+		reverseStack(s); 
+		frontNum = s.top();
+	}
+
+	/** Removes the element from in front of queue and returns that element. */
+	int pop() {
+		int result = s.top();
+		s.pop();
+		if (!s.empty())
+		{
+			frontNum = s.top();
+		}
+		else
+		{
+			frontNum = NULL;
+		}
+		return result;
+	}
+
+	/** Get the front element. */
+	int peek() {
+		return frontNum;
+	}
+
+	/** Returns whether the queue is empty. */
+	bool empty() {
+		return s.empty();
+	}
+};
+
+bool isPalindrome_1(ListNode* head)  //回文链表,O(n)空间复杂度
+{
+	if (!head)
+	{
+		return true;
+	}
+	vector<int> v;
+	while (head)
+	{
+		v.push_back(head->val);
+		head = head->next;
+	}
+	int i = 0, j = v.size() - 1;
+	while (i < j)
+	{
+		if (v[i] != v[j])
+		{
+			return false;
+		}
+		++i;
+		--j;
+	}
+	return true;
+}
+
+bool isPalindrome_2(ListNode* head)  //回文链表,O(1)空间复杂度
+{
+	if (!head || !head->next)
+	{
+		return true;
+	}
+	ListNode *pre = nullptr;
+	ListNode *prepre = nullptr;
+	ListNode *slow = head;
+	ListNode *fast = head->next;
+	while (fast && fast->next)
+	{
+		//反转前半段链表
+		pre = slow;
+		slow = slow->next;
+		fast = fast->next->next;
+		//反转
+		pre->next = prepre;
+		prepre = pre;
+	}
+	ListNode *p2 = slow->next;
+	slow->next = pre;
+	ListNode *p1 = (fast == nullptr ? slow->next : slow);
+	while (p1)
+	{
+		if (p1->val != p2->val)
+		{
+			return false;
+		}
+		p1 = p1->next;
+		p2 = p2->next;
+	}
+	return true;
 }
 
 int main()
@@ -2405,7 +2783,7 @@ int main()
 	/*
 	vector<int> nums = {2,7,9,3,1};
 	cout << rob(nums) << endl;
-	
+	*/
 
 	//快乐数
 	//isHappy
@@ -2420,5 +2798,26 @@ int main()
 	//isIsomorphic_2
 
 	//反转链表
+	//reverseList_3
 
+	//存在重复元素
+	//containsDuplicate_2
+
+	//存在重复元素 II
+	//containsNearbyDuplicate
+
+	//用队列实现栈
+	//MyStack
+
+	//翻转二叉树
+	//invertTree
+
+	//2的幂
+	//isPowerOfTwo
+
+	//用栈实现队列
+	//MyQueue
+
+	//回文链表
+	//isPalindrome
 }
