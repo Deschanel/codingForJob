@@ -2517,6 +2517,170 @@ bool isPalindrome_2(ListNode* head)  //回文链表,O(1)空间复杂度
 	return true;
 }
 
+TreeNode* lowestCommonAncestor_1(TreeNode* root, TreeNode* p, TreeNode* q)  //二叉搜索树的最近公共祖先,递归版本
+{
+	//从中序遍历序列看出，如果pq的值都小于当前root值，那么都在左子树，都大于当前root值，都在右子树，如果一个大于一个小于，那么分别在左右子树，那么最小祖先就是当前root节点
+	//很显然递归到最后,两个节点位置肯定是一个在左子树一个在右子树
+	if (p->val < root->val && q->val < root->val)
+	{
+		return lowestCommonAncestor_1(root->left, p, q);
+	}
+	else if (p->val > root->val && q->val > root->val)
+	{
+		return lowestCommonAncestor_1(root->right, p, q);
+	}
+	else
+	{
+		return root;
+	}
+}
+
+TreeNode* lowestCommonAncestor_2(TreeNode* root, TreeNode* p, TreeNode* q)  //二叉搜索树的最近公共祖先,迭代版本
+{
+	while (root)
+	{
+		if (p->val < root->val && q->val < root->val)
+		{
+			root = root->left;
+		}
+		else if (p->val > root->val && q->val > root->val)
+		{
+			root = root->right;
+		}
+		else
+		{
+			break;
+		}
+	}
+	return root;
+}
+
+void deleteNode(ListNode* node)  //删除链表中的节点
+{
+	//刚看到这个题有点懵，没有给head节点
+	if (!node->next)
+	{
+		node = nullptr;
+	}
+	else
+	{
+		node->val = node->next->val;
+		node->next = node->next->next;
+	}
+}
+
+bool isAnagram_1(string s, string t)  //有效的字母异位词,两个map
+{
+	if (s.size() != t.size())
+	{
+		return false;
+	}
+	map<char, int> s_m;
+	map<char, int> t_m;
+	for (int i=0; i<s.size(); ++i)
+	{
+		if (s_m.find(s[i]) != s_m.end())
+		{
+			s_m.find(s[i])->second++;
+		}
+		else
+		{
+			s_m.insert(pair<char, int>(s[i], 1));
+		}
+		if (t_m.find(t[i]) != t_m.end())
+		{
+			t_m.find(t[i])->second++;
+		}
+		else
+		{
+			t_m.insert(pair<char, int>(t[i], 1));
+		}
+	}
+	map<char, int>::iterator si=s_m.begin(), ti=t_m.begin();
+	for (; si!=s_m.end() && ti!=t_m.end(); si++,ti++)
+	{
+		if (si->first != ti->first)
+		{
+			return false;
+		}
+		if (si->second != ti->second)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+bool isAnagram_2(string s, string t)  //有效的字母异位词,一个map
+{
+	if (s.size() != t.size())
+	{
+		return false;
+	}
+	map<char, int> m;
+	for (int i=0; i<s.size(); ++i)
+	{
+		if (t[i] == s[i])
+		{
+			continue;
+		}
+		if (m.find(s[i]) != m.end())
+		{
+			m.find(s[i])->second++;
+		}
+		else
+		{
+			m.insert(pair<char, int>(s[i], 1));
+		}
+		if (m.find(t[i]) != m.end())
+		{
+			m.find(t[i])->second--;
+		}
+		else
+		{
+			m.insert(pair<char, int>(t[i], -1));
+		}
+	}
+	for (map<char, int>::iterator i=m.begin(); i!=m.end(); i++)
+	{
+		if (i->second > 0)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+void getAllPaths(TreeNode *root, string path, vector<string> &sv)
+{
+	if (!root)
+	{
+		return;
+	}
+	if (path.size() == 0)
+	{
+		path += std::to_string(root->val);
+	}
+	else
+	{
+		path += ("->" + std::to_string(root->val));
+	}
+	if (!root->left && !root->right)
+	{
+		sv.push_back(path);
+		return;
+	}
+	getAllPaths(root->left, path, sv);
+	getAllPaths(root->right, path, sv);
+}
+
+vector<string> binaryTreePaths_1(TreeNode* root)   //二叉树的所有路径,递归版本
+{
+	vector<string> result;
+	getAllPaths(root, "", result);
+	return result;
+}
+
 int main()
 {
 	//两数之和
@@ -2820,4 +2984,16 @@ int main()
 
 	//回文链表
 	//isPalindrome
+
+	//二叉搜索树的最近公共祖先
+	//lowestCommonAncestor
+
+	//删除链表中的节点
+	//deleteNode
+
+	//有效的字母异位词
+	//isAnagram
+
+	//二叉树的所有路径
+	//binaryTreePaths
 }
