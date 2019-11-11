@@ -2681,6 +2681,42 @@ vector<string> binaryTreePaths_1(TreeNode* root)   //二叉树的所有路径,�
 	return result;
 }
 
+int addDigits_1(int num)   //各位相加，循环版本
+{
+	while (num >= 10)
+	{
+		int sum = 0;
+		while (num > 0)
+		{
+			sum += num % 10;
+			num /= 10;
+		}
+		num = sum;
+	}
+	return num;
+}
+
+
+int addDigits_2(int num)   //各位相加，迭代版本
+{
+	if (num < 10)
+	{
+		return num;
+	}
+	int sum = 0;
+	while (num > 0)
+	{
+		sum += (num % 10);
+		num /= 10;
+	}
+	return addDigits_2(sum);
+}
+
+int addDigits_3(int num)   //各位相加，O(1)时间
+{
+
+}
+
 int main()
 {
 	//两数之和
@@ -2996,4 +3032,7 @@ int main()
 
 	//二叉树的所有路径
 	//binaryTreePaths
+
+	//各位相加
+	//addDigits
 }
