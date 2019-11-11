@@ -2803,7 +2803,7 @@ int firstBadVersion(int n)  //第一个错误的版本
 	while (left < right)
 	{
 		int mid = 0;
-		if (left % 2 != 0 && right % 2 != 0)
+		if (left % 2 != 0 && right % 2 != 0)  //这个if else 是为了防止溢出
 		{
 			mid = left / 2 + right / 2 + 1;
 		}
@@ -2856,7 +2856,7 @@ void moveZeroes_1(vector<int>& nums)  //移动零
 void moveZeroes_2(vector<int>& nums)  //移动零,记录当前最靠前的0的位置(也就是要交换的位置，让其与第一个不为0的元素交换)
 {
 	int pos = 0;  //当前位置是0且是要交换的位置
-	for (int i=0; i<nums.size(); ++i)
+	for (int i=0; i<nums.size(); ++i)  //也就是pos和i构成快慢指针
 	{
 		if (nums.at(i) != 0)
 		{
