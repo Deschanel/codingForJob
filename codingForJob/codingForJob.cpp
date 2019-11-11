@@ -2714,7 +2714,156 @@ int addDigits_2(int num)   //各位相加，迭代版本
 
 int addDigits_3(int num)   //各位相加，O(1)时间
 {
+	//这个需要去想想
+	//我们来思考那个循环解法，假设当前到了某个数(各位的数字)x1x2x3x4...xi,也就是x1*pow(10, i-1) + x2*pow(10, i-2) +.....+xi，各位数字加起来就是x1+x2+x3+...+xi
+	//前者减去后者就是x1*999..9(i-2个9)+x2*99..9(i-3个9)+....，最后得到的那个数就是小于9的结果，则累加得到
+	//num = x1x2x3...xn - result = 9*(某个整数),而result是小于等于9的，则num - 1 = result - 1 + 9*(某个整数),result - 1小于9，则左右两边模9的话就是(num-1)%9 = result - 1
+	//则答案就是(num - 1)%9+1
+	return (num - 1) % 9 + 1;
+}
 
+bool isUgly(int num)   //递归求解,假设num除到某个数之前一直满足丑数定义，那么接下来，如果其模2为0，那么再看其除以2之后的是不是满足条件，同理
+{
+	if (num <= 0)
+	{
+		return false;
+	}
+	if (num == 1)
+	{
+		return true;
+	}
+	if (num % 2 == 0)
+	{
+		return isUgly(num / 2);
+	}
+	else if (num % 3 == 0)
+	{
+		return isUgly(num / 3);
+	}
+	else if (num % 5 == 0)
+	{
+		return isUgly(num / 5);
+	}
+	else
+	{
+		return false;
+	}
+}
+
+int missingNumber_1(vector<int>& nums)  //缺失数字,先排序，然后找下标与值不对应的第一个数字，这个下标就是结果
+{
+	sort(nums.begin(), nums.end());
+	for (int i=0; i<nums.size(); ++i)
+	{
+		if (i != nums.at(i))
+		{
+			return i;
+		}
+	}
+	return nums.at(nums.size() - 1) + 1;   //如果一直到n-1都有的话，那么就是少了n
+}
+
+int missingNumber_2(vector<int>& nums)  //缺失数字,初始化数组元素都为0，哪个值有就令对应下标的值为1，最后看看哪个下标的值为0
+{
+	vector<int> v(nums.size() + 1, 0);
+	for (int i: nums)
+	{
+		v.at(i) = 1;
+	}
+	for (int i=0; i<v.size(); ++i)
+	{
+		if (v.at(i) == 0)
+		{
+			return i;
+		}
+	}
+	return NULL;
+}
+
+int missingNumber_3(vector<int>& nums)  //高斯公式
+{
+	int allSum = nums.size()*(nums.size() + 1) / 2;
+	int sum = 0;
+	for (int i : nums)
+	{
+		sum += i;
+	}
+	return allSum - sum;
+}
+
+bool isBadVersion(int version)  //随便写的，题目上没给出具体函数
+{
+	return false;
+}
+
+int firstBadVersion(int n)  //第一个错误的版本
+{
+	//二分查找
+	int left = 0, right = n;
+	while (left < right)
+	{
+		int mid = 0;
+		if (left % 2 != 0 && right % 2 != 0)
+		{
+			mid = left / 2 + right / 2 + 1;
+		}
+		else
+		{
+			mid = left / 2 + right / 2;
+		}
+		if (!isBadVersion(mid))  //这个函数没有
+		{
+			left = mid + 1;
+		}
+		else
+		{
+			if ( mid == 0 || (mid > 1 && !isBadVersion(mid - 1)) )
+			{
+				return mid;
+			}
+			right = mid;
+		}
+	}
+	return left;
+}
+
+void moveZeroes_1(vector<int>& nums)  //移动零
+{
+	if (nums.size() == 0)
+	{
+		return;
+	}
+	if (nums.size() == 1 && nums.at(0) != 0)
+	{
+		return;
+	}
+	for (int i=0; i<nums.size(); ++i)
+	{
+		if (nums.at(i) == 0)
+		{
+			for (int j=i+1; j<nums.size(); ++j)
+			{
+				if (nums.at(j) != 0)
+				{
+					swap(nums.at(i), nums.at(j));
+					break;
+				}
+			}
+		}
+	}
+}
+
+void moveZeroes_2(vector<int>& nums)  //移动零,记录当前最靠前的0的位置(也就是要交换的位置，让其与第一个不为0的元素交换)
+{
+	int pos = 0;  //当前位置是0且是要交换的位置
+	for (int i=0; i<nums.size(); ++i)
+	{
+		if (nums.at(i) != 0)
+		{
+			swap(nums.at(i), nums.at(pos));
+			pos++;
+		}
+	}
 }
 
 int main()
@@ -3035,4 +3184,16 @@ int main()
 
 	//各位相加
 	//addDigits
+
+	//丑数
+	//isUgly
+
+	//缺失数字
+	//missingNumber
+
+	//第一个错误的版本
+	//firstBadVersion
+
+	//移动零
+	//moveZeroes
 }
