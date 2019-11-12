@@ -3284,5 +3284,5 @@ int main()
 	//wordPattern
 
 	//Nim 游戏
-cout << canWinNim(1348820612) << endl;
+	//cout << canWinNim(1348820612) << endl;
 }
