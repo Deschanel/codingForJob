@@ -2997,17 +2997,27 @@ public:
 
 class NumArray_2 {  //区域和检索 - 数组不可变,建立缓存
 public:
-	vector<int> sum;
+	vector<int> sum;  //建立和数组，每个下标i表示前i项的和
 	NumArray_2(vector<int>& nums) {
-		sum.push_back(nums.at(0));
-		for (int i = 1; i < nums.size(); ++i)
+		if (nums.size())
 		{
-			sum.push_back(sum[i - 1] + nums[i]);
+			sum.push_back(nums.at(0));
+			for (int i = 1; i < nums.size(); ++i)
+			{
+				sum.push_back(sum.at(i - 1) + nums.at(i));
+			}
 		}
 	}
 
 	int sumRange(int i, int j) {
-		return sum[j] - sum[i];
+		if (i == 0) 
+		{
+			return sum.at(j);
+		}
+		else
+		{
+			return sum.at(j) - sum.at(i - 1);
+		}
 	}
 };
 
