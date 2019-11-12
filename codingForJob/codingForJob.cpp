@@ -2948,6 +2948,68 @@ bool canWinNim_2(int n)  //Nim 游戏,O（1）时间
 	return n % 4;
 }
 
+string getHint(string secret, string guess)  //猜数字游戏
+{
+	int countA = 0, countB = 0;
+	//先公牛
+	for (int i = 0; i < secret.size(); ++i)
+	{
+		if (secret.at(i) == guess.at(i))
+		{
+			++countA;
+			secret.at(i) = '#';
+			guess.at(i) = '*';
+		}
+	}
+	//再奶牛
+	for (int i = 0; i < secret.size(); ++i)
+	{
+		int pos = guess.find(secret.at(i));
+		if (pos != guess.npos)
+		{
+			++countB;
+			guess.at(pos) = '*';
+		}
+	}
+	return std::to_string(countA) + "A" + std::to_string(countB) + "B";
+}
+
+class NumArray_1 {  //区域和检索 - 数组不可变
+public:
+	vector<int> numv;
+	NumArray_1(vector<int>& nums) {
+		this->numv = nums;
+	}
+
+	int sumRange(int i, int j) {
+		if (j >= numv.size())
+		{
+			return NULL;
+		}
+		int sum = 0;
+		for (; i <= j; ++i)
+		{
+			sum += numv.at(i);
+		}
+		return sum;
+	}
+};
+
+class NumArray_2 {  //区域和检索 - 数组不可变,建立缓存
+public:
+	vector<int> sum;
+	NumArray_2(vector<int>& nums) {
+		sum.push_back(nums.at(0));
+		for (int i = 1; i < nums.size(); ++i)
+		{
+			sum.push_back(sum[i - 1] + nums[i]);
+		}
+	}
+
+	int sumRange(int i, int j) {
+		return sum[j] - sum[i];
+	}
+};
 
 int main()
 {
@@ -3285,4 +3347,10 @@ int main()
 
 	//Nim 游戏
 	//cout << canWinNim(1348820612) << endl;
+
+	//猜数字游戏
+	//getHint
+
+	//区域和检索 - 数组不可变
+	//NumArray
 }
