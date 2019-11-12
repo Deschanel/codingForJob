@@ -2697,7 +2697,7 @@ int addDigits_1(int num)   //各位相加，循环版本
 }
 
 
-int addDigits_2(int num)   //各位相加，迭代版本
+int addDigits_2(int num)   //各位相加，递归版本
 {
 	if (num < 10)
 	{
@@ -2863,6 +2863,72 @@ void moveZeroes_2(vector<int>& nums)  //移动零,记录当前最靠前的0的�
 			swap(nums.at(i), nums.at(pos));
 			pos++;
 		}
+	}
+}
+
+bool wordPattern(string pattern, string str)  //单词规律，用两个map来记录
+{
+	if (pattern.size() == 0 && str.size() == 0)
+	{
+		return true;
+	}
+	else if (pattern.size() == 0 || str.size() == 0)
+	{
+		return false;
+	}
+	map<char, string> p2s;
+	map<string, char> s2p;
+	int j = 0, i = 0;
+	for (; i < pattern.size(); ++i)
+	{
+		string tmp = "";
+		for (; j < str.size(); ++j)
+		{
+			if (str[j] != ' ')
+			{
+				tmp += str[j];
+			}
+			else
+			{
+				break;
+			}
+		}
+		if (p2s.find(pattern[i]) != p2s.end())
+		{
+			if (p2s.find(pattern[i])->second != tmp)
+			{
+				return false;
+			}
+		}
+		else
+		{
+			p2s.insert(pair<char, string>(pattern[i], tmp));
+		}
+		if (s2p.find(tmp) != s2p.end())
+		{
+			if (s2p.find(tmp)->second != pattern[i])
+			{
+				return false;
+			}
+		}
+		else
+		{
+			s2p.insert(pair<string, char>(tmp, pattern[i]));
+		}
+		++j;  //因为当前的为空格，因此跳到下一个
+	}
+	return (i == pattern.size() && j == str.size() + 1);  //由于最后有个++j，因此这个j最后是超过str的size的
+}
+
+bool canWinNim(int n)
+{
+	if (n < 4)
+	{
+		return true;
+	}
+	else if (n == 4)
+	{
+		return false;
 	}
 }
 
@@ -3196,4 +3262,10 @@ int main()
 
 	//移动零
 	//moveZeroes
+
+	//单词规律
+	//wordPattern
+
+	//Nim 游戏
+	//canWinNim
 }
