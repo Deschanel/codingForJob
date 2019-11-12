@@ -2930,6 +2930,7 @@ bool canWinNim(int n)
 	{
 		return false;
 	}
+
 }
 
 int main()
