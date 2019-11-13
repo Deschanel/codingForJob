@@ -3235,13 +3235,13 @@ int guessNumber(int n)  //猜数字大小
 	while (left < right)
 	{
 		int mid = 0;
-		if (left % 2 == 0 && right % 2 == 0)
+		if (left % 2 != 0 && right % 2 != 0)
 		{
-			mid = left / 2 + right / 2;
+			mid = left / 2 + right / 2 + 1;
 		}
 		else
 		{
-			mid = left / 2 + right / 2 + 1;
+			mid = left / 2 + right / 2;
 		}
 		if (guess(mid) == 0)
 		{
