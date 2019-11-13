@@ -3021,6 +3021,244 @@ public:
 	}
 };
 
+bool isPowerOfThree_1(int n)  //递归版本,3的幂
+{
+	if (n == 1 || n == 3)
+	{
+		return true;
+	}
+	if (n < 3)
+	{
+		return false;
+	}
+	if (n % 3 == 0)
+	{
+		return isPowerOfThree_1(n / 3);
+	}
+	return false;
+}
+
+bool isPowerOfThree_2(int n)  //循环版本,3的幂
+{
+	if (n < 1)
+	{
+		return false;
+	}
+	if (n == 1)
+	{
+		return true;
+	}
+	while (n > 1)
+	{
+		if (n % 3 != 0)
+		{
+			return false;
+		}
+		n /= 3;
+	}
+	return n == 1;
+}
+
+void reverseString(vector<char>& s)  //反转字符串
+{
+	if (s.size() <= 1)
+	{
+		return;
+	}
+	int begin = 0, end = s.size() - 1;
+	while (begin < end)
+	{
+		swap(s.at(begin), s.at(end));
+		++begin;
+		--end;
+	}
+}
+
+string reverseVowels(string s)  //反转字符串中的元音字母
+{
+	if (s.size() <= 1)
+	{
+		return s;
+	}
+	int begin = 0, end = s.size() - 1;
+	string pattern = "aeiouAEIOU";
+	while (begin < end)
+	{
+		if (pattern.find(s.at(begin)) != pattern.npos)
+		{
+			if (pattern.find(s.at(end)) != pattern.npos)
+			{
+				swap(s.at(begin), s.at(end));
+				++begin;
+				--end;
+			}
+			else
+			{
+				--end;
+			}
+		}
+		else
+		{
+			if (pattern.find(s.at(end)) != pattern.npos)
+			{
+				++begin;
+			}
+			else
+			{
+				++begin;
+				--end;
+			}
+		}
+	}
+	return s;
+}
+
+vector<int> intersection(vector<int>& nums1, vector<int>& nums2)  //两个数组的交集
+{
+	vector<int> result;
+	set<int> s1, s2;
+	for (int i : nums1)
+	{
+		s1.insert(i);
+	}
+	for (int i : nums2)
+	{
+		s2.insert(i);
+	}
+	set<int>::iterator s1i = s1.begin(), s2i = s2.begin();
+	for (; s1i != s1.end() && s2i != s2.end();)
+	{
+		if ((*s1i) == (*s2i))
+		{
+			result.push_back(*s1i);
+			s1i++;
+			s2i++;
+		}
+		else if ((*s1i) < (*s2i))
+		{
+			s1i++;
+		}
+		else
+		{
+			s2i++;
+		}
+	}
+	return result;
+}
+
+vector<int> intersect(vector<int>& nums1, vector<int>& nums2)  //两个数组的交集 II
+{
+	sort(nums1.begin(), nums1.end());
+	sort(nums2.begin(), nums2.end());
+	vector<int> result;
+	for (int i = 0, j = 0; j < nums2.size() && i < nums1.size();)
+	{
+		if (nums1.at(i) == nums2.at(j))
+		{
+			result.push_back(nums1.at(i));
+			++i;
+			++j;
+		}
+		else if (nums1.at(i) < nums2.at(j))
+		{
+			++i;
+		}
+		else
+		{
+			++j;
+		}
+	}
+	return result;
+}
+
+bool isPerfectSquare(int num)  //有效的完全平方数
+{
+	if (num == 1 || num == 4)
+	{
+		return true;
+	}
+	else if (num == 2 || num == 3)
+	{
+		return false;
+	}
+	else if (num % 4 > 1)  //完全平方数模4只能是0或1
+	{
+		return false;
+	}
+	for (int i = 3; i < num / 2; ++i)
+	{
+		if (i*i == num)
+		{
+			return true;
+		}
+		else if (i*i > num)
+		{
+			break;
+		}
+	}
+	return false;
+}
+
+int getSum(int a, int b)  //两整数之和
+{
+	bitset<32> a_b(a);
+	bitset<32> b_b(b);
+	bitset<32> result(0);
+	int jinwei = 0;
+	for (int i=0; i<32; ++i)
+	{
+		result[i] = (a_b[i] ^ b_b[i]) ^ jinwei;
+		bool tmp = a_b[i] == 1 && b_b[i] == 1;
+		tmp = tmp || (b_b[i] == 1 && jinwei == 1);
+		tmp = tmp || (a_b[i] == 1 && jinwei == 1);
+		if (tmp)
+		{
+			jinwei = 1;
+		}
+		else
+		{
+			jinwei = 0;
+		}
+	}
+	return result.to_ulong();
+}
+
+int guess(int num)
+{
+	return 0;
+}
+
+int guessNumber(int n)  //猜数字大小
+{
+	int right = n, left = 0;
+	//相当于在left和right之间找数
+	while (left < right)
+	{
+		int mid = 0;
+		if (left % 2 == 0 && right % 2 == 0)
+		{
+			mid = left / 2 + right / 2;
+		}
+		else
+		{
+			mid = left / 2 + right / 2 + 1;
+		}
+		if (guess(mid) == 0)
+		{
+			return mid;
+		}
+		else if(guess(mid) == 1)
+		{
+			left = mid + 1;
+		}
+		else if (guess(mid) == -1)
+		{
+			right = mid;
+		}
+	}
+	return left;
+}
+
 int main()
 {
 	//两数之和
@@ -3363,4 +3601,28 @@ int main()
 
 	//区域和检索 - 数组不可变
 	//NumArray
+
+	//3的幂
+	//isPowerOfThree
+
+	//反转字符串
+	//reverseString
+
+	//反转字符串中的元音字母
+	//reverseVowels
+
+	//两个数组的交集
+	//intersection
+
+	//两个数组的交集 II
+	//intersect
+
+	//有效的完全平方数
+	//isPerfectSquare
+
+	//两整数之和
+	//getSum
+
+	//猜数字大小
+	//guessNumber
 }
