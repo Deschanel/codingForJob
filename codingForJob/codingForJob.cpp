@@ -3259,6 +3259,93 @@ int guessNumber(int n)  //猜数字大小
 	return left;
 }
 
+bool canConstruct(string ransomNote, string magazine)  //赎金信
+{
+	map<char, int> m_m;
+	for (auto i : magazine)
+	{
+		if (m_m.find(i) != m_m.end())
+		{
+			m_m.find(i)->second++;
+		}
+		else
+		{
+			m_m.insert(pair<char, int>(i, 1));
+		}
+	}
+	for (auto i : ransomNote)
+	{
+		if (m_m.find(i) == m_m.end() || m_m.find(i)->second < 1)
+		{
+			return false;
+		}
+		m_m.find(i)->second--;
+	}
+	return true;
+}
+
+int firstUniqChar(string s)   //字符串中的第一个唯一字符
+{
+	map<char, int> m;  //int是其出现的次数
+	for (auto i : s)  //先记录所有元素出现的次数
+	{
+		if (m.find(i) != m.end())
+		{
+			m.find(i)->second++;
+		}
+		else
+		{
+			m.insert(pair<char, int>(i, 1));
+		}
+	} 
+	for (int i=0; i<s.size(); ++i)   //遍历s，如果其中某个元素在已经构建好的map中只出现一次，那就返回下标
+	{
+		if (m.find(s.at(i))->second == 1)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+char findTheDifference(string s, string t)  //找不同
+{   //由于t是s经过随机重排且再加上一个字母，随机重排后字母个数与出现次数是一样的，也就多了一个字母，因此就把char转换成int，s与t进行按位异或，最后的得到int值就是添加的值的ascii值
+	int sum = 0;
+	int i = 0, j = 0;
+	for (; i<s.size()&& j<t.size(); ++i, ++j)
+	{
+		sum = sum ^ (static_cast<int>(s.at(i)) ^ static_cast<int>(t.at(j)));
+	}
+	sum = sum ^ static_cast<int>(t.at(j));
+	return static_cast<char>(sum);
+}
+
+bool isSubsequence(string s, string t)  //判断子序列
+{
+	if (s.size() == 0)
+	{
+		return true;
+	}
+	if (s.size() > t.size())
+	{
+		return false;
+	}
+	int index = 0;
+	int i = 0;
+	for (; i<t.size(); ++i)  //依据顺序遍历，如果在t中找到s中下标为index的值，那么指针指向index+1的值，然后在i+1之后的字符串中寻找其，这样就能满足index之后的值只能在index对应的t中的值后面查找
+	{
+		if (index == s.size())
+		{
+			break;
+		}
+		if (t.at(i) == s.at(index))
+		{
+			index += 1;
+		}
+	}
+	return index == s.size();
+}
+
 int main()
 {
 	//两数之和
@@ -3625,4 +3712,16 @@ int main()
 
 	//猜数字大小
 	//guessNumber
+
+	//赎金信
+	//canConstruct
+
+	//字符串中的第一个唯一字符
+	//firstUniqChar
+
+	//找不同
+	//findTheDifference
+
+	//判断子序列
+	//isSubsequence
 }
