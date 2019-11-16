@@ -3346,6 +3346,306 @@ bool isSubsequence(string s, string t)  //判断子序列
 	return index == s.size();
 }
 
+void combination(vector<string> &result, int start, int picked, int &num, vector<int> &tmp, vector<int> &tt)  //递归求解n个球取m个的所有可能这种问题
+{
+	if (picked == num)  //如果选入的个数picked与想要的个数num相等
+	{
+		int minsum = 0, hoursum = 0;
+		for (int i : tt)
+		{
+			if (i < 60)
+			{
+				minsum += i;
+			}
+			else
+			{
+				hoursum += i;
+			}
+		}
+		if (minsum < 60 && hoursum <= 660)
+		{
+			string s;
+			if (minsum < 10)
+			{
+				s =  "0" + std::to_string(minsum);
+			}
+			else
+			{
+				s = std::to_string(minsum);
+			}
+			s = std::to_string(hoursum / 60) + ":" + s;
+			result.push_back(s);
+		}
+		return;
+	}
+	int ma = tmp.size() - num + picked;  //ma指的是，选取了picked个后，从剩下的球中能够选取的最大的数值。比如1234选取2个，已经选取了0个，那么第一个数最大只能选取下标为2(也就是数3)，否则如果直接选择数4的话，第二个数没法选择了
+	for (int i=start; i<=ma; ++i)
+	{
+		tt.at(picked) = tmp.at(i); //当前选择了
+		combination(result, i + 1, picked + 1, num, tmp, tt);  //下一个选取
+	}
+}
+
+vector<string> readBinaryWatch(int num)  //二进制手表
+{
+	vector<string> result;
+	if (num > 8)
+	{
+		return result;
+	}
+	else if(num == 0)
+	{
+		return { "0:00" };
+	}
+	vector<int> tmp = { 1, 2, 4, 8, 16, 32, 60, 120, 240, 480 };
+	vector<int> tt(num, 0);
+	combination(result, 0, 0, num, tmp, tt);
+	return result;
+}
+
+int sumOfLeftLeaves(TreeNode* root)  //左叶子之和
+{
+	if (!root)  //如果节点为空
+	{
+		return 0;
+	}
+	if (!root->left)  //如果节点左为空，那么就返回右孩子的左节点和
+	{
+		return sumOfLeftLeaves(root->right);
+	}
+	//如果左节点不为空
+	int sum = 0;
+	if (!root->left->right && !root->left->left)  //如果左孩子为叶子节点
+	{
+		sum += root->left->val;
+	}
+	else
+	{
+		sum += sumOfLeftLeaves(root->left);  //左孩子不为叶子节点就加上左孩子的左节点和
+	}
+	sum += sumOfLeftLeaves(root->right);
+	//以下简写
+	//if (!root->left->right && !root->left->left)  //如果左节点确实为叶子
+	//{
+	//	sum += root->left->val;
+	//}
+	//sum += (sumOfLeftLeaves(root->left) + sumOfLeftLeaves(root->right));  //如果左节点为叶子，那么其实sumOfLeftLeaves(root->left)返回为0，这里加上也无伤大雅，如果左节点不为叶子，那么就应该加上左右孩子的左节点和
+	return sum;
+}
+
+string toHex_1(int num)  //数字转换为十六进制数,笨做法
+{
+	if (num > 2147483647 || num < -2147483648)
+	{
+		return "";
+	}
+	if (num == 0)
+	{
+		return "0";
+	}
+	string result = "";
+	vector<char> digits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+	map<char, char> m;
+	for (int i = 0; i < 16; ++i)
+	{
+		m.insert(pair<char, char>(digits[i], digits[15 - i]));
+	}
+	unsigned int tmp = 0;
+	if (num < 0)
+	{
+		tmp = (unsigned int)0 - (unsigned int)num;
+	}
+	else
+	{
+		tmp = num;
+	}
+	while (tmp > 0)
+	{
+		result = digits[tmp % 16] + result;
+		tmp /= 16;
+	}
+	if (num > 0 || num == -2147483648)  //-2147483648这个找其绝对值的正整数是有问题的
+	{
+		return result;
+	}
+	//取反
+	for (int i = 0; i < result.size(); ++i)
+	{
+		result[i] = m.find(result[i])->second;
+	}
+	//加一
+	int i = result.size() - 1;
+	while (i >= 0)
+	{
+		if (result[i] != 'f')
+		{
+			if (result[i] == '9')
+			{
+				result[i] = 'a';
+			}
+			else
+			{
+				++result[i];
+			}
+			break;
+		}
+		else
+		{
+			if (i == 0)
+			{
+				return "";
+			}
+			result[i] = '0';
+		}
+		--i;
+	}
+	int n = 8 - result.size();
+	for (int i = 0; i < n; ++i)
+	{
+		result = 'f' + result;
+	}
+	return result;
+}
+
+string toHex_2(int num)  //数字转换为十六进制数
+{
+	if (num == 0)
+	{
+		return "0";
+	}
+	string res = "";
+	string hex[16] = { "0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f" };
+	unsigned int num2 = num;   //这里的unsigned int，把有符号的当作无符号的，可以使负数模16位正确的数，如-2模16=14，也就是e，就是-2的16进制补码
+	while (num2 != 0)
+	{
+		res = hex[num2 % 16] + res;
+		num2 /= 16;
+	}
+	return res;
+}
+
+int longestPalindrome(string s)  //最长回文串
+{
+	map<char, int> m;
+	for (auto i : s)
+	{
+		if (m.find(i) != m.end())
+		{
+			m.find(i)->second++;
+		}
+		else
+		{
+			m.insert(pair<char, int>(i, 1));
+		}
+	}
+	int sum = 0;
+	//最长回文串是所有出现次数为偶数的字符+所有出现次数为奇数次的每个字符的个数-1(使得奇数次字符在回文串中为偶数个)+最后在回文串中间加上一个未使用的字符(比如某个奇数次字符)
+	map<char, int>::iterator im = m.begin();
+	bool hasOdd = false;  //是否有奇数个的字符
+	for (; im != m.end(); im++)
+	{
+		if (im->second % 2 == 0)
+		{
+			sum += im->second;
+		}
+		else
+		{
+			hasOdd = true;
+			sum += (im->second - 1);
+		}
+	}
+	return (hasOdd ? sum + 1 : sum);  //如果有奇数个的字符要加一，否则就不能加一
+}
+
+
+vector<string> fizzBuzz(int n)  //Fizz Buzz
+{
+	vector<string> result;
+	if (n == 0)
+	{
+		return result;
+	}
+	for (int i=1; i<=n; ++i)
+	{
+		if (i % 3 == 0 && i % 5 != 0)
+		{
+			result.push_back("Fizz");
+		}
+		else if (i % 3 != 0 && i % 5 == 0)
+		{
+			result.push_back("Buzz");
+		}
+		else if (i % 3 == 0 && i % 5 == 0)
+		{
+			result.push_back("FizzBuzz");
+		}
+		else
+		{
+			result.push_back(std::to_string(i));
+		}
+	}
+	return result;
+}
+
+int thirdMax(vector<int>& nums)  //第三大的数,维护一个长度为3的set
+{
+	set<int> s;
+	for (int i : nums)
+	{
+		s.insert(i);
+		if (s.size() > 3)
+		{
+			s.erase(s.begin());
+		}
+	}
+	if (s.size() < 3)
+	{
+		return *s.rbegin();
+	}
+	else
+	{
+		return *s.begin();
+	}
+}
+
+string addStrings(string num1, string num2)  //字符串相加
+{
+	char p = '0';
+	string result = "";
+	int i = num1.size() - 1, j = num2.size() - 1;
+	for (; i >= 0 || j >= 0; --i, --j)
+	{
+		char tmp;
+		if (i >= 0 && j >= 0)
+		{
+			tmp = num1.at(i) + num2.at(j) - '0' + p - '0';
+		}
+		else if (i >= 0)
+		{
+			tmp = num1.at(i) + p - '0';
+		}
+		else if (j >= 0)
+		{
+			tmp = num2.at(j) + p - '0';
+		}
+		if (tmp > '9')
+		{
+			tmp = tmp - '9' - 1 + '0';
+			p = '1';
+		}
+		else
+		{
+			p = '0';
+		}
+		result = tmp + result;
+	}
+	if (p == '1')
+	{
+		result = '1' + result;
+	}
+	return result;
+}
+
 int main()
 {
 	//两数之和
@@ -3724,4 +4024,25 @@ int main()
 
 	//判断子序列
 	//isSubsequence
+
+	// 二进制手表
+	//readBinaryWatch
+
+	//左叶子之和
+	//sumOfLeftLeaves
+
+	//数字转换为十六进制数
+	//toHex
+
+	//最长回文串
+	//longestPalindrome
+
+	//Fizz Buzz
+	//fizzBuzz
+
+	//第三大的数
+	//thirdMax
+
+	//字符串相加
+	//addStrings
 }
