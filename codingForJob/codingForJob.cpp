@@ -3433,6 +3433,7 @@ int sumOfLeftLeaves(TreeNode* root)  //左叶子之和
 	return sum;
 }
 
+
 string toHex_1(int num)  //数字转换为十六进制数,笨做法
 {
 	if (num > 2147483647 || num < -2147483648)
@@ -3644,6 +3645,233 @@ string addStrings(string num1, string num2)  //字符串相加
 		result = '1' + result;
 	}
 	return result;
+}
+
+int countSegments(string s)  //字符串中的单词数
+{
+	if (s.size() == 0)
+	{
+		return 0;
+	}
+	if (s.size() == 1 && s.at(0) != ' ')
+	{
+		return 1;
+	}
+	int sum = 0;
+	int i = 0, j = 1;
+	for (; i<s.size() && j<s.size(); ++i, ++j)
+	{
+		if (s.at(i) != ' ' && (s.at(j) == ' ' || j == s.size() - 1))
+		{
+			sum++;
+		}
+	}
+	if (i == s.size() - 1 && s.at(i) != ' ' && s.at(i - 1) == ' ')
+	{
+		sum++;
+	}
+	return sum;
+}
+
+int arrangeCoins(int n)  //排列硬币
+{
+	if (n == 0)
+	{
+		return 0;
+	}
+	long unsigned tn = n;
+	double tmp = sqrt(2 * tn + 0.25) - 0.5;
+	return static_cast<int>(tmp);
+}
+
+int compress(vector<char>& chars)  //压缩字符串
+{
+	if (chars.size() < 2)
+	{
+		return chars.size();
+	}
+	int i = 0, j = 1; //i代表要写入的位置，j表示等于当前字符串的最后一个
+	char preC = chars.at(0);
+	int sum = 1;
+	for (; j < chars.size(); ++j)
+	{
+		if (preC != chars.at(j))
+		{
+			chars.at(i) = preC;  //如果不等的话，就写上
+			if (sum > 1)  //如果是大于1个的话
+			{
+				i += 1; //转入下一个要写的
+				string tmp = "";
+				while (sum > 0)  //这里循环时防止大于9个的
+				{
+					char p = sum % 10 + '0';
+					tmp = p + tmp;
+					sum /= 10;
+				}
+				for (int k = 0; k < tmp.size(); ++k)  //写入数字
+				{
+					chars.at(i) = tmp.at(k);
+					++i;  //记得这里写入完后又向后进了一个字符
+				}
+			}
+			else
+			{
+				i += 1; //字符只有一个的话不用写数字，直接跳过
+			}
+			preC = chars.at(j); //前一个字符(待写入的字符)变为当前字符
+			sum = 1;  //初始化为1个
+		}
+		else
+		{
+			sum++;
+		}
+	}
+	chars.at(i) = preC;  //讲最后字符传给i
+	if (sum > 1)  //如果最后的字符大于1个
+	{
+		i += 1;
+		string tmp = "";
+		while (sum > 0)
+		{
+			char p = sum % 10 + '0';
+			tmp = p + tmp;
+			sum /= 10;
+		}
+		for (int k = 0; k < tmp.size(); ++k)
+		{
+			chars.at(i) = tmp.at(k);
+			++i; //记得这里写入完后又向后进了一个字符
+		}
+	}
+	else
+	{
+		i += 1;  //等于1个的话，直接将下标加一
+	}
+	chars.erase(chars.begin() + i, chars.end());
+	return chars.size();
+}
+
+vector<int> findDisappearedNumbers(vector<int>& nums)  //找到所有数组中消失的数字
+{
+	if (nums.size() == 0)
+	{
+		return nums;
+	}
+	int len = nums.size();
+	vector<int> result;
+	for (int i = 1; i <= len; ++i)
+	{
+		result.push_back(i);
+	}
+	for (int num : nums)
+	{
+		result.at(num - 1) = 0;
+	}
+	int i = 0;
+	while (i < result.size() && result.at(i) != 0)
+	{
+		i++;
+	}
+	for (int j = i + 1; j < result.size(); ++j)
+	{
+		if (result.at(j) > 0)
+		{
+			swap(result.at(j), result.at(i));
+			i++;
+		}
+	}
+	if (result.at(i) > 0)
+	{
+		i++;
+	}
+	result.erase(result.begin() + i, result.end());
+	return result;
+}
+
+int minMoves(vector<int>& nums)  //最小移动次数使数组元素相等
+{
+	//这里假设定住第i个元素，其它元素加一，也就相当于，定住其它元素，第i个元素减一
+	//按照减的思路，最后都会等于最小元素
+	//因此，总的次数就是所有元素减去最小元素之差的和
+	//首先找最小元素
+	int can = nums.at(0);
+	for (int num : nums)
+	{
+		if (num < can)
+		{
+			can = num;
+		}
+	}
+	int sum = 0;
+	for (int num : nums)
+	{
+		sum += (num - can);
+	}
+	return sum;
+}
+
+int findContentChildren(vector<int>& g, vector<int>& s)  //分发饼干
+{
+	if (g.size() == 0 || s.size() == 0)
+	{
+		return 0;
+	}
+	sort(g.begin(), g.end());
+	sort(s.begin(), s.end());
+	int i = g.size() - 1, j = s.size() - 1;
+	int sum = 0;
+	while (i >= 0 && j >= 0)
+	{
+		if (s.at(j) >= g.at(i))  //如果饼干大于胃口，当前孩子得到满足
+		{
+			sum += 1;
+			--j;
+			--i;
+		}
+		else
+		{
+			--i;  //胃口大，不是好孩子，就跳过，看看当前饼干能否满足下一个
+		}
+	}
+	return sum;
+}
+
+bool repeatedSubstringPattern(string s)  //重复的子字符串
+{
+	//先找重复的字符
+	string can = "";
+	bool isSub = true;
+	for (int i=0; i<s.size()/2; ++i)
+	{
+		can = can + s.at(i);
+		int j = 0, k = 0;
+		while (j < s.size())
+		{
+			isSub = true;
+			if (s.at(j) == can.at(k))
+			{
+				++j;
+				++k;
+			}
+			else
+			{
+				isSub = false;
+				break;
+			}
+			if (k == can.size())
+			{
+				k = 0;
+			}
+		}
+		if (isSub)
+		{
+			break;
+		}
+	}
+	if (isSub)
+	{
+		cout << can << endl;
+	}
 }
 
 int main()
@@ -4045,4 +4273,28 @@ int main()
 
 	//字符串相加
 	//addStrings
+	
+	//字符串中的单词数
+	//countSegments
+
+	//排列硬币
+	//arrangeCoins
+
+	//压缩字符串
+	/*
+	vector<char> c = { 'a', 'a', 'a', 'a','b' ,'a'};
+	compress(c);
+	*/
+
+	//找到所有数组中消失的数字
+	//findDisappearedNumbers
+
+	//最小移动次数使数组元素相等
+	//minMoves
+
+	//分发饼干
+	//findContentChildren
+
+	//重复的子字符串
+	//repeatedSubstringPattern
 }
