@@ -3927,39 +3927,32 @@ bool repeatedSubstringPattern_2(string s)  //重复的子字符串,kmp很骚
 	return k == 0 && result;  //最后成功的话，k=0的
 }
 
-void DFS(TreeNode* root, int sum, int& count)
-{
-	if (!root)
-	{
-		return;
-	}
-	if (root->val == sum)
-	{
-		count++;
-	}
-	DFS(root->left, sum - root->val, count);
-	DFS(root->right, sum - root->val, count);
-}
-
-void DFSTraverse(TreeNode* root, int sum, int& count)
-{
-	if (!root)
-	{
-		return;
-	}
-	DFS(root, sum, count); //以root作为根节点，去找
-	DFSTraverse(root->left, sum, count);  //以root->left为根节点
-	DFSTraverse(root->right, sum, count);
-}
-
-int pathSum(TreeNode* root, int sum)  //以每个节点都当作根节点
+int DFS(TreeNode* root, int sum)
 {
 	if (!root)
 	{
 		return 0;
 	}
 	int result = 0;
-	DFSTraverse(root, sum, result);
+	if (root->val == sum)
+	{
+		result++;
+	}
+	result += DFS(root->left, sum - root->val);
+	result += DFS(root->right, sum - root->val);
+	return result;
+}
+
+int pathSum(TreeNode* root, int sum)  //以每个节点都当作根节点,双重递归
+{
+	if (!root)
+	{
+		return 0;
+	}
+	int result = 0;
+	result += DFS(root, sum);  //以当前root为根节点
+	result += pathSum(root->left, sum);  //以当前root->left为根节点
+	result += pathSum(root->right, sum);  //以当前root->right为根节点
 	return result;
 }
 
