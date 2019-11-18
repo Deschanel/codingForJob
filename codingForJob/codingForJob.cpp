@@ -3836,20 +3836,27 @@ int findContentChildren(vector<int>& g, vector<int>& s)  //分发饼干
 	return sum;
 }
 
-bool repeatedSubstringPattern(string s)  //重复的子字符串
+bool repeatedSubstringPattern_1(string s)  //重复的子字符串, 笨方法
 {
 	//先找重复的字符
 	string can = "";
 	bool isSub = true;
-	for (int i=0; i<s.size()/2; ++i)
+	int sum = 0;
+	for (int i = 0; i <= s.size() / 2; ++i)
 	{
 		can = can + s.at(i);
+		if (s.size() % can.size() != 0)  //如果不整除的话，肯定不是
+		{
+			isSub = false;
+			continue;
+		}
 		int j = 0, k = 0;
+		sum = 0;
 		while (j < s.size())
 		{
-			isSub = true;
 			if (s.at(j) == can.at(k))
 			{
+				isSub = true;
 				++j;
 				++k;
 			}
@@ -3860,6 +3867,7 @@ bool repeatedSubstringPattern(string s)  //重复的子字符串
 			}
 			if (k == can.size())
 			{
+				sum += 1;
 				k = 0;
 			}
 		}
@@ -3868,10 +3876,91 @@ bool repeatedSubstringPattern(string s)  //重复的子字符串
 			break;
 		}
 	}
-	if (isSub)
+	return isSub && sum > 1;
+}
+
+bool repeatedSubstringPattern_2(string s)  //重复的子字符串,kmp很骚
+{
+	int len = s.size();
+	vector<int> v(len + 1);
+	v.at(0) = -1;
+	int t = -1, j = 0;
+	while (j < len)
 	{
-		cout << can << endl;
+		if (t < 0 || s[t] == s[j])
+		{
+			++t;
+			++j;
+			v[j] = t;
+		}
+		else
+		{
+			t = v[t];
+		}
 	}
+	//根据next表，j-t就是重复字符串最小的长度，
+	//其实我们这里用的是一个更强的条件，普通字符串能成功，那么最小字符串肯定能成功，反之不然，所以这里就看最小字符串能不能成功
+	//如果next[len] <= 0的话，就说明整个字符串是一个重复字符串，显然是不对的
+	if (v[len] <= 0)
+	{
+		return false;
+	}
+	int minLen = len - v[len];
+	bool result = true;
+	int k = 0;
+	for (int i = 0; i < s.size(); ++i)
+	{
+		if (s[i] == s[k])
+		{
+			result = true;
+			k++;
+		}
+		else
+		{
+			return false;
+		}
+		if (k == minLen)
+		{
+			k = 0;
+		}
+	}
+	return k == 0 && result;  //最后成功的话，k=0的
+}
+
+void DFS(TreeNode* root, int sum, int& count)
+{
+	if (!root)
+	{
+		return;
+	}
+	if (root->val == sum)
+	{
+		count++;
+	}
+	DFS(root->left, sum - root->val, count);
+	DFS(root->right, sum - root->val, count);
+}
+
+void DFSTraverse(TreeNode* root, int sum, int& count)
+{
+	if (!root)
+	{
+		return;
+	}
+	DFS(root, sum, count); //以root作为根节点，去找
+	DFSTraverse(root->left, sum, count);  //以root->left为根节点
+	DFSTraverse(root->right, sum, count);
+}
+
+int pathSum(TreeNode* root, int sum)  //以每个节点都当作根节点
+{
+	if (!root)
+	{
+		return 0;
+	}
+	int result = 0;
+	DFSTraverse(root, sum, result);
+	return result;
 }
 
 int main()
@@ -4297,4 +4386,7 @@ int main()
 
 	//重复的子字符串
 	//repeatedSubstringPattern
+
+	//路径总和 III
+	//pathSum
 }
