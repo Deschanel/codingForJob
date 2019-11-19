@@ -4062,6 +4062,58 @@ int islandPerimeter(vector<vector<int>>& grid)  //岛屿的周长
 	return result;
 }
 
+int findRadius_1(vector<int>& houses, vector<int>& heaters)  //供暖器，超时了
+{
+	//找到离每个房屋距离最近的炉子点，然后选取最大值
+	set<int> s;
+	for (int i = 0; i < houses.size(); i++)
+	{
+		int dis = abs(houses.at(i) - heaters.at(0));  
+		for (int j = 0; j < heaters.size(); j++)
+		{
+			dis = min(dis, abs(heaters.at(j) - houses.at(i)));
+		}
+		s.insert(dis);
+	}
+	return *(s.rbegin());
+}
+
+int findRadius_2(vector<int>& houses, vector<int>& heaters)  //供暖器
+{
+	set<int> s;
+	for (int i = 0; i < houses.size(); i++)
+	{
+		int dis = abs(houses.at(i) - heaters.at(0));  
+		int left = 0, right = heaters.size() - 1;
+		while (left < right)
+		{
+			int mid = (left+right) >> 1;
+			if(heaters.at(mid) < houses.at(i))
+			{
+				left += 1;
+			}
+			else
+			{
+				right = mid;
+			}
+		}
+		if(heaters.at(left) == houses.at(i))
+		{
+			s.insert(0);
+		}
+		else if(heaters.at(left) < houses.at(i))
+		{
+			s.insert(houses.at(i) - heaters.at(left));
+		}
+		else
+		{
+			
+		}
+		
+	}
+	return *(s.rbegin());
+}
+
 int main()
 {
 	//两数之和
@@ -4497,4 +4549,7 @@ int main()
 
 	//岛屿的周长
 	//islandPerimeter
+
+	//供暖器
+	//findRadius
 }
