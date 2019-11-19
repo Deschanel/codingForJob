@@ -3956,6 +3956,112 @@ int pathSum(TreeNode* root, int sum)  //以每个节点都当作根节点,双重
 	return result;
 }
 
+int numberOfBoomerangs(vector<vector<int>>& points)  //回旋镖的数量
+{
+	map<double, int> ranges; //第一个double为距离，第二个为次数
+	int result = 0;
+	for (int i = 0; i < points.size(); ++i)  //第i个为回旋镖元组的第一个元素
+	{
+		ranges.clear();  //由于此时记录第i个在第一个的位置，因此前面的第i-1个元素在首位置的情况清空
+		for (int j=0; j<points.size(); ++j)
+		{
+			if (j == i)
+			{
+				continue;
+			}
+			double dis = pow(points.at(i).at(0) - points.at(j).at(0), 2) + pow(points.at(i).at(1) - points.at(j).at(1), 2);
+			dis = sqrt(dis);
+			if (ranges.find(dis) != ranges.end())
+			{
+				result += ranges.find(dis)->second * 2;  //假设已经有k个元素与第i个元素距离为d，则再加入当前j元素时，就会有2k种回旋镖情况，具体为(i,j,k中任意一个)和(i,k中任意一个,j)
+				ranges.find(dis)->second++;
+			}
+			else
+			{
+				ranges.insert(pair<double, int>(dis, 1));
+			}
+		}
+	}
+	return result;
+}
+
+int hammingDistance(int x, int y)  //汉明距离
+{
+	bitset<32> bx(x);
+	bitset<32> by(y);
+	int result = 0;
+	for (int i=0; i<32; ++i)
+	{
+		if (bx[i] != by[i])
+		{
+			++result;
+		}
+	}
+	return result;
+}
+
+int islandPerimeter(vector<vector<int>>& grid)  //岛屿的周长
+{
+	if (grid.size() == 0)
+	{
+		return 0;
+	}
+	int result = 0;
+	for (int i=0; i<grid.size(); ++i)  
+	{
+		for (int j=0; j<grid.at(i).size(); ++j)
+		{
+			if (grid.at(i).at(j) == 1)  //如果当前是岛屿的话
+			{
+				//先横向
+				if (j == 0)  //如果当前为列的第一个，由于为1，所以其前面应该为是个海岸，所以加一
+				{
+					result++; 
+				}
+				else
+				{
+					if (grid.at(i).at(j - 1) == 0)  //如果不为第一列，且前一个为海(0)，则应该有一个海岸
+					{
+						result++;
+					}
+				}
+				if (j == grid.at(i).size() - 1) //如果当前为列的最后一个，那么其后面也应该有海岸
+				{
+					result++;
+				}
+				if (i == 0)  //解释与上述列一样
+				{
+					result++;
+				}
+				else
+				{
+					if (grid.at(i - 1).at(j) == 0)
+					{
+						result++;
+					}
+				}
+				if (i == grid.size() - 1)
+				{
+					result++;
+				}
+			}
+			else  //如果当前为海
+			{
+				if (j > 0 && grid.at(i).at(j - 1) == 1)  //其前面为岛屿，则应该有海岸
+				{
+					result++;
+				}
+				if (i > 0 && grid.at(i-1).at(j) == 1)  //上面为岛屿，应该会有海岸
+				{
+					result++;
+				}
+			}
+		}
+	}
+	//以上会不有重复的呢，不会的，每个海岸的寻找，都是按照当前元素与前面和上面元素的空隙来判断，对于行列最后的元素才会判断其后面一行或一列
+	return result;
+}
+
 int main()
 {
 	//两数之和
@@ -4382,4 +4488,13 @@ int main()
 
 	//路径总和 III
 	//pathSum
+
+	//回旋镖的数量
+	//numberOfBoomerangs
+
+	//汉明距离
+	//hammingDistance
+
+	//岛屿的周长
+	//islandPerimeter
 }
