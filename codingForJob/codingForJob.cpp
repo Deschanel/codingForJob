@@ -4078,12 +4078,13 @@ int findRadius_1(vector<int>& houses, vector<int>& heaters)  //供暖器，超�
 	return *(s.rbegin());
 }
 
-int findRadius_2(vector<int>& houses, vector<int>& heaters)  //供暖器
+int findRadius_2(vector<int>& houses, vector<int>& heaters)  //供暖器,二分查找,找到离每个房屋距离最近的炉子点，然后选取最大值
 {
-	set<int> s;
+	sort(houses.begin(), houses.end());
+	sort(heaters.begin(), heaters.end());
+	int dis = 0;
 	for (int i = 0; i < houses.size(); i++)
 	{
-		int dis = abs(houses.at(i) - heaters.at(0));  
 		int left = 0, right = heaters.size() - 1;
 		while (left < right)
 		{
@@ -4099,19 +4100,73 @@ int findRadius_2(vector<int>& houses, vector<int>& heaters)  //供暖器
 		}
 		if(heaters.at(left) == houses.at(i))
 		{
-			s.insert(0);
+			dis = max(dis, 0);
 		}
 		else if(heaters.at(left) < houses.at(i))
 		{
-			s.insert(houses.at(i) - heaters.at(left));
+			if (left + 1 < heaters.size())
+			{
+				dis = max(dis, min(houses.at(i) - heaters.at(left), heaters.at(left + 1) - houses.at(i)));
+			}
+			else
+			{
+				dis = max(dis, houses.at(i) - heaters.at(left));
+			}
 		}
 		else
 		{
-			
+			if (left - 1 >= 0)
+			{
+				dis = max(dis, min(heaters.at(left) - houses.at(i), houses.at(i) - heaters.at(left - 1)));
+			}
+			else
+			{
+				dis = max(dis, heaters.at(left) - houses.at(i));
+			}
 		}
 		
 	}
-	return *(s.rbegin());
+	return dis;
+}
+
+int findComplement(int num)  //数字的补数
+{
+	int i = 0;
+	int result = 0;
+	while (num > 0)
+	{
+		result += (1 - num % 2)*pow(2, i);
+		i++;
+		num /= 2;
+	}
+	return result;
+}
+
+string licenseKeyFormatting(string S, int K) //密钥格式化
+{
+	string result = "";
+	int j = 0;
+	int e = 0;
+	while (e < S.size() && S.at(e) == '-')
+	{
+		++e;
+	}
+	for (int i = S.size() - 1; i >= e; --i)
+	{
+		if (S.at(i) != '-')
+		{
+			result += static_cast<char>(toupper(S.at(i)));   //如果是 result = static_cast<char>(toupper(S.at(i))) + result会超出内存;
+			++j;
+			S.erase(S.begin() + i, S.end());
+		}
+		if (j == K && i > e)
+		{
+			j = 0;
+			result += '-';
+		}
+	}
+	reverse(result.begin(), result.end());
+	return result;
 }
 
 int main()
@@ -4552,4 +4607,10 @@ int main()
 
 	//供暖器
 	//findRadius
+
+	//数字的补数
+	//findComplement
+
+	//密钥格式化
+	//licenseKeyFormatting
 }
