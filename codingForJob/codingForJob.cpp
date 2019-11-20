@@ -4357,6 +4357,12 @@ void zhongXuBianLi(TreeNode* root, map<int, int> &tmp)
 	return result;
  }
 
+ vector<string> findRelativeRanks(vector<int>& nums)  //相对名次
+ {
+	 map<int, int, greater<int>> m;
+
+ }
+
 int main()
 {
 	//两数之和
@@ -4819,4 +4825,7 @@ int main()
 
 	//七进制数
 	//convertToBase7
+
+	//相对名次
+	//findRelativeRanks
 }
