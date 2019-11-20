@@ -4169,7 +4169,7 @@ string licenseKeyFormatting(string S, int K) //密钥格式化
 	return result;
 }
 
-int findMaxConsecutiveOnes(vector<int>& nums)
+int findMaxConsecutiveOnes(vector<int>& nums)  //最大连续1的个数
 {
 	int result = 0;
 	int tmp = 0;
@@ -4188,6 +4188,174 @@ int findMaxConsecutiveOnes(vector<int>& nums)
 	result = max(result, tmp);
 	return result;
 }
+
+vector<int> constructRectangle(int area)  //构造矩形
+{
+	double tmp = sqrt(area);
+	if(tmp - static_cast<int>(tmp) < 1e-4)
+	{
+		return {static_cast<int>(tmp), static_cast<int>(tmp)};
+	}
+	int W = 1;
+	for (int i=1; i < sqrt(area); ++i)  //这里当area大于4时，1到sqrt(area) 的个数小于sqrt(area)到area的个数，所以选择小的那个
+	{
+		if(area % i == 0)
+		{
+			W = i;
+		}
+	}
+	return {area/W, W};
+}
+
+ vector<int> nextGreaterElement(vector<int>& nums1, vector<int>& nums2)  //下一个更大元素 I
+ {
+	 vector<int> result;
+	 for (int i : nums1)
+	 {
+		 bool isFind = false;
+		 for (int j = 0; j < nums2.size(); j++)
+		 {
+			 if(isFind)
+			 {
+				 if(nums2.at(j) > i)
+				 {
+					 result.push_back(nums2.at(j));
+					 break;
+				 }
+				 else if(j == nums2.size() - 1 && nums2.at(j) <= i)
+				 {
+					 result.push_back(-1);
+				 }
+			 }
+			 else
+			 {
+				 if(nums2.at(j) == i)
+				 {
+					 isFind = true;
+					 if(j == nums2.size() - 1)
+					 {
+						 result.push_back(-1);
+					 }
+				 }
+			 }
+		 }
+	 }
+	 return result;
+ }
+
+ vector<string> findWords(vector<string>& words)  //键盘行
+ {
+	map<char, int> m;
+	m['q'] = 2; m['w'] = 2; m['e'] = 2; m['r'] = 2; m['t'] = 2; m['y'] = 2; m['u'] = 2; m['i'] = 2; m['o'] = 2; m['p'] = 2; 
+	m['a'] = 1; m['s'] = 1; m['d'] = 1; m['f'] = 1; m['g'] = 1; m['h'] = 1; m['j'] = 1; m['k'] = 1; m['l'] = 1;
+	m['z'] = 0; m['x'] = 0; m['c'] = 0; m['v'] = 0; m['b'] = 0; m['n'] = 0; m['m'] = 0;
+	vector<string> result;
+	for(string s : words)
+	{
+		if(s.size() == 0)
+		{
+			continue;
+		}
+		int tmp = m.find(static_cast<char>(tolower(s.at(0))))->second;
+		for(int i=0; i<s.size(); ++i)   //这边从0开始，因为可能s只有一个元素
+		{
+			char t = static_cast<char>(tolower(s.at(i)));
+			if(m.find(t)->second != tmp)
+			{
+				break;
+			}
+			if(i == s.size() - 1)
+			{
+				result.push_back(s);
+			}
+		}
+	}
+	return result;
+ }
+
+ void goAlongLeft_findMode(TreeNode* root, stack<TreeNode*> &s)
+ {
+	 while (root)
+	 {
+		 s.push(root);
+		 root = root->left;
+	 }
+ }
+
+void zhongXuBianLi(TreeNode* root, map<int, int> &tmp)
+{
+	stack<TreeNode *> s;
+	while (true)
+	{
+		goAlongLeft_findMode(root, s);
+		if(s.empty())
+		{
+			break;
+		}
+		root = s.top(); 
+		s.pop();
+		map<int, int>::iterator ifind = tmp.find(root->val);
+		if(ifind != tmp.end())
+		{
+			ifind->second++;
+		}
+		else
+		{
+			tmp.insert(pair<int, int>(root->val, 1));
+		}
+		root = root->right;
+	}
+}
+
+ vector<int> findMode(TreeNode* root)  //二叉搜索树中的众数
+ {
+	 if(!root)
+	 {
+		 return {};
+	 }
+	 //先中序遍历
+	 map<int, int> tmp;
+	zhongXuBianLi(root, tmp);
+	map<int, int>::iterator i = tmp.begin();
+	int can = i->second;  //候选人的出现次数
+	vector<int> result = {i->first};
+	++i;
+	for (; i != tmp.end(); i++)
+	{
+		if(i->second > can)
+		{
+			result.clear();
+			result.push_back(i->first);
+			can = i->second;
+		}
+		else if(i->second == can)
+		{
+			result.push_back(i->first);
+		}
+	}
+	return result;
+ }
+
+ string convertToBase7(int num) //七进制数
+ {
+	 if(num == 0)
+	 {
+		 return "0";
+	 }
+	  int tmp = abs(num);
+	 string result = "";
+	 while (tmp > 0)
+	 {
+		 result += std::to_string(tmp % 7);
+		 tmp /= 7;
+	 }
+	 if(num < 0)
+	 {
+		 result += '-';
+	 }
+	reverse(result.begin(), result.end());
+	return result;
+ }
 
 int main()
 {
@@ -4636,4 +4804,19 @@ int main()
 
 	//最大连续1的个数
 	//findMaxConsecutiveOnes
+
+	//构造矩形
+	//constructRectangle
+
+	//下一个更大元素 I
+	//nextGreaterElement
+
+	//键盘行
+	//findWords
+
+	//二叉搜索树中的众数
+	//findMode
+
+	//七进制数
+	//convertToBase7
 }
