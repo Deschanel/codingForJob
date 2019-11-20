@@ -4169,6 +4169,26 @@ string licenseKeyFormatting(string S, int K) //密钥格式化
 	return result;
 }
 
+int findMaxConsecutiveOnes(vector<int>& nums)
+{
+	int result = 0;
+	int tmp = 0;
+	for (int i : nums)
+	{
+		if (i == 1)
+		{
+			++tmp;
+		}
+		else
+		{
+			result = max(tmp, result);
+			tmp = 0;
+		}
+	}
+	result = max(result, tmp);
+	return result;
+}
+
 int main()
 {
 	//两数之和
@@ -4613,4 +4633,7 @@ int main()
 
 	//密钥格式化
 	//licenseKeyFormatting
+
+	//最大连续1的个数
+	//findMaxConsecutiveOnes
 }
