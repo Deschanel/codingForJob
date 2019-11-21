@@ -4528,6 +4528,46 @@ void goAlongLeft_getMinimumDifference(TreeNode* root, stack<TreeNode*> &tmp)  //
 	 return result;
  }
 
+ int findPairs(vector<int>& nums, int k)  //数组中的K-diff数对
+ {
+	 if (nums.size() < 2 || k < 0)
+	 {
+		 return 0;
+	 }
+	 int result = 0;
+	 map<int, int> m;
+	 for (int num : nums)
+	 {
+		 m[num]++;
+	 }
+	 if (k == 0)
+	 {
+		 map<int, int>::iterator ib = m.begin();
+		 for (; ib != m.end(); ib++)
+		 {
+			 if (ib->second > 1)
+			 {
+				 result++;
+			 }
+		 }
+	 }
+	 else
+	 {
+		 map<int, int>::iterator ib = m.begin(), ifind;
+		 for (; ib != m.end(); ib++)
+		 {
+			 int value = ib->first - k; 
+			 ifind = m.find(value);
+			 if (ifind != m.end()) // |x-y| = k， 得到x-y=k or x-y=-k,得到 y = x-k or x = y-k，实际上由于xy为任意数,所以这两个是一个，因此这里只需要找ib->first - k即可
+			 {
+				 result++;
+			 }
+			 //这里不需要找k-ib->first的情况，因为如果|x-y|=k的话，假设x>y,也就是x-y=k，遍历到x时，根据k找到了y；遍历到y时，根据|x-y|绝对值又找到了x，显然元素对重复了一次是不行的，因此，只需要找ib->first - k即可
+		 }
+	 }
+	 return result;
+ }
+
 int main()
 {
 	//两数之和
@@ -5008,4 +5048,7 @@ int main()
 
 	//二叉搜索树的最小绝对差
 	//getMinimumDifference
+
+	//数组中的K-diff数对
+	//findPairs
 }
