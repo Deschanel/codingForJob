@@ -4359,8 +4359,173 @@ void zhongXuBianLi(TreeNode* root, map<int, int> &tmp)
 
  vector<string> findRelativeRanks(vector<int>& nums)  //相对名次
  {
-	 map<int, int, greater<int>> m;
+	 map<int, int> m;
+	for(int i=0; i<nums.size(); ++i)
+	{
+		m.insert(pair<int, int>(nums.at(i), i));
+	}
+	vector<string> result(nums.size());
+	map<int, int>::iterator im = m.begin();
+	for(int i=0; im != m.end() && i<nums.size(); im++, i++)
+	{
+		if(i == nums.size() - 3)
+		{
+			result.at(im->second) = "Bronze Medal";
+		}
+		else if(i == nums.size() - 2)
+		{
+			result.at(im->second) = "Silver Medal";
+		}
+		else if(i == nums.size() - 1)
+		{
+			result.at(im->second) = "Gold Medal";
+		}
+		else
+		{
+			result.at(im->second) = std::to_string(nums.size() - i);
+		}
+	}
+	return result;
+ }
 
+ bool checkPerfectNumber_1(int num)  //完美数
+ {
+	 if(num == 0)
+	 {
+		 return false;
+	 }
+	 int sum = 0;
+	 for (int i = 1; i <= num / 2; ++i)
+	 {
+		 if(num % i == 0)
+		 {
+			 sum += i;
+		 }
+	 }
+	 return sum == num;
+ }
+
+  bool checkPerfectNumber_2(int num)  //完美数
+ {
+	if(num <= 0)
+	 {
+		 return false;
+	 }
+	 int sum = 0;
+	 for (int i = 1; i*i<=num; ++i)
+	 {
+		 if(num % i == 0)
+		 {
+			 sum += i;
+			 if(i*i != num)
+			 {
+				 sum += num / i;
+			 }
+		 }
+	 }
+	 return sum - num == num;   //因为i=1时会把num加进去，因此要减去
+ }
+
+ int fib(int N)  //斐波那契数
+ {
+	 if(N <= 1)
+	 {
+		 return N;
+	 }
+	 int pre = 0, now = 1;
+	 while (N > 1)
+	 {
+		 now += pre;
+		 pre = now - pre;
+		 --N;
+	 }
+	return now;
+ }
+
+ bool detectCapitalUse(string word)  //检测大写字母
+ {
+	 if(word.size() == 1)
+	 {
+		 return true;
+	 }
+	 bool tmp = isupper(word.at(0));
+	 bool tmp2 = isupper(word.at(1));
+	 for(int i=0; i<word.size(); ++i)
+	 {
+		 if(!tmp)
+		 {
+			 if(isupper(word.at(i)))
+			 {
+				 return false;
+			 }
+		 }
+		 else
+		 {
+			 if(i > 1 && tmp2 && islower(word.at(i)))
+			 {
+					 return false;
+			 }
+			 else if(i > 1 && !tmp2 && isupper(word.at(i)))
+			 {
+				 return false;
+			 }
+		 }
+	 }
+	 return true;
+ }
+
+ int findLUSlength(string a, string b)  //最长特殊序列 Ⅰ
+ {
+	 if(a == b)
+	 {
+		 return -1;
+	 }
+	 return max(a.size(), b.size());
+ }
+
+void goAlongLeft_getMinimumDifference(TreeNode* root, stack<TreeNode*> &tmp)  //二叉搜索树的最小绝对差
+{
+	while(root)
+	{
+		tmp.push(root);
+		root = root->left;
+	}
+}
+
+ int getMinimumDifference(TreeNode* root)  //二叉搜索树的最小绝对差
+ {
+	 stack<TreeNode*> tmp;
+	 set<int> s;
+	 int result = -1;
+	 if(root->left)
+	 {
+		 result = root->val - root->left->val;
+	 }
+	 else
+	 {
+		 result = root->right->val - root->val;
+	 }
+	 while (true)
+	 {
+		 goAlongLeft_getMinimumDifference(root, tmp);
+		 if(tmp.empty())
+		 {
+			 break;
+		 }
+		 root = tmp.top();
+		 tmp.pop();
+		 if(!s.empty())
+		 {
+			 result = min(result, root->val - (*s.rbegin()));
+			 if(result == 0)
+			 {
+				 return 0;
+			 }
+		 }
+		 s.insert(root->val);
+		root = root->right;
+	 }
+	 return result;
  }
 
 int main()
@@ -4828,4 +4993,19 @@ int main()
 
 	//相对名次
 	//findRelativeRanks
+
+	//完美数
+	//checkPerfectNumber
+
+	//斐波那契数
+	//fib
+
+	//检测大写字母
+	//detectCapitalUse
+
+	//最长特殊序列 Ⅰ
+	//findLUSlength
+
+	//二叉搜索树的最小绝对差
+	//getMinimumDifference
 }
