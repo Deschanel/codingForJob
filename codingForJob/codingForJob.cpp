@@ -4568,6 +4568,11 @@ void goAlongLeft_getMinimumDifference(TreeNode* root, stack<TreeNode*> &tmp)  //
 	 return result;
  }
 
+ TreeNode* convertBST(TreeNode* root)
+ {
+	 
+ }
+
 int main()
 {
 	//两数之和
@@ -5051,4 +5056,7 @@ int main()
 
 	//数组中的K-diff数对
 	//findPairs
+
+	//把二叉搜索树转换为累加树
+	//convertBST
 }
