@@ -4568,9 +4568,64 @@ void goAlongLeft_getMinimumDifference(TreeNode* root, stack<TreeNode*> &tmp)  //
 	 return result;
  }
 
- TreeNode* convertBST(TreeNode* root)
+ void goAlongRight_convertBST(TreeNode *root, stack<TreeNode *> &s)
  {
-	 
+	 while (root)
+	 {
+		 s.push(root);
+		 root = root->right;
+	 }
+ }
+
+ TreeNode* convertBST(TreeNode* root)  //把二叉搜索树转换为累加树
+ {
+	 if (!root)
+	 {
+		 return root;
+	 }
+	 int sum = 0;
+	 stack<TreeNode *> s;
+	 TreeNode *result = root;
+	 while (true)
+	 {
+		 goAlongRight_convertBST(root, s);
+		 if (s.empty())
+		 {
+			 break;
+		 }
+		 root = s.top();
+		 s.pop();
+		 sum += root->val;
+		 root->val = sum;
+		 root = root->left;
+	 }
+	 return result;
+ }
+
+ string reverseStr(string s, int k)  //反转字符串 II
+ {
+	 if (s.size() == 0)
+	 {
+		 return s;
+	 }
+	 for (int i = 0; i < s.size(); i += 2 * k)  //每2k个前进
+	 {
+		 if (s.size() - i < k)  //如果最后剩余小于k个
+		 {
+			 reverse(s.begin() + i, s.end());
+			 break;
+		 }
+		 else if (s.size() - i < 2 * k)  //如果最后剩余大于等于k小于2k
+		 {
+			 reverse(s.begin() + i, s.begin() + k + i);
+			 break;
+		 }
+		 else  //大于等于2k个
+		 {
+			 reverse(s.begin() + i, s.begin() + i + k);
+		 }
+	 }
+	 return s;
  }
 
 int main()
@@ -5059,4 +5114,7 @@ int main()
 
 	//把二叉搜索树转换为累加树
 	//convertBST
+
+	//反转字符串 II
+	//reverseStr
 }
