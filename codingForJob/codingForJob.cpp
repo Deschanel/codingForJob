@@ -4628,6 +4628,212 @@ void goAlongLeft_getMinimumDifference(TreeNode* root, stack<TreeNode*> &tmp)  //
 	 return s;
  }
 
+int diameterOfBinaryTree_result = 0;
+ int maxDepth_diameterOfBinaryTree(TreeNode *root)  //二叉树的直径--节点最大深度
+ {
+	 if(!root)
+	 {
+		 return 0;
+	 }
+	int L = maxDepth_diameterOfBinaryTree(root->left);
+	int R = maxDepth_diameterOfBinaryTree(root->right);
+	diameterOfBinaryTree_result = max(diameterOfBinaryTree_result, L + R + 1);
+	return max(L, R) + 1;
+ }
+
+ int diameterOfBinaryTree(TreeNode* root)  //二叉树的直径
+ {
+	 if(!root)
+	 {
+		 return 0;
+	 }
+	 diameterOfBinaryTree_result = 1;
+	 maxDepth_diameterOfBinaryTree(root);
+	 return diameterOfBinaryTree_result - 1; //多加了跟节点
+ }
+
+ bool checkRecord(string s)  //学生出勤记录 I
+ {
+	 if(s.size() <= 1)
+	 {
+		 return true;
+	 }
+	 int numOfA = 0, preL = -2;  //preL=-2排除掉第一个字符为0
+	 for (int i = 0; i < s.size(); ++i)
+	 {
+		 if(s.at(i) == 'A') //如果等于A，就加一同时检查个数
+		 {
+			 numOfA++;
+			 if(numOfA > 1)
+			{
+				return false;
+			}
+		 }
+		 else if(s.at(i) == 'L')  //如果等于L
+		 {
+			if(preL == i - 1 && i < s.size() - 1 && s.at(i + 1) == 'L')  //如果前一个为L，后一个为L，则false
+			 {
+				 return false;
+			 }
+			 else
+			 {
+				 preL = i;  //否则的话，也就是说前面的L已经通过了，则再次计算L就从当前开始
+			 }	 
+		 }
+	 }
+	 return true;
+ }
+
+  string reverseWords(string s)   //反转字符串中的单词 III
+  {
+	  string result = "";
+	  string tmp = "";
+	  for(int i=0; i<s.size(); ++i)
+	  {
+		  if(s.at(i) == ' ')
+		  {
+			  result += tmp;
+			  i == s.size() - 1 ? result += "" : result += " ";  //如果是最后一个字符为空格，那么直接忽略，否则需要加上空格
+			  tmp = "";
+		  }
+		  else 
+		  {
+			  tmp = s.at(i) + tmp;
+		  }
+		  if(i == s.size() - 1)  //最后一个字符不为空格，这样在上边的if中没有进入，则还是需要加入tmp
+		  {
+			  result += tmp;
+		  }
+	  }
+	  return result;
+  }
+
+class Node  //四叉树交集
+{   
+public:
+    bool val;
+    bool isLeaf;
+    Node* topLeft;
+    Node* topRight;
+    Node* bottomLeft;
+    Node* bottomRight;
+
+    Node() {}
+
+    Node(bool _val, bool _isLeaf, Node* _topLeft, Node* _topRight, Node* _bottomLeft, Node* _bottomRight) {
+        val = _val;
+        isLeaf = _isLeaf;
+        topLeft = _topLeft;
+        topRight = _topRight;
+        bottomLeft = _bottomLeft;
+        bottomRight = _bottomRight;
+    }
+};
+  Node* intersect(Node* quadTree1, Node* quadTree2)  //四叉树交集
+  {
+	  if(quadTree1->isLeaf && quadTree2->isLeaf)  //如果都为叶子
+	  {
+		  if(quadTree1->val)
+		  {
+			  return quadTree1;
+		  }
+		  else
+		  {
+			  return quadTree2;
+		  }
+	  }
+	  else if (quadTree1->isLeaf && !quadTree2->isLeaf)  //如果quadTree1为叶子，quadTree2不为叶子
+	  {
+		  if(quadTree1->val)
+		  {
+			  return quadTree1;
+		  }
+		  else
+		  {
+			  return quadTree2;
+		  }
+	  }
+	  else if(!quadTree1->isLeaf && quadTree2->isLeaf)  //如果quadTree1不为叶子，quadTree2为叶子
+	  {
+		  if(quadTree2->val)
+		  {
+			  return quadTree2;
+		  }
+		  else
+		  {
+			  return quadTree1;
+		  }
+	  }
+	  else  //如果都不为叶子
+	  {
+		  Node *result = new Node(false, false, nullptr, nullptr, nullptr, nullptr);;
+		  result->bottomLeft = intersect(quadTree1->bottomLeft, quadTree2->bottomLeft);  //两者左下合并
+		  result->bottomRight = intersect(quadTree1->bottomRight, quadTree2->bottomRight);  //两者右下合并
+		  result->topLeft = intersect(quadTree1->topLeft, quadTree2->topLeft);  //两者左上合并
+		  result->topRight = intersect(quadTree1->topRight, quadTree2->topRight);  //两者右上合并
+		  if(result->bottomLeft->isLeaf && result->bottomRight->isLeaf && result->topLeft->isLeaf && result->topRight->isLeaf)  //如果四个都为叶子
+		  {
+			  bool tmp = result->bottomLeft->val;
+			  if(result->bottomRight->val == tmp && result->topLeft->val == tmp && result->topRight->val == tmp)  //都为叶子，且值相等，要合并
+			  {
+				  result->val = tmp;
+				  result->isLeaf = true;
+				  result->bottomLeft = nullptr;
+				  result->bottomRight = nullptr;
+				  result->topLeft = nullptr;
+				  result->topRight = nullptr;
+			  }
+		  } 
+		  return result;
+	  }
+  }
+
+class maxDepth_Node {
+public:
+    int val;
+    vector<maxDepth_Node*> children;
+
+    maxDepth_Node() {}
+
+    maxDepth_Node(int _val) {
+        val = _val;
+    }
+
+    maxDepth_Node(int _val, vector<maxDepth_Node*> _children) {
+        val = _val;
+        children = _children;
+    }
+};
+
+int maxDepth_n(maxDepth_Node* root)  //N叉树的最大深度
+{
+	if(!root)
+	{
+		return 0;
+	}
+	int result = 0;
+	for(int i=0; i<root->children.size(); ++i)
+	{
+		int tmp = maxDepth_n(root->children.at(i));
+		result = max(result, tmp);
+	}
+	return result + 1;
+}
+
+int arrayPairSum(vector<int>& nums)  //数组拆分 I
+{
+	sort(nums.begin(), nums.end());
+	int result = 0;
+	for(int i=0; i<nums.size(); ++i)
+	{
+		if(i % 2 == 0)
+		{
+			result += nums.at(i);
+		}
+	}
+	return result;
+}
+
 int main()
 {
 	//两数之和
@@ -5117,4 +5323,22 @@ int main()
 
 	//反转字符串 II
 	//reverseStr
+
+	//二叉树的直径
+	//diameterOfBinaryTree
+
+	//学生出勤记录 I
+	//checkRecord
+
+	//反转字符串中的单词 III
+	//reverseWords
+
+	//四叉树交集
+	//intersect
+
+	//N叉树的最大深度
+	//maxDepth
+
+	//数组拆分 I
+	//arrayPairSum
 }
