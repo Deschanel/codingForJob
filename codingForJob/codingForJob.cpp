@@ -4834,6 +4834,26 @@ int arrayPairSum(vector<int>& nums)  //数组拆分 I
 	return result;
 }
 
+int getSum_findTilt(TreeNode *root) //获得当前节点以及左右子树和
+{
+	if (!root)
+	{
+		return 0;
+	}
+	int sumL = getSum_findTilt(root->left);
+	int sumR = getSum_findTilt(root->right);
+	return sumL + sumR + root->val;
+}
+
+int findTilt(TreeNode* root)  //二叉树的坡度
+{
+	if (!root)
+	{
+		return 0;
+	}
+	
+}
+
 int main()
 {
 	//两数之和
@@ -5341,4 +5361,7 @@ int main()
 
 	//数组拆分 I
 	//arrayPairSum
+
+	//二叉树的坡度
+	//findTilt
 }
