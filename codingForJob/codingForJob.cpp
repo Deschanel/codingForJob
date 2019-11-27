@@ -4834,14 +4834,15 @@ int arrayPairSum(vector<int>& nums)  //数组拆分 I
 	return result;
 }
 
-int getSum_findTilt(TreeNode *root) //获得当前节点以及左右子树和
+int getSum_findTilt(TreeNode *root, int &result) //获得当前节点以及左右子树和
 {
 	if (!root)
 	{
 		return 0;
 	}
-	int sumL = getSum_findTilt(root->left);
-	int sumR = getSum_findTilt(root->right);
+	int sumL = getSum_findTilt(root->left, result);
+	int sumR = getSum_findTilt(root->right, result);
+	result += abs(sumL - sumR);  //加上当前节点的坡度
 	return sumL + sumR + root->val;
 }
 
@@ -4851,7 +4852,144 @@ int findTilt(TreeNode* root)  //二叉树的坡度
 	{
 		return 0;
 	}
-	
+	int result = 0;
+	getSum_findTilt(root, result);
+	return result;
+}
+
+vector<vector<int>> matrixReshape(vector<vector<int>>& nums, int r, int c)  //重塑矩阵
+{
+	if (nums.size() == 0)
+	{
+		return nums;
+	}
+	int lenofNums = nums.size(), lenofitem = nums.at(0).size();
+	if (lenofNums * lenofitem != r * c)
+	{
+		return nums;
+	}
+	vector<vector<int>> result(r, vector<int>(c));
+	int i = 0, j = 0, ri = 0, cj = 0;
+	while (ri < r)
+	{
+		cj = 0;
+		while (cj < c)
+		{
+			result.at(ri).at(cj) = nums.at(i).at(j);
+			if (j == lenofitem - 1)
+			{
+				if (i == lenofNums - 1)
+				{
+					if (ri == r - 1 && cj == c - 1)
+					{
+						return result;  //其实因为前面判断是否乘积相等，就意味着肯定能到这步
+					}
+					else
+					{
+						return nums;
+					}
+				}
+				j = 0;
+				i += 1;
+			}
+			else
+			{
+				++j;
+			}
+			++cj;
+		}
+		++ri;
+	}
+	return result;
+}
+
+bool isSameTree_isSubtree(TreeNode* s, TreeNode* t)
+{
+	if (!s && !t)
+	{
+		return true;
+	}
+	else if (!s || !t)
+	{
+		return false;
+	}
+	if (s->val == t->val)
+	{
+		return isSameTree_isSubtree(s->left, t->left) && isSameTree_isSubtree(s->right, t->right);
+	}
+	else
+	{
+		return false;
+	}
+}
+bool isSubtree(TreeNode* s, TreeNode* t)  //另一个树的子树
+{
+	if (!t && !s)
+	{
+		return true;
+	}
+	else if ((!t && s) || (t && !s))
+	{
+		return false;
+	}
+	queue<TreeNode *> q;
+	q.push(s);
+	while (!q.empty())
+	{
+		s = q.front();
+		q.pop();
+		if (s->val == t->val)
+		{
+			//判断左右子树是否是相同的子树
+			bool tmp1 = isSameTree_isSubtree(s->left, t->left);
+			bool tmp2 = isSameTree_isSubtree(s->right, t->right);
+			if (tmp2 && tmp1)  //相等的话直接返回true
+			{
+				return true;
+			}
+			//否则的话继续遍历找值与t的根节点相同的
+		}
+		//继续遍历
+		if (s->left)
+		{
+			q.push(s->left);
+		}
+		if (s->right)
+		{
+			q.push(s->right);
+		}
+	}
+	return false;
+}
+
+int distributeCandies_1(vector<int>& candies)  //分糖果
+{
+	//这个题就类比于去重，去过重复后不相同的数字个数小于数组长度一半的话，妹妹分的糖果首先先给妹妹每种糖果一个，剩下的不够的随便拿；如果要是种类数大于数组长度一半的话，那么种类数就是数组长度一半
+	int num = candies.size() / 2;  //每个人可以分得的个数
+	sort(candies.begin(), candies.end());
+	int meimei = 0;  //妹妹种类数，因为最后肯定两个人都是num个，因此我们不关心具体怎么分的，我们只关心妹妹种类最大数
+	int pre = candies.at(0);
+	meimei += 1;
+	for (int i = 1; i < candies.size(); ++i)
+	{
+		if (candies.at(i) != pre && meimei < num)  //给妹妹每种糖果的第一个，妹妹种类最大数，肯定小于等于其个数，超过的话就不要加了
+		{
+			meimei += 1;
+			pre = candies.at(i);
+		}
+	}
+	return meimei;
+}
+int distributeCandies_2(vector<int>& candies)  //分糖果
+{
+	//这个题就类比于去重，去过重复后不相同的数字个数小于数组长度一半的话，妹妹分的糖果首先先给妹妹每种糖果一个，剩下的不够的随便拿；如果要是种类数大于数组长度一半的话，那么种类数就是数组长度一半
+	int num = candies.size() / 2;  //每个人可以分得的个数
+	set<int> s; //这个插入时候挺费时间的
+	for (int i : candies)
+	{
+		s.insert(i);
+	}
+	return s.size() < num ? s.size() : num;
 }
 
 int main()
@@ -5364,4 +5502,13 @@ int main()
 
 	//二叉树的坡度
 	//findTilt
+
+	//重塑矩阵
+	//matrixReshape
+
+	//另一个树的子树
+	//isSubtree
+
+	//分糖果
+	//distributeCandies
 }
