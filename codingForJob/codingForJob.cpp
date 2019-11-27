@@ -4992,6 +4992,11 @@ int distributeCandies_2(vector<int>& candies)  //分糖果
 	return s.size() < num ? s.size() : num;
 }
 
+int findUnsortedSubarray(vector<int>& nums)  //最短无序连续子数组
+{
+	
+}
+
 int main()
 {
 	//两数之和
@@ -5511,4 +5516,7 @@ int main()
 
 	//分糖果
 	//distributeCandies
+
+	//最短无序连续子数组
+	//findUnsortedSubarray
 }
