@@ -11,6 +11,7 @@
 #include <set>
 #include <bitset>
 #include <cmath>
+#include <unordered_map>
 
 using namespace std;
 
@@ -5156,6 +5157,154 @@ int findLHS(vector<int>& nums)  //最长和谐子序列
 	return result;
 }
 
+int maxCount(int m, int n, vector<vector<int>>& ops) //范围求和 II
+{
+	int rowCount = m, columnCount = n;
+	for (int i = 0; i < ops.size(); ++i)
+	{
+		rowCount = min(rowCount, ops.at(i).at(0));
+		columnCount = min(columnCount, ops.at(i).at(1));
+	}
+	return rowCount * columnCount;
+}
+
+vector<string> findRestaurant(vector<string>& list1, vector<string>& list2)  //两个列表的最小索引总和--map
+{
+	map<string, int> m;
+	map<string, int>::iterator ifind, ii;
+	for (int i = 0; i < list1.size(); ++i)
+	{
+		m.insert(pair<string, int>(list1.at(i), i));
+	}
+	int minSum = INT_MAX;
+	ii = m.begin();
+	vector<string> result; 
+	for(int i=0; i<list2.size(); ++i)
+	{
+		ifind = m.find(list2.at(i));
+		if(ifind != m.end())
+		{
+			if(minSum > i + ifind->second)
+			{
+				minSum = i + ifind->second;
+				result.clear();
+				result.push_back(ifind->first);
+			}
+			else if(minSum == i + ifind->second)
+			{
+				result.push_back(ifind->first);
+			}
+		}
+	}
+	return result;
+}
+
+vector<string> findRestaurant(vector<string>& list1, vector<string>& list2)  //两个列表的最小索引总和--unordered_map
+{
+	unordered_map<string, int> um;
+	unordered_map<string, int>::iterator ifind, ii;
+	for (int i = 0; i < list1.size(); ++i)
+	{
+		um.insert(pair<string, int>(list1.at(i), i));
+	}
+	int minSum = INT_MAX;
+	ii = um.begin();
+	vector<string> result; 
+	for(int i=0; i<list2.size(); ++i)
+	{
+		ifind = um.find(list2.at(i));
+		if(ifind != um.end())
+		{
+			if(minSum > i + ifind->second)
+			{
+				minSum = i + ifind->second;
+				result.clear();
+				result.push_back(ifind->first);
+			}
+			else if(minSum == i + ifind->second)
+			{
+				result.push_back(ifind->first);
+			}
+		}
+	}
+	return result;
+}
+
+bool canPlaceFlowers_1(vector<int>& flowerbed, int n)  //种花问题
+{
+	if(n == 0)
+	{
+		return true;
+	}
+	else if(n > flowerbed.size() / 2 + 1)
+	{
+		return false;
+	}
+	for (int i = 0; i < flowerbed.size(); ++i)
+	{
+		if(i == 0 && flowerbed.at(i) == 0 && (i == flowerbed.size() - 1 || flowerbed.at(i + 1) == 0))
+		{
+			flowerbed.at(i) == 1;
+			--n;
+		}
+		else if(i == flowerbed.size() - 1 && flowerbed.at(i) == 0 && flowerbed.at(i - 1) == 0)
+		{
+			flowerbed.at(i) == 1;
+			--n;
+		}
+		else if(flowerbed.at(i) == 0 &&  i > 0 && i < flowerbed.size() - 1 && flowerbed.at(i - 1) == 0 &&  flowerbed.at(i + 1) == 0)
+		{
+			flowerbed.at(i) == 1;
+			--n;
+		}
+	}
+	return n <= 0;
+}
+
+bool canPlaceFlowers_2(vector<int>& flowerbed, int n)  //种花问题
+{
+	if(n == 0)
+	{
+		return true;
+	}
+	else if(n > flowerbed.size() / 2 + 1)
+	{
+		return false;
+	}
+	for (int i = 0; i < flowerbed.size();)
+	{
+		if(i == 0 && flowerbed.at(i) == 0 && (i == flowerbed.size() - 1 || flowerbed.at(i + 1) == 0))
+		{
+			i += 2;
+			--n;
+		}
+		else if(i == flowerbed.size() - 1 && flowerbed.at(i) == 0 && flowerbed.at(i - 1) == 0)
+		{
+			i += 2;
+			--n;
+		}
+		else if(flowerbed.at(i) == 0 &&  i > 0 && i < flowerbed.size() - 1 && flowerbed.at(i - 1) == 0 &&  flowerbed.at(i + 1) == 0)
+		{
+			i += 2;
+			--n;
+		}
+		else
+		{
+			++i;
+		}
+	}
+	return n <= 0;
+}
+
+string tree2str(TreeNode* t)  //根据二叉树创建字符串
+{
+	if(!t)
+	{
+		return "";
+	}
+	
+}
+
 int main()
 {
 	//两数之和
@@ -5687,4 +5836,16 @@ int main()
 
 	//最长和谐子序列
 	//findLHS
+
+	//范围求和 II
+	//maxCount
+
+	//两个列表的最小索引总和
+	//findRestaurant
+
+	//种花问题
+	//canPlaceFlowers
+
+	//根据二叉树创建字符串
+	//tree2str
 }
