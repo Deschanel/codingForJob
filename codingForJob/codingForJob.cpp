@@ -4994,7 +4994,166 @@ int distributeCandies_2(vector<int>& candies)  //分糖果
 
 int findUnsortedSubarray(vector<int>& nums)  //最短无序连续子数组
 {
-	
+	if (nums.size() == 1)
+	{
+		return 0;
+	}
+	int minvalue = INT_MAX, maxvalue = INT_MIN;
+	for (int i=0; i<nums.size() - 1; ++i)
+	{
+		if (nums.at(i) > nums.at(i + 1))
+		{
+			minvalue = min(minvalue, nums.at(i + 1));
+		}
+	}
+	for (int i=nums.size() - 1; i>0; --i)
+	{
+		if (nums.at(i) < nums.at(i - 1))
+		{
+			maxvalue = max(maxvalue, nums.at(i - 1));
+		}
+	}
+	int l = 0, r = nums.size() - 1;
+	for (; l<nums.size(); ++l)
+	{
+		if (nums.at(l) > minvalue)
+		{
+			break;
+		}
+	}
+	for (; r>=0; --r)
+	{
+		if (nums.at(r) < maxvalue)
+		{
+			break;
+		}
+	}
+	return r < l ? 0 : r - l + 1;
+}
+
+void qianxubianli_preorder(maxDepth_Node* root, vector<int> &result)  //N叉树的前序遍历--递归
+{
+	if (!root)
+	{
+		return;
+	}
+	result.push_back(root->val);
+	for (int i = 0; i < root->children.size(); ++i)
+	{
+		qianxubianli_preorder(root->children.at(i), result);
+	}
+}
+vector<int> preorder(maxDepth_Node* root)  //N叉树的前序遍历--递归
+{
+	if (!root)
+	{
+		return {};
+	}
+	vector<int> result;
+	qianxubianli_preorder(root, result);
+	return result;
+}
+
+vector<int> preorder_diedai(maxDepth_Node* root)  //N叉树的前序遍历--迭代
+{
+	if (!root)
+	{
+		return {};
+	}
+	vector<int> result;
+	stack<maxDepth_Node*> s;
+	s.push(root);
+	while (!s.empty())
+	{
+		root = s.top();
+		s.pop();
+		result.push_back(root->val);
+		for (int i = root->children.size() - 1; i >= 0; --i)
+		{
+			s.push(root->children.at(i));
+		}
+	}
+	return result;
+}
+
+void houxubianli_postorder(maxDepth_Node* root, vector<int> &result)  //N叉树的后序遍历--递归
+{
+	if (!root)
+	{
+		return;
+	}
+	for (int i=0; i<root->children.size(); ++i)
+	{
+		houxubianli_postorder(root->children.at(i), result);
+	}
+	result.push_back(root->val);
+}
+vector<int> postorder_digui(maxDepth_Node* root)  //N叉树的后序遍历--递归
+{
+	if (!root)
+	{
+		return {};
+	}
+	vector<int> result;
+	houxubianli_postorder(root, result);
+	return result;
+}
+
+vector<int> postorder_diedai(maxDepth_Node* root)  //N叉树的后序遍历--迭代
+{
+	if (!root)
+	{
+		return {};
+	}
+	vector<int> result;
+	stack<maxDepth_Node*> s;
+	s.push(root);
+	while (!s.empty())
+	{
+		root = s.top();
+		s.pop();
+		result.push_back(root->val);
+		for (int i = 0; i < root->children.size(); ++i)
+		{
+			s.push(root->children.at(i));
+		}
+	}
+	reverse(result.begin(), result.end());
+	return result;
+}
+
+int findLHS(vector<int>& nums)  //最长和谐子序列
+{
+	if (nums.size() < 2)
+	{
+		return 0;
+	}
+	map<int, int> m;
+	for (int i : nums)
+	{
+		if (m.find(i) != m.end())
+		{
+			m.find(i)->second++;
+		}
+		else
+		{
+			m.insert(pair<int, int>(i, 1));
+		}
+	}
+	map<int, int>::iterator i = m.begin(), ifind;
+	int result = 0, count = 0;
+	for (; i != m.end(); i++)
+	{
+		ifind = m.find(i->first + 1);
+		if (ifind != m.end())
+		{
+			count += i->second;
+			count += ifind->second;
+			result = max(result, count);
+		}
+		count = 0;
+	}
+	return result;
 }
 
 int main()
@@ -5519,4 +5678,13 @@ int main()
 
 	//最短无序连续子数组
 	//findUnsortedSubarray
+
+	//N叉树的前序遍历
+	//preorder
+
+	//N叉树的后序遍历
+	//postorder
+
+	//最长和谐子序列
+	//findLHS
 }
