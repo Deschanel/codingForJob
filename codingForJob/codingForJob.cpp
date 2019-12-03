@@ -5340,10 +5340,57 @@ TreeNode* mergeTrees(TreeNode* t1, TreeNode* t2)  //合并二叉树--原地算�
 	return t1;
 }
 
-int maximumProduct(vector<int>& nums)  //三个数的最大乘积
+int maximumProduct(vector<int>& nums)  //三个数的最大乘积, 排序后肯定出现在前三个和最后三个组成的6个数字中的三个之积
 {
 	sort(nums.begin(), nums.end());
-	
+	int result = INT_MIN;
+	int len = 6;
+	if (nums.size() < 6)
+	{
+		len = nums.size();
+	}
+	else
+	{
+		swap(nums.at(3), nums.at(nums.size() - 3));
+		swap(nums.at(4), nums.at(nums.size() - 2));
+		swap(nums.at(5), nums.at(nums.size() - 1));
+	}
+	for (int i = 0; i < len; ++i)
+	{
+		for (int j = i + 1; j < len; ++j)
+		{
+			for (int k = j + 1; k < len; ++k)
+			{
+				result = max(result, nums.at(i)*nums.at(j)*nums.at(k));
+			}
+		}
+	}
+	return result;
+}
+
+bool judgeSquareSum(int c)  //平方数之和
+{
+	if(c == 0)
+	{
+		return true;
+	}
+	for(int i=0; i<sqrt(c); ++i)
+	{
+		double sq = sqrt(c - i*i);
+		if(sq - static_cast<int>(sq) < 1e-6)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+vector<double> averageOfLevels(TreeNode* root)  //二叉树的层平均值
+{
+	if(!root)
+	{
+		return {};
+	}
 }
 
 int main()
@@ -5895,4 +5942,10 @@ int main()
 
 	//三个数的最大乘积
 	//maximumProduct
+	
+	//平方数之和
+	//judgeSquareSum
+	
+	//二叉树的层平均值
+	//averageOfLevels
 }
