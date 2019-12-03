@@ -5244,17 +5244,17 @@ bool canPlaceFlowers_1(vector<int>& flowerbed, int n)  //种花问题
 	{
 		if(i == 0 && flowerbed.at(i) == 0 && (i == flowerbed.size() - 1 || flowerbed.at(i + 1) == 0))
 		{
-			flowerbed.at(i) == 1;
+			flowerbed.at(i) = 1;
 			--n;
 		}
 		else if(i == flowerbed.size() - 1 && flowerbed.at(i) == 0 && flowerbed.at(i - 1) == 0)
 		{
-			flowerbed.at(i) == 1;
+			flowerbed.at(i) = 1;
 			--n;
 		}
 		else if(flowerbed.at(i) == 0 &&  i > 0 && i < flowerbed.size() - 1 && flowerbed.at(i - 1) == 0 &&  flowerbed.at(i + 1) == 0)
 		{
-			flowerbed.at(i) == 1;
+			flowerbed.at(i) = 1;
 			--n;
 		}
 	}
@@ -5302,6 +5302,47 @@ string tree2str(TreeNode* t)  //根据二叉树创建字符串
 	{
 		return "";
 	}
+	string ls = tree2str(t->left);
+	string rs = tree2str(t->right);
+	string result;
+	result += std::to_string(t->val);
+	if (!rs.empty())
+	{
+		ls = "(" + ls + ")";
+		rs = "(" + rs + ")";
+	}
+	else
+	{
+		if (!ls.empty())
+		{
+			ls = "(" + ls + ")";
+		}
+	}
+	result = result + ls + rs;
+	return result;
+}
+
+TreeNode* mergeTrees(TreeNode* t1, TreeNode* t2)  //合并二叉树--原地算法，需要O(1)空间
+{
+	if (!t1)
+	{
+		return t2;
+	}
+	if (!t2)
+	{
+		return t1;
+	}
+	TreeNode *l = mergeTrees(t1->left, t2->left);
+	TreeNode *r = mergeTrees(t1->right, t2->right);
+	t1->val = t2->val + t1->val;
+	t1->left = l;
+	t1->right = r;
+	return t1;
+}
+
+int maximumProduct(vector<int>& nums)  //三个数的最大乘积
+{
+	sort(nums.begin(), nums.end());
 	
 }
 
@@ -5848,4 +5889,10 @@ int main()
 
 	//根据二叉树创建字符串
 	//tree2str
+
+	//合并二叉树
+	//mergeTrees
+
+	//三个数的最大乘积
+	//maximumProduct
 }
