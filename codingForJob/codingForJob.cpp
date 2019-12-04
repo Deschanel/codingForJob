@@ -12,6 +12,7 @@
 #include <bitset>
 #include <cmath>
 #include <unordered_map>
+#include <unordered_set>
 
 using namespace std;
 
@@ -5391,6 +5392,117 @@ vector<double> averageOfLevels(TreeNode* root)  //二叉树的层平均值
 	{
 		return {};
 	}
+	queue<TreeNode *> q;
+	q.push(root);
+	vector<double> result;
+	while (!q.empty())
+	{
+		long int sum = 0, count = 0;
+		queue<TreeNode*> tmp;
+		while (!q.empty())
+		{
+			root = q.front();
+			q.pop();
+			sum += root->val;
+			++count;
+			if (root->left)
+			{
+				tmp.push(root->left);
+			}
+			if (root->right)
+			{
+				tmp.push(root->right);
+			}
+		}
+		result.push_back(sum*1.0 / count);
+		q = tmp;
+	}
+	return result;
+}
+
+double findMaxAverage(vector<int>& nums, int k)  //子数组最大平均数 I
+{
+	//从前一个往后数k个，与当前数往后数k个，其中有k-1个是重复的，因此不需要重复加和，只需要把前一个减去，再加上从当前数往后的第k个即可
+	double result = -10000;
+	double preResult = -10000;
+	for (int i=0; i<nums.size() - k + 1; ++i)
+	{
+		double tmp = 0;
+		if (i == 0)
+		{
+			for (int j = 0; j < k; ++j)
+			{
+				tmp += (nums.at(i + j)*1.0 / k);
+			}
+		}
+		else
+		{
+			tmp = (preResult*k - nums.at(i - 1) + nums.at(i + k - 1)) / k;
+		}
+		preResult = tmp;
+		result = max(result, tmp);
+	}
+	return result;
+}
+
+vector<int> findErrorNums(vector<int>& nums)  //错误的集合
+{
+	unordered_set<int> us;
+	vector<int> result;
+	for (int i : nums)
+	{
+		if (us.find(i) == us.end())
+		{
+			us.insert(i);
+		}
+		else
+		{
+			result.push_back(i);
+		}
+	}
+	for (int i = 1; i <= nums.size(); ++i)
+	{
+		if (us.find(i) == us.end())
+		{
+			result.push_back(i);
+		}
+	}
+	return result;
+}
+
+void goAlongLeft_findTarget(TreeNode* root, stack<TreeNode*> &s)
+{
+	while (root)
+	{
+		s.push(root);
+		root = root->left;
+	}
+}
+bool findTarget(TreeNode* root, int k)  //两数之和 IV - 输入 BST
+{
+	//中序遍历
+	stack<TreeNode*> s;
+	unordered_set<int> us;
+	while (true)
+	{
+		goAlongLeft_findTarget(root, s);
+		if (s.empty())
+		{
+			break;
+		}
+		root = s.top();
+		s.pop();
+		if (us.find(k - root->val) != us.end())
+		{
+			return true;
+		}
+		else
+		{
+			us.insert(root->val);
+		}
+		root = root->right;
+	}
+	return false;
 }
 
 int main()
@@ -5948,4 +6060,13 @@ int main()
 	
 	//二叉树的层平均值
 	//averageOfLevels
+
+	//子数组最大平均数 I
+	//findMaxAverage
+
+	//错误的集合
+	//findErrorNums
+
+	//两数之和 IV - 输入 BST
+	//findTarget
 }
