@@ -5505,6 +5505,163 @@ bool findTarget(TreeNode* root, int k)  //两数之和 IV - 输入 BST
 	return false;
 }
 
+bool judgeCircle(string moves)  //机器人能否返回原点
+{
+	int udNum = 0, lrNum = 0;
+	for (char c : moves)
+	{
+		if (c == 'U')
+		{
+			++udNum;
+		}
+		else if (c == 'D')
+		{
+			--udNum;
+		}
+		else if (c == 'L')
+		{
+			++lrNum;
+		}
+		else if(c == 'R')
+		{
+			--lrNum;
+		}
+	}
+	return udNum == 0 && lrNum == 0;
+}
+
+vector<vector<int>> imageSmoother(vector<vector<int>>& M)  //暴力解法
+{
+	if (M.size() == 0 || (M.size() == 1 && M.at(0).size() == 1))
+	{
+		return M;
+	}
+	vector<vector<int>> result(M.size(), vector<int>(M.at(0).size(), 0));
+	int row = M.size(), column = M.at(0).size();
+	for (int i=0; i<row; ++i)
+	{
+		for (int j=0; j<column; ++j)
+		{
+			int sum = 0, count = 0;
+			for (int c=i-1; c<=i+1; ++c)
+			{
+				if (c >= 0 && c < row)
+				{
+					for (int d=j-1; d<=j+1; ++d)
+					{
+						if (d >= 0 && d < column)
+						{
+							sum += M.at(c).at(d);
+							++count;
+						}
+					}
+				}
+			}
+			result.at(i).at(j) = sum / count;
+		}
+	}
+	return result;
+}
+
+bool checkPossibility(vector<int>& nums)   //非递减数列
+{
+	//看逆序对个数是否小于等于1,然后再讨论
+	if (nums.size() <= 2)
+	{
+		return true;
+	}
+	int count = 0, j = 0, i = 0;
+	bool isFind = false;
+	for (; i<nums.size()-1; ++i)
+	{
+		if (nums.at(i) > nums.at(i + 1))
+		{
+			++count;
+			isFind = true;
+		}
+		else
+		{
+			if (!isFind)
+			{
+				++j;
+			}
+		}
+	}
+	if (count > 1)
+	{
+		return false;
+	}
+	else if (count == 0)
+	{
+		return true;
+	}
+	if (j == 0 || j == nums.size() - 2)
+	{
+		return true;
+	}
+	return nums.at(j) <= nums.at(j + 2) || nums.at(j - 1) <= nums.at(j + 1); //只要在下降点处，满足前一个小于后一个，或者当前这个小于后面第二个，都可以修改当前这个或者下一个得到非递减
+}
+
+TreeNode* trimBST(TreeNode* root, int L, int R)  //修剪二叉搜索树
+{
+	if (!root)
+	{
+		return root;
+	}
+	if (root->val < L)  //如果root值小于L，那么需要对root的右子树修建并且舍弃当前root，且重新把修剪好的赋值给返回值root
+	{
+		root = trimBST(root->right, L, R);
+	}
+	else if (root->val > R)  //如果root值大于R，那么需要对root的左子树修建并舍弃当前root，且重新把修剪后的赋值给返回值root
+	{
+		root = trimBST(root->left, L, R);
+	}
+	else  //root值在两者之间，那么分别对其左右树修剪，不把root舍弃
+	{
+		root->left = trimBST(root->left, L, R);
+		root->right = trimBST(root->right, L, R);
+	}
+	return root;
+}
+
+int findSecondMinimumValue(TreeNode* root)  //二叉树中第二小的节点
+{
+	if (!root || (!root->left && root->right))
+	{
+		return -1;
+	}
+	set<int> s; //维护一个只有两个数的set
+	set<int>::iterator tmp;
+	queue<TreeNode*> q;
+	q.push(root);
+	while (!q.empty())
+	{
+		root = q.front();
+		q.pop();
+		s.insert(root->val);
+		if (s.size() > 2)
+		{
+			tmp = s.begin();
+			++tmp; ++tmp;
+			s.erase(tmp);
+		}
+		if (root->left)
+		{
+			q.push(root->left);
+		}
+		if (root->right)
+		{
+			q.push(root->right);
+		}
+	}
+	if (s.size() == 1)
+	{
+		return -1;
+	}
+	tmp = s.begin();
+	return *(++tmp);
+}
+
 int main()
 {
 	//两数之和
@@ -6069,4 +6226,19 @@ int main()
 
 	//两数之和 IV - 输入 BST
 	//findTarget
+
+	//机器人能否返回原点
+	//judgeCircle
+	
+	//图片平滑器
+	//imageSmoother
+
+	//非递减数列
+	//checkPossibility
+
+	//修剪二叉搜索树
+	//trimBST
+
+	//二叉树中第二小的节点
+	//findSecondMinimumValue
 }
