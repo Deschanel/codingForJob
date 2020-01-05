@@ -262,6 +262,14 @@ vector<vector<int>> threeSum(vector<int>& nums)  //三数之和
 				result.push_back({ nums.at(i), nums.at(l), nums.at(r) });
 				++l;
 				--r;
+				while (l < r && nums.at(l) == nums.at(l - 1))
+				{
+					++l;
+				}
+				while (l < r && nums.at(r) == nums.at(r + 1))
+				{
+					--r;
+				}
 			}
 		}
 	}
