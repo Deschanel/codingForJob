@@ -149,6 +149,125 @@ int lengthOfLongestSubstring_2(string s)  //无重复字符的最长子串
 	return result;
 }
 
+ListNode* swapPairs(ListNode* head)  //两两交换链表中的节点
+{
+	if (!head || !head->next) {
+		return head;
+	}
+	ListNode* t = new ListNode(0);
+	ListNode* result = t;
+
+	while (head && head->next)
+	{
+		ListNode* pre = head;
+		ListNode* now = head->next;
+		ListNode* tmp = head->next->next;
+		now->next = pre;
+		pre->next = tmp;
+		t->next = now;
+		head = tmp;
+		t = t->next->next;
+	}
+	return result->next;
+}
+
+ListNode *detectCycle_1(ListNode *head)  //环形链表 II--hash表
+{
+	if (!head || !head->next)
+	{
+		return nullptr;
+	}
+	int i = 0;
+	unordered_map<ListNode*, int> um;
+	unordered_map<ListNode*, int>::iterator ifind, iend = um.end();
+	while (head)
+	{
+		ifind = um.find(head);
+		if (ifind == iend)
+		{
+			um.insert(pair<ListNode*, int>(head, i));
+		}
+		else
+		{
+			return ifind->first;
+		}
+		head = head->next;
+		++i;
+	}
+	return nullptr;
+}
+
+ListNode *detectCycle_2(ListNode *head)  //环形链表 II--快慢指针https://leetcode-cn.com/problems/linked-list-cycle-ii/solution/huan-xing-lian-biao-ii-by-leetcode/
+{
+	if (!head || !head->next)
+	{
+		return nullptr;
+	}
+	ListNode* slow = head;
+	ListNode* fast = head;
+	ListNode* meetPoint = nullptr;
+	while (fast && fast->next)
+	{
+		fast = fast->next->next;
+		slow = slow->next;
+		if (fast == slow)
+		{
+			meetPoint = fast;
+			break;
+		}
+	}
+	if (!meetPoint)
+	{
+		return nullptr;
+	}
+	while (head != meetPoint)
+	{
+		head = head->next;
+		meetPoint = meetPoint->next;
+	}
+	return head;
+}
+
+vector<vector<int>> threeSum(vector<int>& nums)  //三数之和
+{
+	if (nums.size() < 3)
+	{
+		return {};
+	}
+	sort(nums.begin(), nums.end());
+	vector<vector<int>> result;
+	for (int i = 0; i < nums.size(); ++i)
+	{
+		if (nums.at(i) > 0)
+		{
+			break;
+		}
+		if (i > 0 && nums.at(i) == nums.at(i - 1))
+		{
+			continue;
+		}
+		int l = i + 1, r = nums.size() - 1;
+		while (l < r)
+		{
+			if (nums.at(i) + nums.at(l) + nums.at(r) > 0)
+			{
+				--r;
+			}
+			else if(nums.at(i) + nums.at(l) + nums.at(r) < 0)
+			{
+				++l;
+			}
+			else
+			{
+				result.push_back({ nums.at(i), nums.at(l), nums.at(r) });
+				++l;
+				--r;
+			}
+		}
+	}
+	return result;
+}
+
 int main
 {
 	//两数相加
@@ -156,4 +275,13 @@ int main
 
 	//无重复字符的最长子串
 	//lengthOfLongestSubstring
+
+	//两两交换链表中的节点
+	//swapPairs
+
+	//环形链表 II
+	//detectCycle_1
+
+	//三数之和
+	//threeSum
 }

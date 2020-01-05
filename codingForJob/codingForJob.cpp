@@ -5662,6 +5662,50 @@ int findSecondMinimumValue(TreeNode* root)  //二叉树中第二小的节点
 	return *(++tmp);
 }
 
+class KthLargest //数据流中的第K大元素
+{
+private:
+	priority_queue<int, vector<int>, greater<int> > pq;
+	int k_;
+public:
+	KthLargest(int k, vector<int>& nums) 
+	{
+		this->k_ = k;
+		for (int i=0; i<nums.size(); ++i)
+		{
+			if (i < k)
+			{
+				pq.push(nums.at(i));
+			}
+			else
+			{
+				if (nums.at(i) > pq.top())
+				{
+					pq.push(nums.at(i));
+					pq.pop();
+				}
+			}
+		}
+	}
+
+	int add(int val) 
+	{
+		if (pq.size() < this->k_)
+		{
+			pq.push(val);
+		}
+		else
+		{
+			if (val > pq.top())
+			{
+				pq.push(val);
+				pq.pop();
+			}
+		}
+		return pq.top();
+	}
+};
+
 int main()
 {
 	//两数之和
@@ -6241,4 +6285,7 @@ int main()
 
 	//二叉树中第二小的节点
 	//findSecondMinimumValue
+
+	//数据流中的第K大元素
+	//KthLargest
 }
