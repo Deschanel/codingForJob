@@ -405,6 +405,47 @@ TreeNode* lowestCommonAncestor_2(TreeNode* root, TreeNode* p, TreeNode* q)  //二
 	return q;
 }
 
+double myPow(double x, int n)  //Pow(x, n)--分治，log(n)
+{
+	if (n == 0)
+	{
+		return 1.0;
+	}
+	double result = 1.0;
+	if (n > 0)
+	{
+		if (n % 2 == 0)
+		{
+			result = myPow(x, n / 2);
+			return result * result;
+		}
+		else
+		{
+			result = myPow(x, (n - 1) / 2);
+			return result * result * x;
+		}
+	}
+	else
+	{
+		int nn = -(n + 1);
+		if (nn % 2 == 0)
+		{
+			result = myPow(x, nn / 2);
+			return (1.0 / (result * result)) * (1.0 / x);
+		}
+		else
+		{
+			result = myPow(x, (nn - 1) / 2);
+			return (1.0 / (result * result * x)) * (1.0 / x);
+		}
+	}
+}
+
+vector<int> majorityElement(vector<int>& nums) //求众数 II--由于要求是超过[n/3]上整，因此最多有两个元素为众数
+{
+	
+}
+
 int main
 {
 	//两数相加
@@ -427,4 +468,10 @@ int main
 
 	//二叉树的最近公共祖先
 	//lowestCommonAncestor
+
+	//Pow(x, n)
+	//myPow
+
+	//求众数 II
+	//majorityElement
 }

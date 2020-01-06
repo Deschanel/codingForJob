@@ -1651,7 +1651,7 @@ string convertToTitle(int n)  //Excel表列名称
 int majorityElement_1(vector<int>& nums)  //求众数--自己做法一
 {
 	int comp = nums.size() / 2;
-	multimap<int, int> m;
+	unordered_map<int, int> m;
 	for (int i : nums)
 	{
 		if (m.find(i) != m.end())
@@ -1663,7 +1663,7 @@ int majorityElement_1(vector<int>& nums)  //求众数--自己做法一
 			m.insert(pair<int, int>(i, 1));
 		}
 	}
-	for (multimap<int, int>::iterator i = m.begin(); i != m.end(); i++)
+	for (unordered_map<int, int>::iterator i = m.begin(); i != m.end(); i++)
 	{
 		if (i->second > comp)
 		{
@@ -1680,7 +1680,7 @@ int majorityElement_2(vector<int>& nums)  //求众数--自己做法二
 		return nums.at(0);
 	}
 	int comp = nums.size() / 2;
-	multimap<int, int> m;
+	unordered_map<int, int> m;
 	for (int i : nums)
 	{
 		if (m.find(i) != m.end())
