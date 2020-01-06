@@ -276,6 +276,135 @@ vector<vector<int>> threeSum(vector<int>& nums)  //三数之和
 	return result;
 }
 
+struct TreeNode {
+	int val;
+	TreeNode *left;
+	TreeNode *right;
+	TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+void isValidBST_goAlongLeft(TreeNode* root, stack<TreeNode*> &s)
+{
+	while (root)
+	{
+		s.push(root);
+		root = root->left;
+	}
+}
+bool isValidBST_1(TreeNode* root)
+{
+	if (!root)
+	{
+		return true;
+	}
+	else if (!root->left && !root->right)
+	{
+		return true;
+	}
+	else   //中序遍历
+	{
+		stack<TreeNode*> s;
+		long comp = LONG_MIN;
+		while (true)
+		{
+			isValidBST_goAlongLeft(root, s);
+			if (s.empty())
+			{
+				break;
+			}
+			root = s.top();
+			s.pop();
+			if (root->val <= comp)
+			{
+				return false;
+			}
+			comp = root->val;
+			root = root->right;
+		}
+	}
+	return true;
+}
+
+bool isValidBST_2_item(TreeNode* root, long l, long r)
+{
+	if (!root)
+	{
+		return true;
+	}
+	if (root->val <= l || root->val >= r)
+	{
+		return false;
+	}
+	return isValidBST_2_item(root->left, l, root->val) && isValidBST_2_item(root->right, root->val, r);
+}
+bool isValidBST_2(TreeNode* root)  //递归，上下界
+{
+	return isValidBST_2_item(root, LONG_MIN, LONG_MAX);
+}
+
+TreeNode* lowestCommonAncestor_1(TreeNode* root, TreeNode* p, TreeNode* q)  //二叉树的最近公共祖先
+{
+	if (!root)
+	{
+		return nullptr;
+	}
+	if (root == p || root == q)
+	{
+		return root;
+	}
+	TreeNode* l = lowestCommonAncestor_1(root->left, p, q);  //在左子树找二者之一
+	TreeNode* r = lowestCommonAncestor_1(root->right, p, q); //在右子树找二者之一
+	if (!l && r)  //如果右子树中有其中一个，左子树没有，说明肯定都在右子树,因此应该递归lowestCommonAncestor(root->right, p, q),而这个已经执行了
+	{
+		return r;
+	}
+	else if(l && !r) //如果左子树中有其中一个，右子树没有，说明肯定都在左子树
+	{
+		return l;
+	}
+	else if (!l && !r) //左右子树都不在
+	{
+		return nullptr;
+	}
+	else  //左右子树中都有两者之一，说明最近公共祖先就是root
+	{
+		return root;
+	}
+}
+
+TreeNode* lowestCommonAncestor_2(TreeNode* root, TreeNode* p, TreeNode* q)  //二叉树的最近公共祖先--寻找路径
+{
+	stack<TreeNode*> s;  //存放迭代的节点
+	unordered_map<TreeNode*, TreeNode*> um;  //第一个为当前节点，第二个为父节点
+	um.insert(pair<TreeNode*, TreeNode*>(root, nullptr));
+	s.push(root);
+	while (um.find(p) == um.end() || um.find(q) == um.end()) //层次遍历，把每个的父节点记录下来
+	{
+		TreeNode* root = s.top();
+		s.pop();
+		if (root->left)
+		{
+			s.push(root->left);
+			um.insert(pair<TreeNode*, TreeNode*>(root->left, root));
+		}
+		if (root->right)
+		{
+			s.push(root->right);
+			um.insert(pair<TreeNode*, TreeNode*>(root->right, root));
+		}
+	}
+	unordered_set<TreeNode*> anc;  //p的所有祖先
+	while (p)
+	{
+		anc.insert(p);
+		p = um.find(p)->second;
+	}
+	while (anc.find(q) == anc.end())
+	{
+		q = um.find(q)->second;
+	}
+	return q;
+}
+
 int main
 {
 	//两数相加
@@ -292,4 +421,10 @@ int main
 
 	//三数之和
 	//threeSum
+
+	//验证二叉搜索树
+	//isValidBST
+
+	//二叉树的最近公共祖先
+	//lowestCommonAncestor
 }
