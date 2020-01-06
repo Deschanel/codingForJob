@@ -443,7 +443,56 @@ double myPow(double x, int n)  //Pow(x, n)--分治，log(n)
 
 vector<int> majorityElement(vector<int>& nums) //求众数 II--由于要求是超过[n/3]上整，因此最多有两个元素为众数
 {
-	
+	if (nums.size() < 2)
+	{
+		return nums;
+	}
+	int count1 = 0, count2 = 0;
+	int cx = 0, cy = 0;
+	for (auto i : nums)
+	{
+		if ((count1 == 0 || cx == i) && i != cy)  //这里不加i != cy的话，会使cy少加一个
+		{
+			count1++;
+			cx = i;
+			continue;
+		}
+		if (count2 == 0 || cy == i)
+		{
+			count2++;
+			cy = i;
+			continue;
+		}
+		if (cx != i && cy != i)
+		{
+			--count1;
+			--count2;
+		}
+	}
+	//检验这两个是否是真的众数
+	count1 = 0;
+	count2 = 0;
+	for (auto i : nums)
+	{
+		if (i == cx)
+		{
+			++count1;
+		}
+		else if (i == cy)
+		{
+			++count2;
+		}
+	}
+	vector<int> result;
+	if (count1 > nums.size() / 3)
+	{
+		result.push_back(cx);
+	}
+	if (count2 > nums.size() / 3 && cx != cy)
+	{
+		result.push_back(cy);
+	}
+	return result;
 }
 
 int main
