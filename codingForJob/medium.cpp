@@ -495,6 +495,50 @@ vector<int> majorityElement(vector<int>& nums) //ÇóÖÚÊı II--ÓÉÓÚÒªÇóÊÇ³¬¹ı[n/3]É
 	return result;
 }
 
+vector<int> findAnagrams(string s, string p)   //ÕÒµ½×Ö·û´®ÖĞËùÓĞ×ÖÄ¸ÒìÎ»´Ê
+{
+	if (s.size() < p.size())
+	{
+		return {};
+	}
+	unordered_map<char, int> um, window;
+	vector<int> result;
+	int l = 0, r = 0, match = 0;
+	for (char i : p)
+	{
+		um[i]++;
+	}
+	while (r < s.size())
+	{
+		if (um.count(s.at(r)))
+		{
+			window[s.at(r)]++;
+			if (window[s.at(r)] == um[s.at(r)])
+			{
+				match++;
+			}
+		}
+		r++;
+		while (match == um.size())
+		{
+			if (r - l == p.size())
+			{
+				result.push_back(l);
+			}
+			if (um.count(s.at(l)))
+			{
+				window[s.at(l)]--;
+				if (window[s.at(l)] < um[s.at(l)])
+				{
+					match--;
+				}
+			}
+			l++;
+		}
+	}
+	return result;
+}
+
 int main
 {
 	//Á½ÊıÏà¼Ó
@@ -523,4 +567,7 @@ int main
 
 	//ÇóÖÚÊı II
 	//majorityElement
+
+	//ÕÒµ½×Ö·û´®ÖĞËùÓĞ×ÖÄ¸ÒìÎ»´Ê
+	//findAnagrams
 }
