@@ -495,6 +495,96 @@ vector<int> majorityElement(vector<int>& nums) //ÇóÖÚÊı II--ÓÉÓÚÒªÇóÊÇ³¬¹ı[n/3]É
 	return result;
 }
 
+vector<vector<int>> levelOrder(TreeNode* root)  //¶ş²æÊ÷µÄ²ã´Î±éÀú
+{
+	if (!root)
+	{
+		return {};
+	}
+	vector< vector<int> > result;
+	queue<TreeNode*> q;
+	q.push(root);
+	while (!q.empty())
+	{
+		int len = q.size();  //Ã¿´ÎµÄ¸öÊıÎªµ±Ç°²ã´ÎµÄÔªËØ¸öÊı
+		vector<int> tmp;
+		while (len > 0)  //°Ñµ±Ç°ËùÓĞ²ã´ÎÔªËØ±éÀúÍêºó£¬¼ÓÈëµÄÄÇĞ©×ÓÊ÷¾ÍÊÇÏÂÒ»²ã´ÎµÄ¸öÊı
+		{
+			root = q.front();
+			q.pop();
+			tmp.push_back(root->val);
+			len--;
+			if (root->left)
+			{
+				q.push(root->left);
+			}
+			if (root->right)
+			{
+				q.push(root->right);
+			}
+		}
+		result.push_back(tmp);
+	}
+	return result;
+}
+
+void generateParenthesis_dfs(string s, int l, int r, vector<string> &result)
+{
+	if (l == 0 && r == 0)
+	{
+		result.push_back(s);
+		return;
+	}
+	if (l > r)   //Ê£ÏÂµÄ×óÀ¨ºÅ¸öÊı´óÓÚÓÒÀ¨ºÅ£¬ËµÃ÷ĞèÒª¼ôÖ¦£¬µ±ÈíÕâÀïÒ²¿ÉÒÔl < r£¬ÕâÑùµÄ»°ºóÃæµÄ¾ÍÓ¦¸ÃÊÇ"(" + s ºÍ ")" + s
+	{
+		return;
+	}
+	if (l > 0)
+	{
+		generateParenthesis_dfs(s + "(", l - 1, r, result);
+	}
+	if (r > 0)
+	{
+		generateParenthesis_dfs(s + ")", l, r - 1, result);
+	}
+}
+vector<string> generateParenthesis_1(int n)  //À¨ºÅÉú³É--Éî¶ÈÓÅÏÈËÑË÷https://leetcode-cn.com/problems/generate-parentheses/solution/hui-su-suan-fa-by-liweiwei1419/
+{
+	if (n == 0)
+	{
+		return {};
+	}
+	else if (n == 1)
+	{
+		return { "()" };
+	}
+	vector<string> result;
+	generateParenthesis_dfs("", n, n, result);
+	return result;
+}
+
+vector<string> generateParenthesis_2(int n)  //À¨ºÅÉú³É--¶¯Ì¬¹æ»®
+{
+	if (n == 0)
+	{
+		return {};
+	}
+	//¶ÔÓÚn-1¶ÔÀ¨ºÅÊ±£¬¼ÙÉè¿ÉÒÔ´ÓÖĞ¼äÄ³´¦·ÖÎª¸÷×Ô³ÉÁ¢µÄÁ½¸ö×Ö´®£¬·Ö±ğÎªp¶ÔÀ¨ºÅ£¬q¶ÔÀ¨ºÅ£¬p+q=n-1£¬ÔòpµÄ·¶Î§0->n-1,qµÄ·¶Î§¶ÔÓ¦µÄÎªn-1->0
+	//Ôòµ±n¶ÔÀ¨ºÅÊ±£¬¾ÍÊÇ¶ÔÃ¿Ò»¸öpºÍqµÄ½á¹ûvectorÖĞµÄÈÎÒâ×éºÏÖĞ(p)+q£¬»òÕßp+(q),¶øp+()+q£¬»òÕßp+q+(),»òÕß()+p+q£¬ÔÚp»òqÎª0Ê±°üÀ¨ÁË,¼ÓÉÏ¾ÍÖØ¸´ÁË
+	vector<string> result;
+	for (int i = 0; i<n; ++i) 
+	{
+		for (string leftString : generateParenthesis_2(i)) // µ±i¶ÔÀ¨ºÅÊ±pµÄ×Ö·û´®
+		{
+			for (string rightString : generateParenthesis_2(n - 1 - i))  //n-1-i¶ÔÀ¨ºÅÊ±qµÄ×Ö·û´®
+			{
+				result.push_back("(" + leftString + ")" + rightString);
+			}
+		}
+	}
+	return result;
+}
+
 int main
 {
 	//Á½ÊıÏà¼Ó
@@ -523,4 +613,10 @@ int main
 
 	//ÇóÖÚÊı II
 	//majorityElement
+
+	//¶ş²æÊ÷µÄ²ã´Î±éÀú
+	//levelOrder
+
+	//À¨ºÅÉú³É
+	//generateParenthesis
 }

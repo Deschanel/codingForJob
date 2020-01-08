@@ -1323,6 +1323,24 @@ int maxProfit_ii(vector<int>& prices) //买卖股票最大利润II
 	return sum;
 }
 
+int maxProfit_ii_2()
+{
+	if (prices.size() <= 1)
+	{
+		return 0;
+	}
+	//动态规划
+	vector< vector<int> > dp(prices.size(), vector<int>(2, 0));  //dp代表最大利润，第一个维度代表第几天的最大利润，第二个维度表示当天手里有股票和无股票的
+	dp[0][0] = 0;
+	dp[0][1] = -prices.at(0);
+	for (int i = 1; i < prices.size(); ++i)
+	{
+		dp[i][0] = max(dp[i - 1][0], dp[i - 1][1] + prices.at(i));  //手里无股票的利润，要不就是昨天买了股票今天抛售，要不就是昨天没买今天没法抛售就只能还是昨天的利润，这两种情况的最大值
+		dp[i][1] = max(dp[i - 1][0] - prices.at(i), dp[i - 1][1]);  //手里有股票的利润，要不就是今天买了股票，要不就是昨天买了，今天不卖出(手里一直有股票)，两者的最大值
+	}
+	return dp[prices.size() - 1][0];
+}
+
 bool isPalindrome(string s) //前后指针
 {
 	if (s.size() < 2)
@@ -5706,6 +5724,56 @@ public:
 	}
 };
 
+bool lemonadeChange(vector<int>& bills)  //柠檬水找零
+{
+	if (bills.size() == 0)
+	{
+		return true;
+	}
+	else if (bills.at(0) > 5)
+	{
+		return false;
+	}
+	int five = 1, ten = 0;  //记录当前时刻交易完成后剩下的每种钱的个数,20无法用于找钱，因此不需要记录
+	for (int i=1; i<bills.size(); ++i)
+	{
+		if (bills.at(i) == 5)
+		{
+			five++;
+			continue;
+		}
+		else if (bills.at(i) == 10)
+		{
+			if (five > 0)
+			{
+				ten++;
+				five--;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			if (five > 0 && ten > 0)
+			{
+				five--;
+				ten--;
+			}
+			else if (five >= 3)
+			{
+				five -= 3;
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
 int main()
 {
 	//两数之和
@@ -6288,4 +6356,7 @@ int main()
 
 	//数据流中的第K大元素
 	//KthLargest
+
+	//柠檬水找零
+	//lemonadeChange
 }
