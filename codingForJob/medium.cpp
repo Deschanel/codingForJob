@@ -495,7 +495,6 @@ vector<int> majorityElement(vector<int>& nums) //ÇóÖÚÊı II--ÓÉÓÚÒªÇóÊÇ³¬¹ı[n/3]É
 	return result;
 }
 
-<<<<<<< HEAD
 vector<vector<int>> levelOrder(TreeNode* root)  //¶ş²æÊ÷µÄ²ã´Î±éÀú
 {
 	if (!root)
@@ -573,7 +572,7 @@ vector<string> generateParenthesis_2(int n)  //À¨ºÅÉú³É--¶¯Ì¬¹æ»®
 	//¶ÔÓÚn-1¶ÔÀ¨ºÅÊ±£¬¼ÙÉè¿ÉÒÔ´ÓÖĞ¼äÄ³´¦·ÖÎª¸÷×Ô³ÉÁ¢µÄÁ½¸ö×Ö´®£¬·Ö±ğÎªp¶ÔÀ¨ºÅ£¬q¶ÔÀ¨ºÅ£¬p+q=n-1£¬ÔòpµÄ·¶Î§0->n-1,qµÄ·¶Î§¶ÔÓ¦µÄÎªn-1->0
 	//Ôòµ±n¶ÔÀ¨ºÅÊ±£¬¾ÍÊÇ¶ÔÃ¿Ò»¸öpºÍqµÄ½á¹ûvectorÖĞµÄÈÎÒâ×éºÏÖĞ(p)+q£¬»òÕßp+(q),¶øp+()+q£¬»òÕßp+q+(),»òÕß()+p+q£¬ÔÚp»òqÎª0Ê±°üÀ¨ÁË,¼ÓÉÏ¾ÍÖØ¸´ÁË
 	vector<string> result;
-	for (int i = 0; i<n; ++i) 
+	for (int i = 0; i < n; ++i)
 	{
 		for (string leftString : generateParenthesis_2(i)) // µ±i¶ÔÀ¨ºÅÊ±pµÄ×Ö·û´®
 		{
@@ -581,7 +580,10 @@ vector<string> generateParenthesis_2(int n)  //À¨ºÅÉú³É--¶¯Ì¬¹æ»®
 			{
 				result.push_back("(" + leftString + ")" + rightString);
 			}
-=======
+		}
+	}
+	return result;
+}
 vector<int> findAnagrams(string s, string p)   //ÕÒµ½×Ö·û´®ÖĞËùÓĞ×ÖÄ¸ÒìÎ»´Ê
 {
 	if (s.size() < p.size())
@@ -621,7 +623,6 @@ vector<int> findAnagrams(string s, string p)   //ÕÒµ½×Ö·û´®ÖĞËùÓĞ×ÖÄ¸ÒìÎ»´Ê
 				}
 			}
 			l++;
->>>>>>> b83b404a64e71ba1a89d0330e659c9f6875ebe59
 		}
 	}
 	return result;
@@ -656,14 +657,12 @@ int main
 	//ÇóÖÚÊı II
 	//majorityElement
 
-<<<<<<< HEAD
 	//¶ş²æÊ÷µÄ²ã´Î±éÀú
 	//levelOrder
 
 	//À¨ºÅÉú³É
 	//generateParenthesis
-=======
+
 	//ÕÒµ½×Ö·û´®ÖĞËùÓĞ×ÖÄ¸ÒìÎ»´Ê
 	//findAnagrams
->>>>>>> b83b404a64e71ba1a89d0330e659c9f6875ebe59
 }
