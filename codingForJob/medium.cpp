@@ -495,6 +495,7 @@ vector<int> majorityElement(vector<int>& nums) //ÇóÖÚÊı II--ÓÉÓÚÒªÇóÊÇ³¬¹ı[n/3]É
 	return result;
 }
 
+<<<<<<< HEAD
 vector<vector<int>> levelOrder(TreeNode* root)  //¶ş²æÊ÷µÄ²ã´Î±éÀú
 {
 	if (!root)
@@ -580,6 +581,47 @@ vector<string> generateParenthesis_2(int n)  //À¨ºÅÉú³É--¶¯Ì¬¹æ»®
 			{
 				result.push_back("(" + leftString + ")" + rightString);
 			}
+=======
+vector<int> findAnagrams(string s, string p)   //ÕÒµ½×Ö·û´®ÖĞËùÓĞ×ÖÄ¸ÒìÎ»´Ê
+{
+	if (s.size() < p.size())
+	{
+		return {};
+	}
+	unordered_map<char, int> um, window;
+	vector<int> result;
+	int l = 0, r = 0, match = 0;
+	for (char i : p)
+	{
+		um[i]++;
+	}
+	while (r < s.size())
+	{
+		if (um.count(s.at(r)))
+		{
+			window[s.at(r)]++;
+			if (window[s.at(r)] == um[s.at(r)])
+			{
+				match++;
+			}
+		}
+		r++;
+		while (match == um.size())
+		{
+			if (r - l == p.size())
+			{
+				result.push_back(l);
+			}
+			if (um.count(s.at(l)))
+			{
+				window[s.at(l)]--;
+				if (window[s.at(l)] < um[s.at(l)])
+				{
+					match--;
+				}
+			}
+			l++;
+>>>>>>> b83b404a64e71ba1a89d0330e659c9f6875ebe59
 		}
 	}
 	return result;
@@ -614,9 +656,14 @@ int main
 	//ÇóÖÚÊı II
 	//majorityElement
 
+<<<<<<< HEAD
 	//¶ş²æÊ÷µÄ²ã´Î±éÀú
 	//levelOrder
 
 	//À¨ºÅÉú³É
 	//generateParenthesis
+=======
+	//ÕÒµ½×Ö·û´®ÖĞËùÓĞ×ÖÄ¸ÒìÎ»´Ê
+	//findAnagrams
+>>>>>>> b83b404a64e71ba1a89d0330e659c9f6875ebe59
 }
