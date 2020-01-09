@@ -127,6 +127,95 @@ vector<int> maxSlidingWindow_2(vector<int>& nums, int k)  //滑动窗口最大值--dequ
 	return result;
 }
 
+vector< vector<string> > result;
+unordered_set<int> columns, pie, na;
+void solveNQueens_dfs(int n, int row, vector<int> pos)  
+{
+	if (row >= n)  //row从0开始，n行的话是到n-1，所以到n的话就退出递归
+	{
+		vector<string> tmp;
+		for (int i=0; i<n; ++i)
+		{
+			string s = "";
+			for (int j=0; j<n; ++j)
+			{
+				if (j == pos.at(i))
+				{
+					s += "Q";
+				}
+				else
+				{
+					s += ".";
+				}
+			}
+			tmp.push_back(s);
+		}
+		result.push_back(tmp);
+		return;
+	}
+	for (int col=0; col < n; ++col)
+	{
+		if (columns.count(col) || pie.count(row - col) || na.count(row + col))
+		{
+			continue;
+		}
+		columns.insert(col);
+		pie.insert(row - col);
+		na.insert(row + col);
+		//把结果放到当前的pos中
+		pos.at(row) = col;
+		solveNQueens_dfs(n, row + 1, pos);  //递归到下一层
+		//清除上一种可能得到的结果,再看当前行有没有还有列能成立
+		columns.erase(col);
+		pie.erase(row - col);
+		na.erase(row + col);
+	}
+}
+vector<vector<string>> solveNQueens(int n)  //N皇后
+{
+	if (n == 0)
+	{
+		return {};
+	}
+	vector<int> pos(n, -1); //下标代表行号
+	solveNQueens_dfs(n, 0, pos);
+	return result;
+}
+
+void totalNQueens_dfs(int n, int row, int &result)
+{
+	if (row >= n)
+	{
+		result++;
+		return;
+	}
+	for (int col=0; col<n; ++col)
+	{
+		if (columns.count(col) || pie.count(row - col) || na.count(row + col))
+		{
+			continue;
+		}
+		columns.insert(col);
+		pie.insert(row - col);
+		na.insert(row + col);
+		totalNQueens_dfs(n, row + 1, result);
+		//删除当前col的结果
+		columns.erase(col);
+		pie.erase(row - col);
+		na.erase(row + col);
+	}
+}
+int totalNQueens(int n)
+{
+	if (n == 0)
+	{
+		return 0;
+	}
+	int result = 0;
+	totalNQueens_dfs(n, 0, result);
+	return result;
+}
+
 int main
 {
 	//K 个一组翻转链表
@@ -134,4 +223,10 @@ int main
 
 	//滑动窗口最大值
 	//maxSlidingWindow
+
+	//N皇后
+	//solveNQueens
+
+	//N皇后 II
+	//totalNQueens
 }
