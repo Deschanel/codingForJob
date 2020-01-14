@@ -216,6 +216,64 @@ int totalNQueens(int n)
 	return result;
 }
 
+bool check_solveSudoku_dfs(vector<vector<char>>& board, int i, int j, char c)
+{
+	for (int l=0; l<9; ++l)
+	{
+		if (board.at(i).at(l) != '.' && board.at(i).at(l) == c)
+		{
+			return false;
+		}
+		if (board.at(l).at(j) != '.' && board.at(l).at(j) == c)
+		{
+			return false;
+		}
+		int blocki = (i / 3) * 3 + l / 3, blockj = (j / 3) * 3 + l % 3;
+		if (board.at(blocki).at(blockj) != '.' && board.at(blocki).at(blockj) == c)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+bool solveSudoku_dfs(vector<vector<char>>& board)
+{
+	for (int i=0; i<9; ++i)
+	{
+		for (int j=0; j<9; ++j)
+		{
+			if (board.at(i).at(j) == '.')
+			{
+				for (char c = '1'; c <= '9'; c++)
+				{
+					if (check_solveSudoku_dfs(board, i, j, c))
+					{
+						board.at(i).at(j) = c;
+						if (solveSudoku_dfs(board))
+						{
+							return true;  //如果当前元素等于c后，进行递归成功的话，就返回true
+						}
+						else
+						{
+							board.at(i).at(j) = '.';  //如果递归不成功，就还原当前元素
+						}
+					}
+				}
+				return false;  //当前元素等于“.”，但是未能找到成功的c，返回false
+			}
+		}
+	}
+	return true;   //所有元素填充完毕，并且未返回false的话，就是成功的
+}
+void solveSudoku(vector<vector<char>>& board)  //解数独
+{
+	if (board.size() == 0 || board.at(0).size() == 0)
+	{
+		return;
+	}
+	solveSudoku_dfs(board);
+}
+
 int main
 {
 	//K 个一组翻转链表
@@ -229,4 +287,7 @@ int main
 
 	//N皇后 II
 	//totalNQueens
+
+	//解数独
+	//solveSudoku
 }

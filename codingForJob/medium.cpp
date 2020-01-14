@@ -628,6 +628,51 @@ vector<int> findAnagrams(string s, string p)   //找到字符串中所有字母异位词
 	return result;
 }
 
+bool isValidSudoku(vector<vector<char>>& board)   //有效的数独
+{
+	if (board.size() == 0)
+	{
+		return false;
+	}
+	vector< vector<unordered_set<char> > > isValidSudoku_blocks(3, vector< unordered_set<char> >(3));
+	vector< unordered_set<char> > isValidSudoku_rows(board.size());
+	vector< unordered_set<char> > isValidSudoku_columns(board.size());
+	for (int i = 0; i < board.size(); ++i)
+	{
+		for (int j = 0; j < board.at(i).size(); ++j)
+		{
+			if (board.at(i).at(j) != '.')
+			{
+				if (isValidSudoku_rows.size() > i && isValidSudoku_rows.at(i).find(board.at(i).at(j)) != isValidSudoku_rows.at(i).end())
+				{
+					return false;
+				}
+				else
+				{
+					isValidSudoku_rows.at(i).insert(board.at(i).at(j));
+				}
+				if (isValidSudoku_columns.size() > j && isValidSudoku_columns.at(j).find(board.at(i).at(j)) != isValidSudoku_columns.at(j).end())
+				{
+					return false;
+				}
+				else
+				{
+					isValidSudoku_columns.at(j).insert(board.at(i).at(j));
+				}
+				if (isValidSudoku_blocks.size() > i / 3 && isValidSudoku_blocks.at(i / 3).size() > j / 3 && isValidSudoku_blocks.at(i / 3).at(j / 3).find(board.at(i).at(j)) != isValidSudoku_blocks.at(i / 3).at(j / 3).end())
+				{
+					return false;
+				}
+				else
+				{
+					isValidSudoku_blocks.at(i / 3).at(j / 3).insert(board.at(i).at(j));
+				}
+			}
+		}
+	}
+	return true;
+}
+
 int main
 {
 	//两数相加
@@ -665,4 +710,7 @@ int main
 
 	//找到字符串中所有字母异位词
 	//findAnagrams
+
+	//有效的数独
+	//isValidSudoku
 }
