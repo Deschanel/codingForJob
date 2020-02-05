@@ -274,6 +274,215 @@ void solveSudoku(vector<vector<char>>& board)  //解数独
 	solveSudoku_dfs(board);
 }
 
+struct TrieNode   //单词搜索字典树
+{
+	char val;
+	bool isEndOfWord = false;
+	vector<TrieNode*> children;
+	TrieNode(char value)
+	{
+		this->val = value;
+		for (int i = 0; i < 26; i++)
+		{
+			children.push_back(nullptr);
+		}
+	}
+};
+TrieNode* root = new TrieNode(NULL);
+int direction[4][2] = { {-1, 0}, {0, -1}, {1, 0}, {0, 1} };
+set<string> res;
+void findWords_dfs(vector<vector<char>>& board, int row, int column, TrieNode* tmp, string s)
+{
+	if (!tmp)
+	{
+		return;
+	}
+	char t = board.at(row).at(column);
+	board.at(row).at(column) = '*';
+	s += tmp->val;
+	if (tmp->isEndOfWord)
+	{
+		board.at(row).at(column) = t;  //要把当前的值恢复，是为了下一个字符串的匹配
+		res.insert(s);
+		//如果此时还有孩子，就说明在words里面存在以当前成功匹配的字符串为前缀的字符串，因此需要继续下去
+		for (int i=0; i<26; ++i)
+		{
+			if (tmp->children.at(i))
+			{
+				break;
+			}
+			else if (i == 25)
+			{
+				return;
+			}
+		}
+	}
+	for (int i=0; i<4; ++i)
+	{
+		if (row + direction[i][0] < 0 || row + direction[i][0] >= board.size() || column + direction[i][1] < 0 || column + direction[i][1] >= board.at(row).size())
+		{
+			continue;
+		}
+		else
+		{
+			if (board.at(row + direction[i][0]).at(column + direction[i][1]) == '*')
+			{
+				continue;
+			}
+			int index = board.at(row + direction[i][0]).at(column + direction[i][1]) - 'a';
+			char c = board.at(row + direction[i][0]).at(column + direction[i][1]);
+			board.at(row + direction[i][0]).at(column + direction[i][1]) = '*';
+			if (tmp->children.at(index))
+			{
+				findWords_dfs(board, row + direction[i][0], column + direction[i][1], tmp->children.at(index), s);
+			}
+			board.at(row + direction[i][0]).at(column + direction[i][1]) = c;  //执行完递归后，要把当前的值恢复，因为有可能递归不成功且也是为了下一个字符串的匹配
+		}
+	}
+	board.at(row).at(column) = t;  //要把当前的值恢复，因为有可能递归不成功且也是为了下一个字符串的匹配
+}
+vector<string> findWords(vector<vector<char>>& board, vector<string>& words)  //单词搜索 II
+{
+	if (board.size() == 0 || words.size() == 0)
+	{
+		return {};
+	}
+	//创造字典树
+	TrieNode* tmp = root;
+	for (int i=0; i<words.size(); ++i)
+	{
+		for (int j=0; j<words.at(i).size(); ++j)
+		{
+			if (!tmp->children.at(words.at(i).at(j) - 'a'))
+			{
+				tmp->children.at(words.at(i).at(j) - 'a') = new TrieNode(words.at(i).at(j));
+			}
+			tmp = tmp->children.at(words.at(i).at(j) - 'a');
+		}
+		tmp->isEndOfWord = true;
+		tmp = root;
+	}
+	for (int i=0; i<board.size(); ++i)
+	{
+		for (int j=0; j<board.at(i).size(); ++j)
+		{
+			int index = board.at(i).at(j) - 'a';
+			if (root->children.at(index))
+			{
+				findWords_dfs(board, i, j, root->children.at(index), "");
+			}
+		}
+	}
+	vector<string> result;
+	result.resize(res.size());
+	result.assign(res.begin(), res.end());
+	return result;
+}
+
+int maxProfit_iii(vector<int>& prices)  //买卖股票的最佳时机 III
+{
+	if (prices.size() == 0)
+	{
+		return 0;
+	}
+	vector< vector< vector<int> > > dp(prices.size(), vector< vector<int> >(3, vector<int>(2)));  //第一个3表示当前交易的次数(因为最多两次),第二个2是是否拥有股票，dp表示当前天满足最大交易次数下的最大利润
+	for (int i=0; i<prices.size(); ++i)
+	{
+		for (int k = 2; k >= 1; k--)
+		{
+			if (i - 1 == -1)
+			{
+				dp[i][k][0] = 0;
+				dp[i][k][1] = -prices.at(i);
+				continue;
+			}
+			dp[i][k][0] = max(dp[i - 1][k][0], dp[i - 1][k][1] + prices.at(i));
+			dp[i][k][1] = max(dp[i - 1][k][1], dp[i - 1][k - 1][0] - prices.at(i));
+		}
+	}
+	return dp[prices.size() - 1][2][0];
+}
+
+int maxProfit_iv(int k, vector<int>& prices)
+{
+	if (prices.size() == 0)
+	{
+		return 0;
+	}
+	if (k > prices.size() / 2)  //无限制次数
+	{
+		vector< vector<int> > dp(prices.size(), vector<int>(2));
+		for (int i=0; i<prices.size(); ++i)
+		{
+			if (i - 1 == -1)
+			{
+				dp[i][0] = 0;
+				dp[i][1] = -prices.at(0);
+				continue;
+			}
+			dp[i][0] = max(dp[i - 1][0], dp[i - 1][1] + prices.at(i));
+			dp[i][1] = max(dp[i - 1][1], dp[i - 1][0] - prices.at(i));
+		}
+		return dp[prices.size() - 1][0];
+	}
+	else
+	{
+		vector< vector< vector<int> > > dp(prices.size(), vector< vector<int> >(k + 1, vector<int>(2)));
+		for (int i = 0; i < prices.size(); ++i)
+		{
+			for (int j = k; j >= 1; --j)
+			{
+				if (i - 1 == -1)
+				{
+					dp[i][j][0] = 0;
+					dp[i][j][1] = -prices.at(i);
+					continue;
+				}
+				dp[i][j][0] = max(dp[i - 1][j][0], dp[i - 1][j][1] + prices.at(i));
+				dp[i][j][1] = max(dp[i - 1][j][1], dp[i - 1][j - 1][0] - prices.at(i));
+			}
+		}
+		return dp[prices.size() - 1][k][0];
+	}
+}
+
+int minDistance(string word1, string word2)  //编辑距离
+{
+	if (word1.size() == 0)
+	{
+		return word2.size();
+	}
+	else if (word2.size() == 0)
+	{
+		return word1.size();
+	}
+	vector< vector<int> > dp(word1.size() + 1, vector<int>(word2.size() + 1));
+	for (int i=0; i<=word1.size(); ++i)
+	{
+		dp[i][0] = i;
+	}
+	for (int j=0; j<=word2.size(); ++j)
+	{
+		dp[0][j] = j;
+	}
+	for (int i=1; i<=word1.size(); ++i)
+	{
+		for (int j=1; j<=word2.size(); ++j)
+		{
+			if (word1[i - 1] == word2[j - 1])
+			{
+				dp[i][j] = dp[i - 1][j - 1];
+			}
+			else
+			{
+				dp[i][j] = min(dp[i - 1][j], dp[i][j - 1]) + 1;
+				dp[i][j] = min(dp[i - 1][j - 1] + 1, dp[i][j]);
+			}
+		}
+	}
+	return dp[word1.size()][word2.size()];
+}
+
 int main
 {
 	//K 个一组翻转链表
@@ -290,4 +499,16 @@ int main
 
 	//解数独
 	//solveSudoku
+
+	//单词搜索 II
+	//findWords
+
+	//买卖股票的最佳时机 III
+	//maxProfit_iii
+
+	//买卖股票的最佳时机 IV
+	//maxProfit_iv
+
+	//编辑距离
+	//minDistance
 }

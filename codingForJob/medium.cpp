@@ -673,7 +673,707 @@ bool isValidSudoku(vector<vector<char>>& board)   //有效的数独
 	return true;
 }
 
-int main
+class Trie {   //实现 Trie (前缀树)
+public:
+	struct TrieNode
+	{
+		char val;
+		bool isEndOfWord = false;
+		vector<TrieNode*> children;
+		TrieNode(char value)
+		{
+			this->val = value;
+			for (int i = 0; i < 26; i++)
+			{
+				children.push_back(nullptr);
+			}
+		}
+	};
+	/** Initialize your data structure here. */
+	TrieNode *root;
+	Trie() {
+		root = new TrieNode(NULL);
+	}
+
+	/** Inserts a word into the trie. */
+	void insert(string word) {
+		TrieNode* tmp = root;
+		for (char c : word)
+		{
+			if (!tmp->children.at(c - 'a'))
+			{
+				tmp->children.at(c - 'a') = new TrieNode(c);
+			}
+			tmp = tmp->children.at(c - 'a');
+		}
+		tmp->isEndOfWord = true;
+	}
+
+	/** Returns if the word is in the trie. */
+	bool search(string word) {
+		TrieNode* tmp = root;
+		for (int i=0; i<word.size(); ++i)
+		{
+			if (!tmp->children.at(word.at(i) - 'a'))
+			{
+				return false;
+			}
+			else
+			{
+				tmp = tmp->children.at(word.at(i) - 'a');  //下面不需要判断是否当前元素是end，因为例如app和apple都插入的话，寻找apple时发现第二个p是end，那么就会返回false，然后apple是有的，所以这边要是判断的话就会出错，只需要最后一个字符判断是否是end就好了
+			}
+		}
+		return tmp->isEndOfWord;  //看看最后一个字符是否是已有单词的最后一个元素
+	}
+
+	/** Returns if there is any word in the trie that starts with the given prefix. */
+	bool startsWith(string prefix) {
+		TrieNode* tmp = root;
+		for (int i = 0; i < prefix.size(); ++i)
+		{
+			if (!tmp->children.at(prefix.at(i) - 'a'))
+			{
+				return false;
+			}
+			else
+			{
+				tmp = tmp->children.at(prefix.at(i) - 'a');
+			}
+		}
+		return true;
+	}
+};
+
+int direction[4][2] = { {-1, 0}, {0, -1}, {1, 0}, {0, 1} };
+bool exist_dfs(vector<vector<char>>& board, string word, int n, int row, int column)
+{
+	if (n == word.size())
+	{
+		return true;
+	}
+	if (n == 0)
+	{
+		for (int i = 0; i < board.size(); ++i)
+		{
+			for (int j=0; j<board.at(i).size(); ++j)
+			{
+				if (board.at(i).at(j) == word.at(n))
+				{
+					char c = board.at(i).at(j);
+					board.at(i).at(j) = '*';
+					if (exist_dfs(board, word, n + 1, i, j))  //如果下一层递归成功，那么就说明剩下的字符成功了，就直接返回true，否则的话还原当前字符串继续循环
+					{
+						return true;
+					}
+					else
+					{
+						board.at(i).at(j) = c;
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		for (int i = 0; i < 4; ++i)
+		{
+			if (row + direction[i][0] < 0 || row + direction[i][0] >= board.size() || column + direction[i][1] < 0 || column + direction[i][1] >= board.at(row).size())
+			{
+				continue;
+			}
+			else
+			{
+				if (board.at(row + direction[i][0]).at(column + direction[i][1]) == word.at(n))
+				{
+					char c = board.at(row + direction[i][0]).at(column + direction[i][1]);
+					board.at(row + direction[i][0]).at(column + direction[i][1]) = '*';
+					if (exist_dfs(board, word, n + 1, row + direction[i][0], column + direction[i][1]))
+					{
+						return true;
+					}
+					else
+					{
+						board.at(row + direction[i][0]).at(column + direction[i][1]) = c;
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+bool exist(vector<vector<char>>& board, string word)  //单词搜索
+{
+	if (board.size() == 0 || word.size() == 0)
+	{
+		return false;
+	}
+	//深度优先搜索
+	return exist_dfs(board, word, 0, 0, 0);
+}
+
+vector<int> countBits_1(int num)  //自己的 
+{
+	//加入已经知道n的时候1的个数，那么对于2n，就是直接将n的二进制左移，因此1的个数不变；如果是2n+1的话，是将n二进制左移，然后在末尾左移后多出来的一位0加上1，也就比原来n的1个数多一个
+	if (num == 0)
+	{
+		return { 0 };
+	}
+	else if (num == 1)
+	{
+		return { 0, 1 };
+	}
+	else if (num == 2)
+	{
+		return { 0, 1, 1 };
+	}
+	vector<int> result = { 0, 1, 1 };
+	for (int i = 3; i <= num; ++i)
+	{
+		if (i % 2 == 1)
+		{
+			result.push_back(result.at(i / 2) + 1);
+		}
+		else
+		{
+			result.push_back(result.at(i / 2));
+		}
+	}
+	return result;
+}
+
+vector<int> countBits_2(int num) //通过i & (i - 1)
+{
+	if (num == 0)
+	{
+		return { 0 };
+	}
+	else if (num == 1)
+	{
+		return { 0, 1 };
+	}
+	else if (num == 2)
+	{
+		return { 0, 1, 1 };
+	}
+	vector<int> result = { 0, 1, 1 };
+	for (int i=3; i<=num; ++i)
+	{
+		result.push_back(result.at(i & (i - 1)) + 1);
+	}
+	return result;
+}
+
+int minimumTotal_result = INT_MAX;
+void minimumTotal_dfs(vector<vector<int>>& triangle, int i, int j, int tmp)  //深度优先搜索
+{
+	if (i >= triangle.size())
+	{
+		minimumTotal_result = min(tmp, minimumTotal_result);
+		tmp = 0;
+		return;
+	}
+	tmp += triangle.at(i).at(j);
+	minimumTotal_dfs(triangle, i + 1, j, tmp);
+	minimumTotal_dfs(triangle, i + 1, j + 1, tmp);
+}
+int minimumTotal_1(vector<vector<int>>& triangle)  //三角形最小路径和--深度优先搜索超时了
+{
+	if (triangle.size() == 0)
+	{
+		return 0;
+	}
+	int tmp = 0;
+	minimumTotal_dfs(triangle, 0, 0, tmp);
+	return minimumTotal_result;
+}
+
+int minimumTotal_2(vector<vector<int>>& triangle)  //三角形最小路径和
+{
+	if (triangle.size() == 0)
+	{
+		return 0;
+	}
+	vector<int> dp(triangle.size(), 0);   //dp表示从最底层到当前的(i，j)的最小路径和
+	dp.assign(triangle.at(triangle.size() - 1).begin(), triangle.at(triangle.size() - 1).end());
+	for (int i = triangle.size() - 2; i >= 0; --i)
+	{
+		for (int j = 0; j < triangle.at(i).size(); ++j)
+		{
+			dp[j] = min(dp[j], dp[j + 1]) + triangle.at(i).at(j);
+		}
+	}
+	return dp[0];  //最后回归成第一个元素
+}
+
+int maxProduct(vector<int>& nums)  //乘积最大子序列
+{
+	if (nums.size() == 0)
+	{
+		return 0;
+	}
+	vector< vector<int> > dp(nums.size(), vector<int>(2));  //表示到i为止的最大最小乘积
+	dp[0][0] = nums.at(0);  //第二维为0表示正数最大值
+	dp[0][1] = nums.at(0);  //第二维为1表示最小值(负数绝对值最大)
+	int result = nums.at(0);
+	for (int i=1; i<nums.size(); ++i)
+	{
+		if (nums.at(i) < 0)
+		{
+			dp[i][1] = min(dp[i - 1][0] * nums.at(i), nums.at(i));
+			dp[i][0] = max(dp[i - 1][1] * nums.at(i), nums.at(i));
+		}
+		else
+		{
+			dp[i][0] = max(dp[i - 1][0] * nums.at(i), nums.at(i));
+			dp[i][1] = min(dp[i - 1][1] * nums.at(i), nums.at(i));
+		}
+		result = max(result, dp[i][0]);
+	}
+	return result;
+}
+
+int maxProfit_cooldown(vector<int>& prices)  //要注意这里的冷冻期只有卖出后才有，买入后没有
+{
+	//dp[i][0] = max(dp[i-1][0], dp[i-1][1] + prices[i])
+	//dp[i][1] = max(dp[i - 1][1], dp[i - 2][0] - prices[i])
+	//解释：第 i 天选择 buy 的时候，要从 i - 2 的状态转移，而不是 i - 1 。
+	if (prices.size() == 0)
+	{
+		return 0;
+	}
+	int n = prices.size();
+	int dp_i_0 = 0, dp_i_1 = INT_MIN;
+	int dp_pre_0 = 0;    //代表 dp[i-2][0]
+	for (int i = 0; i < n; i++) {
+		int temp = dp_i_0;
+		dp_i_0 = max(dp_i_0, dp_i_1 + prices[i]);
+		dp_i_1 = max(dp_i_1, dp_pre_0 - prices[i]);
+		dp_pre_0 = temp;
+	}
+	return dp_i_0;
+}
+
+int lengthOfLIS(vector<int>& nums)  //最长上升子序列
+{
+	if (nums.size() <= 1)
+	{
+		return nums.size();
+	}
+	vector<int> dp(nums.size());  //包含第i个元素的前i个数中的最长上升子序列, dp[i] = max(dp[j]) + 1, j=0->i-1
+	dp[0] = 1;
+	int result = 1;
+	for (int i=1; i<nums.size(); ++i)
+	{
+		int tmp = 0;
+		for (int j=0; j<i; ++j)
+		{
+			if (nums.at(j) < nums.at(i))  //要是大于等于，那么肯定不包括第i各元素了
+			{
+				tmp = max(tmp, dp[j]);
+			}
+		}
+		dp[i] = tmp + 1;
+		result = max(result, dp[i]);
+	}
+	return result;
+}
+
+int coinChange_1(vector<int>& coins, int amount)  //零钱兑换
+{
+	vector<int> dp(amount + 1, amount + 1);
+	dp[0] = 0;
+	for (int i=1; i<=amount; ++i)
+	{
+		for (int j=0; j<coins.size(); ++j)
+		{
+			if (coins.at(j) <= i)
+			{
+				dp[i] = min(dp[i], dp[i - coins.at(j)] + 1);
+			}
+		}
+	}
+	return dp[amount] > amount ? -1 : dp[amount];
+}
+
+int coinChange_2(vector<int>& coins, int amount)  //零钱兑换
+{
+	/*
+	if (amount == 0)
+	{
+		return 0;
+	}
+	if (coins.size() == 0 || amount < 0)
+	{
+		return -1;
+	}
+	int minCount = amount + 1;
+	for (int i = 0; i < coins.size(); ++i)
+	{
+		if (coins.at(i) <= amount)
+		{
+			int tmp = coinChange_2(coins, amount - coins.at(i));
+			if (tmp == -1)
+			{
+				continue;
+			}
+			minCount = min(minCount, tmp + 1);
+		}
+	}
+	return minCount > amount ? -1 : minCount;
+	*/   //超时了
+}
+
+int numIslands(vector<vector<char>>& grid)  //岛屿数量--并查集
+{
+	if (grid.size() == 0 || grid.at(0).size() == 0)
+	{
+		return 0;
+	}
+	int count = 0, n = grid.size(), m = grid.at(0).size();
+	vector<int> parent(grid.size()*grid.at(0).size(), -1);
+	vector<int> r(grid.size()*grid.at(0).size(), 0);  //考虑rank
+	for (int i = 0; i < n; ++i)
+	{
+		for (int j = 0; j < m; ++j)
+		{
+			if (grid.at(i).at(j) == '1')
+			{
+				count++;
+				parent[i * m + j] = i * m + j;
+			}
+		}
+	}
+	int direction[][2] = { {1,0}, {0,1}, {-1,0},{0,-1} };
+	for (int i = 0; i < n; ++i)
+	{
+		for (int j = 0; j < m; ++j)
+		{
+			if (grid[i][j] == '0')
+			{
+				continue;
+			}
+			for (int k = 0; k < 4; ++k)
+			{
+				int ti = i + direction[k][0], tj = j + direction[k][1];
+				if (ti >= 0 && tj >= 0 && ti < n && tj < m && grid[ti][tj] == '1')
+				{
+					int rootx = parent[i * m + j], rooty = parent[ti * m + tj];
+					while (rootx != parent[rootx])
+					{
+						rootx = parent[rootx];
+					}
+					while (rooty != parent[rooty])
+					{
+						rooty = parent[rooty];
+					}
+					if (rootx != rooty)  //如果根不相同，但是由于是相邻的，因此要合并
+					{
+						if (r[rootx] > r[rooty])
+						{
+							parent[rooty] = rootx;
+						}
+						else if (r[rootx] < r[rooty])
+						{
+							parent[rootx] = rooty;
+						}
+						else
+						{
+							parent[rooty] = rootx;
+							r[rootx] += 1;
+						}
+						--count;
+					}
+				}
+			}
+		}
+	}
+	return count;
+}
+
+int findCircleNum(vector<vector<int>>& M)  //朋友圈
+{
+	if (M.size() == 0 || M.at(0).size() == 0)
+	{
+		return 0;
+	}
+	int count = 0, n = M.size(), m = M.at(0).size();
+	vector<int> parent(m, -1);
+	for (int i=0; i<n; ++i)
+	{
+		for (int j=0; j<m; ++j)
+		{
+			if (M[i][j] == 1 && i != j)
+			{
+				int rootx = i, rooty = j;
+				while (parent[rootx] != -1)
+				{
+					rootx = parent[rootx];
+				}
+				while (parent[rooty] != -1)
+				{
+					rooty = parent[rooty];
+				}
+				if (rootx != rooty) //第i个和第j个认识，按照那么他们的老大也应该认识
+				{
+					parent[rooty] = rootx;
+				}
+			}
+		}
+	}
+	for (int i = 0; i < n; ++i)
+	{
+		if (parent[i] == -1)
+		{
+			count++;
+		}
+	}
+	return count;
+}
+
+class LRUCache {
+public:
+	int _capacity;
+	int time;
+	//第一个int为key，第二个int为value，第三个int为使用频率，第四个int为最近使用或插入时间
+	unordered_map<int, pair<int, pair<int, int> > > lruUM; 
+	LRUCache(int capacity) {
+		this->_capacity = capacity;
+		time = 1;
+	}
+
+	int get(int key) {
+		unordered_map<int, pair<int, pair<int, int> > >::iterator ifind = lruUM.find(key);
+		if (ifind == lruUM.end())
+		{
+			return -1;
+		}
+		time++;
+		ifind->second.second.first += 1;
+		ifind->second.second.second = time;
+		return ifind->second.first;
+	}
+
+	void put(int key, int value) {
+		time++;
+		unordered_map<int, pair<int, pair<int, int> > >::iterator ifind = lruUM.find(key);
+		if (ifind != lruUM.end())
+		{
+			if (ifind->second.first != value)  //如果存在也值不等的话，就要修改值并且改变频率和时间
+			{
+				ifind->second.first = value;
+				ifind->second.second.first += 1;
+				ifind->second.second.second = time;
+			}
+			return;
+		}
+		if (lruUM.size() < this->_capacity)  //如果还有空间，直接插入
+		{
+			pair<int, pair<int, pair<int, int> > > p(key, pair<int, pair<int, int> >(value, pair<int, int>(1, time)));
+			lruUM.insert(p);
+		}
+		else
+		{
+			ifind = lruUM.begin();
+			int mint = ifind->second.second.second;
+			for (; ifind != lruUM.end(); ifind++)  //先找到时间最先的那个
+			{
+				mint = min(mint, ifind->second.second.second);
+			}
+			int tmp = INT_MIN;
+			for (ifind=lruUM.begin(); ifind != lruUM.end(); ifind++)
+			{
+				if (ifind->second.second.second == mint)
+				{
+					if (tmp == INT_MIN)
+					{
+						tmp = ifind->first;
+					}
+					else  //如果时间相同，那么就要去掉频率最低的那个
+					{
+						lruUM.find(tmp)->second.second.first > ifind->second.second.first ? tmp = ifind->first : tmp = tmp;
+					}
+				}
+			}
+			lruUM.erase(lruUM.find(tmp));
+			pair<int, pair<int, pair<int, int> > > p(key, pair<int, pair<int, int> >(value, pair<int, int>(1, time)));
+			lruUM.insert(p);
+		}
+	}
+};
+
+string longestPalindrome(string s)  //最长回文子串
+{
+	if (s.size() <= 1)
+	{
+		return s;
+	}
+	vector<vector<int> > dp(s.size(), vector<int>(s.size()));  //第i个到第j个元素(包括i和j)是否是回文串，是的话就是1，否则为0
+	int maxLen = 1, start = 0;  //回文串最大长度和开始位置，如果有多个开始位置，那么start为其中一个
+	for (int i=0; i<s.size(); ++i)
+	{
+		dp[i][i] = 1;  //单独一个字符肯定是回文
+		if (i < s.size() - 1 && s[i] == s[i + 1])  //如果相邻的两个相同就是回文
+		{
+			dp[i][i + 1] = 1;
+			maxLen = 2;
+			start = i;
+		}
+	}
+	for (int l=3; l<=s.size(); ++l)  //从长度为3开始
+	{
+		for (int i=0; i+l-1<s.size(); ++i)
+		{
+			int j = i + l - 1;
+			if (s[i] == s[j] && dp[i + 1][j - 1] == 1)  //如果第i个和第j个一样，并且之间的已经是回文串了
+			{
+				maxLen = l;
+				start = i;
+				dp[i][j] = 1;
+			}
+		}
+	}
+	return s.substr(start, maxLen);
+}
+
+string convert(string s, int numRows)  //Z 字形变换
+{
+	if (s.size() <= numRows || numRows == 1)
+	{
+		return s;
+	}
+	string result;
+	int n = s.size();
+	int cycle = 2 * numRows - 2;
+	for (int i=0; i<numRows; ++i)
+	{
+		for (int j=0; j+i<n; j+=cycle)
+		{
+			result += s[j + i];
+			if (i != 0 && i != numRows - 1 && j + cycle - i < n)
+			{
+				result += s[j + cycle - i];
+			}
+		}
+	}
+	return result;
+}
+
+int myAtoi(string str)  //字符串转换整数 (atoi)
+{
+	if (str.size() == 0)
+	{
+		return 0;
+	}
+	int result = 0;
+	bool isZhengShu = true;
+	int i = 0;
+	while (str[i] == ' ')
+	{
+		++i;
+	}
+	if (str[i] == '-')
+	{
+		isZhengShu = false;
+	}
+	if (str[i] == '+' || str[i] == '-')
+	{
+		++i;
+	}
+	while (i < str.size() && str[i] >= '0' && str[i] <= '9')
+	{
+		int tmp = str[i] - '0';
+		if (isZhengShu)
+		{
+			if (result > INT_MAX / 10 || (result == INT_MAX / 10 && str[i] >= '7'))
+			{
+				return INT_MAX;
+			}
+		}
+		else
+		{
+			if (result > INT_MAX / 10 || (result == INT_MAX / 10 && str[i] >= '8'))
+			{
+				return INT_MIN;
+			}
+		}
+		result = result * 10 + tmp;
+		++i;
+	}
+	isZhengShu ? result : -result;
+}
+
+int maxArea_1(vector<int>& height)   //盛最多水的容器--暴力法超时了
+{
+	int result = 0;
+	for (int i = 0; i < height.size(); ++i)
+	{
+		for (int j = i + 1; j < height.size(); ++j)
+		{
+			result = max(result, (j - i)*min(height[j], height[i]));
+		}
+	}
+	return result;
+}
+
+int maxArea_2(vector<int>& height)   //盛最多水的容器--双指针
+{
+	int l = 0, r = height.size() - 1;
+	int result = 0;
+	while (l < r)
+	{
+		int tmp = (r - l) * min(height[l], height[r]);
+		result = max(result, tmp);
+		if (height[l] < height[r])  //如果右侧大，那么此时是以l为竖边，那么如果减小r的话，只会面积越来越小，因此要增加l
+		{
+			l++;
+		}
+		else
+		{
+			r--;
+		}
+	}
+	return result;
+}
+
+string intToRoman(int num)  // 整数转罗马数字
+{
+	if (num > 3999 || num < 1)
+	{
+		return "";
+	}
+	string result;
+	map<int, string> m;
+	m.insert(pair<int, string>(1, "I"));
+	m.insert(pair<int, string>(4, "IV"));
+	m.insert(pair<int, string>(5, "V"));
+	m.insert(pair<int, string>(9, "IX"));
+	m.insert(pair<int, string>(10, "X"));
+	m.insert(pair<int, string>(40, "XL"));
+	m.insert(pair<int, string>(50, "L"));
+	m.insert(pair<int, string>(90, "XC"));
+	m.insert(pair<int, string>(100, "C"));
+	m.insert(pair<int, string>(400, "CD"));
+	m.insert(pair<int, string>(500, "D"));
+	m.insert(pair<int, string>(900, "CM"));
+	m.insert(pair<int, string>(1000, "M"));
+	map<int, string>::iterator ii = m.end();
+	--ii;  //从最大的往下找
+	while (num > 0)
+	{
+		if (num >= ii->first)
+		{
+			result = result + ii->second;
+			num -= ii->first;
+		}
+		else
+		{
+			--ii;
+		}
+	}
+	return result;
+}
+
+int main()
 {
 	//两数相加
 	//addTwoNumbers
@@ -713,4 +1413,52 @@ int main
 
 	//有效的数独
 	//isValidSudoku
+
+	//实现 Trie (前缀树)
+	//Trie
+
+	//单词搜索
+	//exist
+
+	//比特位计数
+	//countBits
+
+	//三角形最小路径和
+	//minimumTotal
+
+	//乘积最大子序列
+	//maxProduct
+
+	//最佳买卖股票时机含冷冻期
+	//maxProfit_cooldown
+
+	//最长上升子序列
+	//lengthOfLIS
+
+	//零钱兑换
+	//coinChange
+
+	//岛屿数量
+	//numIslands
+
+	//朋友圈
+	//findCircleNum
+
+	//LRU缓存机制
+	//class LRUCache
+
+	//最长回文子串
+	//longestPalindrome
+
+	//Z 字形变换
+	//convert
+
+	//字符串转换整数 (atoi)
+	//myAtoi
+
+	//盛最多水的容器
+	//maxArea
+
+	//整数转罗马数字
+	//intToRoman
 }

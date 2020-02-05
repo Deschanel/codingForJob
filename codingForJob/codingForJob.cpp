@@ -800,18 +800,32 @@ int mySqrt_1(int x)  //暴力解法
 
 int mySqrt_2(int x)  //二分查找,当x>=4时。x/2的平方大于等于x的平方根
 {
-	if (x == 0 || x == 1)
+	if (x == 0)
 	{
-		return x;
+		return 0;
 	}
-	long long left = 0, right = x;
-	while (left < right)
+	else if (x < 4)
 	{
-		long long mid = (right + left) >> 1;
-		long long s = mid * mid;
-		(x < s) ? (right = mid) : (left = mid + 1);
+		return 1;
 	}
-	return --left;
+	int left = 0, right = x / 2 + 1;
+	while (left <= right)
+	{
+		int mid = (left + right) / 2;
+		if (mid == x / mid)
+		{
+			return mid;
+		}
+		else if (mid < x / mid)
+		{
+			left = mid + 1;
+		}
+		else
+		{
+			right = mid - 1;
+		}
+	}
+	return left - 1;
 }
 
 int climbStairs_1(int n)  //动态规划递归----超时了
@@ -3205,18 +3219,28 @@ bool isPerfectSquare(int num)  //有效的完全平方数
 	{
 		return false;
 	}
-	for (int i = 3; i < num / 2; ++i)
+	//二分查找
+	int left = 0, right = num / 2 + 1; 
+	int res = 0;
+	while (left <= right)
 	{
-		if (i*i == num)
+		int mid = (left + right) / 2;
+		if (mid == num / mid)
 		{
-			return true;
-		}
-		else if (i*i > num)
-		{
+			res = mid;
 			break;
 		}
+		else if (mid < num / mid)
+		{
+			left = mid + 1;
+			res = mid;
+		}
+		else
+		{
+			right = mid - 1;
+		}
 	}
-	return false;
+	return (res*res == num);
 }
 
 int getSum(int a, int b)  //两整数之和
