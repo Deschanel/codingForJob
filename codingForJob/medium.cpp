@@ -1373,6 +1373,192 @@ string intToRoman(int num)  // 整数转罗马数字
 	return result;
 }
 
+int threeSumClosest(vector<int>& nums, int target)  //最接近的三数之和
+{
+	if (nums.size() <= 2)
+	{
+		return 0;
+	}
+	sort(nums.begin(), nums.end());
+	int cha = INT_MAX;
+	int result = 0;
+	for (int i=0; i<nums.size(); ++i)
+	{
+		int l = i + 1, r = nums.size() - 1;
+		while (l < r)  //双指针，如果相等的话就是一样了
+		{
+			int tmp = nums[i] + nums[l] + nums[r];
+			if (cha > abs(tmp - target))
+			{
+				cha = abs(tmp - target);
+				result = tmp;
+			}
+			if (tmp == target)
+			{
+				return target;
+			}
+			else if(tmp < target)
+			{
+				++l;
+			}
+			else
+			{
+				--r;
+			}
+		}
+	}
+	return result;
+}
+
+vector<string> letterCombinations_item(int index, map<int, vector<char> > &m, string digits)
+{
+	if (index >= digits.size())
+	{
+		return {};
+	}
+	int d = digits[index] - '0';
+	vector<string> result;
+	vector<char> s = m.find(d)->second;
+	vector<string> tmp = letterCombinations_item(index + 1, m, digits);  //已知从后截至到index+1(包含)的结果，那么当前的结果就是得到的tmp再跟当前数字代表的字符全组合
+	if (tmp.size() == 0)
+	{
+		for (int j = 0; j < s.size(); ++j)
+		{
+			result.push_back("");
+			result[j] = s[j] + result[j];
+		}
+	}
+	else
+	{
+		for (int i = 0; i < tmp.size(); ++i)
+		{
+			for (int j = 0; j < s.size(); ++j)
+			{
+				result.push_back(s[j] + tmp[i]);
+			}
+		}
+	}
+	return result;
+}
+vector<string> letterCombinations(string digits)  //电话号码的字母组合
+{
+	if (digits.size() == 0)
+	{
+		return {};
+	}
+	map<int, vector<char> > m;
+	m[2] = { 'a', 'b', 'c' };
+	m[3] = { 'd', 'e', 'f' };
+	m[4] = { 'g', 'h', 'i' };
+	m[5] = { 'j', 'k', 'l' };
+	m[6] = { 'm', 'n', 'o' };
+	m[7] = { 'p', 'q', 'r', 's' };
+	m[8] = { 't', 'u', 'v' };
+	m[9] = { 'w', 'x', 'y', 'z' };
+	return letterCombinations_item(0, m, digits);
+}
+
+vector<vector<int>> fourSum(vector<int>& nums, int target)  //四数之和
+{
+	if (nums.size() <= 3)
+	{
+		return {};
+	}
+	sort(nums.begin(), nums.end());
+	vector< vector<int> > result;
+	for (int i = 0; i < nums.size(); ++i)
+	{
+		if (i > 0 && nums[i] == nums[i - 1])  //如果当前与前一个相同，就说明已经用过了
+		{
+			continue;
+		}
+		for (int j = i + 1; j < nums.size(); ++j)
+		{
+			if (j > i + 1 && nums[j] == nums[j - 1])  //如果j是大于i+1，也就是说j-1 > i, 有重复的话就说明之前用过了,如果j=i+1就continue的话，就把第i个去掉了
+			{
+				continue;
+			}
+			int tmp = target - nums[i] - nums[j];
+			int l = j + 1, r = nums.size() - 1;
+			while (l < r)
+			{
+				if (nums[l] + nums[r] == tmp)
+				{
+					vector<int> tmp;
+					tmp.push_back(nums[i]);
+					tmp.push_back(nums[j]);
+					tmp.push_back(nums[l]);
+					tmp.push_back(nums[r]);
+					result.push_back(tmp);
+					int t = nums[l];
+					while (l < nums.size() && nums[l] == t) //如果之后的有等于nums[l]的，那么要一直往后越过去
+					{
+						++l;
+					}
+					t = nums[r];
+					while (r >= 0 && nums[r] == t)  //如果之前有等于的，要一直往前越过去
+					{
+						--r;
+					}
+				}
+				else if (nums[l] + nums[r] < tmp)
+				{
+					++l;
+				}
+				else
+				{
+					--r;
+				}
+			}
+		}
+	}
+	return result;
+}
+
+ListNode* removeNthFromEnd(ListNode* head, int n)  //删除链表的倒数第N个节点
+{
+	if (!head)
+	{
+		return head;
+	}
+	vector<ListNode*> tmp;
+	int i = 0;
+	while (head)
+	{
+		tmp.push_back(head);
+		++i;
+		head = head->next;
+	}
+	if (i < n)
+	{
+		return tmp[0];
+	}
+	int index = i - n;
+	if (index == 0)  //如果是删除第一个
+	{
+		if (i <= 1) //如果节点个数小于等于一个
+		{
+			return nullptr;
+		}
+		else  //如果节点个数大于1个，直接从第二个开始即可
+		{
+			return tmp[1];
+		}
+	}
+	else  //如果不是删除第一个
+	{
+		if (n == 1)  //如果是删除最后一个，直接让倒数第二个的next指向nullptr
+		{
+			tmp[index - 1]->next = nullptr;
+		}
+		else  //否则的话就是让前一个指向后一个
+		{
+			tmp[index - 1]->next = tmp[index + 1];
+		}
+		return tmp[0];
+	}
+}
+
 int main()
 {
 	//两数相加
@@ -1461,4 +1647,16 @@ int main()
 
 	//整数转罗马数字
 	//intToRoman
+
+	//最接近的三数之和
+	//threeSumClosest
+
+	//电话号码的字母组合
+	//letterCombinations
+
+	//四数之和
+	//fourSum
+
+	//删除链表的倒数第N个节点
+	//removeNthFromEnd
 }
