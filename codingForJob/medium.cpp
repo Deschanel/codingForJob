@@ -1559,6 +1559,464 @@ ListNode* removeNthFromEnd(ListNode* head, int n)  //删除链表的倒数第N个节点
 	}
 }
 
+int divide(int dividend, int divisor)  //两数相除
+{
+	if (divisor == 0)
+	{
+		return INT_MAX;
+	}
+	if (dividend == 0)
+	{
+		return 0;
+	}
+	bool flag = true;  //结果是正数
+	if ((dividend > 0 && divisor > 0) || (dividend < 0 && divisor < 0))
+	{
+		flag = true;
+	}
+	else
+	{
+		flag = false;
+	}
+	unsigned int x = 0, y = 0;
+	if (dividend > 0)
+	{
+		x = dividend;
+	}
+	else
+	{
+		if (dividend == INT_MIN)
+		{
+			x = INT_MAX + 1;
+		}
+		else
+		{
+			x = -dividend;
+		}
+	}
+	if (divisor > 0)
+	{
+		y = divisor;
+	}
+	else
+	{
+		if (divisor == INT_MIN)
+		{
+			y = INT_MAX + 1;
+		}
+		else
+		{
+			y = -divisor;
+		}
+	}
+	int result = 0;
+	int i = 31;
+	while (i >= 0)
+	{
+		if ((x >> i) >= y)
+		{
+			if (i == 31)
+			{
+				return flag ? INT_MAX : INT_MIN;
+			}
+			result += (1 << i);
+			x -= (y << i);
+		}
+		--i;
+	}
+	return flag ? result : -result;
+}
+
+void nextPermutation(vector<int>& nums)  //下一个排列
+{
+	/*
+	我们还希望下一个数增加的幅度尽可能的小，这样才满足“下一个排列与当前排列紧邻“的要求。
+	为了满足这个要求，我们需要
+	1. 在尽可能靠右的低位进行交换，需要从后向前查找
+	2. 将一个尽可能小的大数与前面的小数交换。比如 123465，下一个排列应该把 5 和 4 交换而不是把 6 和 4 交换
+	3. 将大数换到前面后，需要将大数后面的所有数重置为升序，升序排列就是最小的排列。
+	以 123465 为例：首先按照上一步，交换 5 和 4，得到 123564；
+	然后需要将 5 之后的数重置为升序，得到 123546。
+	显然 123546 比 123564 更小，123546 就是 123465 的下一个排列
+
+	*/
+	if (nums.size() <= 1)
+	{
+		return;
+	}
+	bool isJiangXu = true, isShengXu = true;
+	int x = 0, y = 0; //升序的两个
+	for (int i=1; i<nums.size(); ++i)
+	{
+		if (nums[i] > nums[i - 1])
+		{
+			isJiangXu = false;
+			x = i - 1;
+			y = i;
+		}
+		else if(nums[i] < nums[i - 1])
+		{
+			isShengXu = false;
+		}
+	}
+	if (isJiangXu)
+	{
+		sort(nums.begin(), nums.end());
+	}
+	else if (isShengXu)
+	{
+		swap(nums[nums.size() - 1], nums[nums.size() - 2]);
+	}
+	else  //非升序和降序两个特殊情况
+	{
+		//根据上个for循环，可以知道此时x和y为最后一对升序的，因此，y之后(包括y)的数为降序的
+		for (int i = nums.size() - 1; i >= 0; --i)  //从后往前找到比x数大的第一个数，首先肯定有y数，二由于后面是降序的，因此找到的第一个肯定是大于x数的最小数
+		{
+			if (nums[i] > nums[x])
+			{
+				y = i;
+				break;
+			}
+		}
+		swap(nums[x], nums[y]);  //交换最小的大数与x
+		sort(nums.begin() + x + 1, nums.end());  //再将后面的降序改为升序，找到大于原排列的最小的排列
+	}
+}
+
+int search(vector<int>& nums, int target)  //搜索旋转排序数组
+{
+	if (nums.size() == 0)
+	{
+		return -1;
+	}
+	if (nums.size() == 1)
+	{
+		return nums[0] == target ? 0 : -1;
+	}
+	int l = 0, r = nums.size() - 1;
+	while (l <= r)
+	{
+		int mid = (r - l) / 2 + l;
+		if (nums[mid] == target)
+		{
+			return mid;
+		}
+		if (nums[l] <= nums[mid])  //表示在l到mid是升序,因为可能mid=l,所以要有等于
+		{
+			if (nums[l] <= target && nums[mid] > target)  //在l到mid之间
+			{
+				r = mid - 1;
+			}
+			else
+			{
+				l = mid + 1;
+			}
+		}
+		else  //那么l的数大于mid的数，也就是说mid到r是升序的
+		{
+			if (nums[mid] < target && nums[r] >= target)
+			{
+				l = mid + 1;
+			}
+			else
+			{
+				r = mid - 1;
+			}
+		}
+	}
+	--l;
+	if (l < 0)  //如果l为负的
+	{
+		return -1;
+	}
+	return nums[l] == target ? l : -1;
+}
+
+int searchRange_item(vector<int> &nums, int target, bool isLeft)
+{
+	int l = 0, r = nums.size() - 1;
+	while (l <= r)
+	{
+		int mid = (r - l) / 2 + l;
+		if (nums[mid] == target && isLeft) //如果相等这时候不反悔，如果是要找左端点，就r往前走
+		{
+			r = mid - 1;
+		}
+		else if (nums[mid] > target)
+		{
+			r = mid - 1;
+		}
+		else   //这个else包括其中一个情况：如果相等且找的是右端点，则l往后走
+		{
+			l = mid + 1;
+		}
+	}
+	if (l == 0)
+	{
+		return nums[l] == target ? 0 : -1;  //看看应该是返回0还是-1
+	}
+	else
+	{
+		int tmp = l - 1;
+		return nums[tmp] == target ? tmp : l;   //如果l - 1的数等于target的话就返回这个下标较小的，否则就返回下标大的
+	}
+}
+vector<int> searchRange(vector<int>& nums, int target)  //在排序数组中查找元素的第一个和最后一个位置
+{
+	if (nums.size() == 0)
+	{
+		return {-1, -1};
+	}
+	else if (target < nums[0] || target > nums[nums.size() - 1])
+	{
+		return {-1, -1};
+	}
+	vector<int> result = { -1, -1 };
+	int l = searchRange_item(nums, target, true), r = searchRange_item(nums, target, false);
+	result[0] = (nums[l] == target ? l : -1);  //判断返回的下标是否等于target
+	result[1] = (nums[r] == target ? r : -1);
+	return result;
+}
+
+set< vector<int> > combinationSum_s;
+void combinationSum_dfs(vector<int>& candidates, int target, vector<int> s)  //深度优先搜索
+{
+	if (target == 0)
+	{
+		if (s.size() > 0)
+		{
+			sort(s.begin(), s.end());
+			combinationSum_s.insert(s);
+		}
+		return;
+	}
+	else if (target < 0)
+	{
+		return;
+	}
+	for (int i=0; i<candidates.size(); ++i)
+	{
+		vector<int> tmp = s;  //这里是为了让用过的第i-1个数去掉，所以不能用s.push_back(candidates[i])
+		tmp.push_back(candidates[i]);
+		combinationSum_dfs(candidates, target - candidates[i], tmp);
+	}
+}
+vector<vector<int>> combinationSum(vector<int>& candidates, int target)  //组合总和
+{
+	if (candidates.size() == 0)
+	{
+		return {};
+	}
+	combinationSum_dfs(candidates, target, {});
+	vector< vector<int> > result;
+	result.assign(combinationSum_s.begin(), combinationSum_s.end());
+	return result;
+}
+
+set< vector<int> > combinationSum2_s;
+void combinationSum2_dfs(vector<int>& candidates, int target, set<int> s, vector<int> v)
+{
+	if (target == 0)
+	{
+		if (v.size() > 0)
+		{
+			sort(v.begin(), v.end());
+			combinationSum2_s.insert(v);
+		}
+		return;
+	}
+	else if(target < 0)
+	{
+		return;
+	}
+	for (int i=0; i<candidates.size(); ++i)
+	{
+		if (s.find(i) != s.end())  //如果用过了
+		{
+			continue;
+		}
+		if (target - candidates[i] < 0)  //剪枝
+		{
+			continue;
+		}
+		s.insert(i);
+		vector<int> tmp = v; //这里是为了让用过的第i-1个数去掉，所以不能用s.push_back(candidates[i])
+		tmp.push_back(candidates[i]);
+		combinationSum2_dfs(candidates, target - candidates[i], s, tmp);
+		s.erase(i);  //把用过的这个删掉
+	}
+}
+vector<vector<int>> combinationSum2(vector<int>& candidates, int target)  //组合总和 II
+{
+	if (candidates.size() == 0)
+	{
+		return {};
+	}
+	sort(candidates.begin(), candidates.end());
+	combinationSum2_dfs(candidates, target, {}, {});
+	vector< vector<int> > result;
+	result.assign(combinationSum2_s.begin(), combinationSum2_s.end());
+	return result;
+}
+
+string multiply_item(int index, vector<string> &tmp)
+{
+	if (index == 0)
+	{
+		return tmp[0];
+	}
+	else if (index < 0)
+	{
+		return "0";
+	}
+	string s1 = multiply_item(index - 1, tmp);
+	string s2 = tmp[index];
+	int i = s1.size() - 1, j = s2.size() - 1, jinwei = 0;
+	string result;
+	while (i >= 0 || j >= 0)
+	{
+		int x = 0, y = 0;
+		if (i >= 0)
+		{
+			x = s1[i] - '0';
+		}
+		if (j >= 0)
+		{
+			y = s2[j] - '0';
+		}
+		int z = (x + y + jinwei) % 10;
+		jinwei = (x + y + jinwei) / 10;
+		result = std::to_string(z) + result;
+		--i;
+		--j;
+	}
+	if (jinwei)
+	{
+		result = std::to_string(jinwei) + result;
+	}
+	return result;
+}
+string multiply(string num1, string num2)  //字符串相乘
+{
+	if (num1.size() == 0 || num2.size() == 0)
+	{
+		return "";
+	}
+	else if (num1[0] == '0' || num2[0] == '0')
+	{
+		return "0";
+	}
+	vector<string> tmp;
+	int jinwei = 0;
+	int numOf0 = 0;
+	for (int i = num1.size() - 1; i >= 0; --i)
+	{
+		string s;
+		int x = num1[i] - '0';
+		jinwei = 0;  //jinwei归零
+		for (int j = num2.size() - 1; j >= 0; --j)
+		{
+			int y = num2[j] - '0';
+			int z = (x * y + jinwei) % 10;
+			jinwei = (x * y + jinwei) / 10;
+			s = std::to_string(z) + s;
+		}
+		if (jinwei)  //如果还有jinwei，就放在最前面
+		{
+			s = std::to_string(jinwei) + s;
+		}
+		for (int k = 0; k < numOf0; ++k)
+		{
+			s = s + std::to_string(0);  //加上后面的零
+		}
+		tmp.push_back(s);
+		numOf0++;
+	}
+	return multiply_item(tmp.size() - 1, tmp);
+}
+
+set< vector<int> > permute_s;
+void permute_item(vector<int> &nums, set<int> s, vector<int> v)
+{
+	if (v.size() == nums.size())
+	{
+		permute_s.insert(v);
+		return;
+	}
+	else if (v.size() > nums.size())
+	{
+		return;
+	}
+	for (int i=0; i<nums.size(); ++i)
+	{
+		if (s.find(i) != s.end())
+		{
+			continue;
+		}
+		s.insert(i);
+		vector<int> tmp = v;
+		tmp.push_back(nums[i]);
+		permute_item(nums, s, tmp);
+		s.erase(i);
+	}
+}
+vector<vector<int>> permute(vector<int>& nums)  //全排列
+{
+	if (nums.size() == 0)
+	{
+		return {};
+	}
+	else if (nums.size() == 1)
+	{
+		return { {nums[0]} };
+	}
+	permute_item(nums, {}, {});
+	vector< vector<int> > result;
+	result.assign(permute_s.begin(), permute_s.end());
+	return result;
+}
+
+set< vector<int> > permuteUnique_s;
+void permuteUnique_item(vector<int> &nums, set<int> s, vector<int> v)
+{
+	if (v.size() == nums.size())
+	{
+		permuteUnique_s.insert(v);
+		return;
+	}
+	else if (v.size() > nums.size())
+	{
+		return;
+	}
+	for (int i = 0; i < nums.size(); ++i)
+	{
+		if (s.find(i) != s.end())
+		{
+			continue;
+		}
+		s.insert(i);
+		vector<int> tmp = v;
+		tmp.push_back(nums[i]);
+		permuteUnique_item(nums, s, tmp);
+		s.erase(i);  //删掉用过的
+	}
+}
+vector<vector<int>> permuteUnique(vector<int>& nums) 
+{
+	if (nums.size() == 0)
+	{
+		return {};
+	}
+	else if (nums.size() == 1)
+	{
+		return { {nums[0]} };
+	}
+	permuteUnique_item(nums, {}, {});
+	vector< vector<int> > result;
+	result.assign(permuteUnique_s.begin(), permuteUnique_s.end());
+	return result;
+}
+
 int main()
 {
 	//两数相加
@@ -1659,4 +2117,31 @@ int main()
 
 	//删除链表的倒数第N个节点
 	//removeNthFromEnd
+
+	//两数相除
+	//divide
+
+	//下一个排列
+	//nextPermutation
+
+	//搜索旋转排序数组
+	//search
+
+	//在排序数组中查找元素的第一个和最后一个位置
+	//searchRange
+
+	//组合总和
+	//combinationSum
+
+	//组合总和 II
+	//combinationSum2
+
+	//字符串相乘
+	//multiply
+
+	//全排列
+	//permute
+
+	//全排列 II
+	//permuteUnique
 }
