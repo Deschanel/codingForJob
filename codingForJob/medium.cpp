@@ -1738,7 +1738,7 @@ int searchRange_item(vector<int> &nums, int target, bool isLeft)
 	while (l <= r)
 	{
 		int mid = (r - l) / 2 + l;
-		if (nums[mid] == target && isLeft) //如果相等这时候不反悔，如果是要找左端点，就r往前走
+		if (nums[mid] == target && isLeft) //如果相等这时候不返回，如果是要找左端点，就r往前走
 		{
 			r = mid - 1;
 		}
@@ -2017,6 +2017,277 @@ vector<vector<int>> permuteUnique(vector<int>& nums)
 	return result;
 }
 
+void rotate(vector<vector<int>>& matrix)  //旋转图像
+{
+	//先转置，然后依据竖直中心线对称
+	if (matrix.size() <= 1)
+	{
+		return;
+	}
+	for (int i = 0; i < matrix.size(); ++i)  //转置
+	{
+		for (int j = i + 1; j < matrix[i].size(); ++j)
+		{
+			swap(matrix[i][j], matrix[j][i]);
+		}
+	}
+	float xian = matrix[0].size() / 2.0 - 0.5; //竖直中心对称线
+	for (int i = 0; i < matrix.size(); ++i)
+	{
+		for (int j = 0; j <= xian; ++j)
+		{
+			int tmp = 2 * xian - j;
+			swap(matrix[i][j], matrix[i][tmp]);
+		}
+	}
+}
+
+vector<vector<string>> groupAnagrams(vector<string>& strs)  //字母异位词分组
+{
+	if (strs.size() == 0)
+	{
+		return {};
+	}
+	else if (strs.size() == 0)
+	{
+		return { {strs[0]} };
+	}
+	unordered_map<string, vector<string> > um;
+	unordered_map<string, vector<string> >::iterator ifind;
+	for (int i=0; i<strs.size(); ++i)
+	{
+		string tmp = strs[i];
+		sort(tmp.begin(), tmp.end());  //以排好序的为key值
+		ifind = um.find(tmp);  //如果发现当前字符串排好的之后的key值存在，那么就把当前字符串插入，否则插入新key值
+		if (ifind != um.end())
+		{
+			ifind->second.push_back(strs[i]);
+		}
+		else
+		{
+			um.insert(pair<string, vector<string> >(tmp, {strs[i]}));
+		}
+	}
+	vector< vector<string> > result;
+	for (ifind=um.begin(); ifind != um.end(); ifind++)
+	{
+		result.push_back(ifind->second);
+	}
+	return result;
+}
+
+vector<int> spiralOrder(vector<vector<int>>& matrix)  //螺旋矩阵
+{
+	if (matrix.size() == 0)
+	{
+		return {};
+	}
+	else if (matrix.size() == 1)
+	{
+		return matrix[0];
+	}
+	set< pair<int, int> > s;
+	vector<int> result;
+	int i = 0, j = 0, fangxiang = 0;
+	int nm = matrix.size() * matrix.at(0).size();
+	int direction[][2] = { {0,1},{1,0},{0,-1},{-1,0} };  //右->下->左->上->右。。。。
+	while (s.size() < nm)
+	{
+		if (i >= matrix.size() || j >= matrix.at(0).size() || i < 0 || j < 0)  //如果超出范围，那么返回上次未超出范围的更换方向前进
+		{
+			i -= direction[fangxiang][0];
+			j -= direction[fangxiang][1];
+			fangxiang = (fangxiang >= 3 ? 0 : fangxiang + 1);
+			i += direction[fangxiang][0];
+			j += direction[fangxiang][1];
+			continue;
+		}
+		pair<int, int> p(i, j);
+		if (s.find(p) == s.end())  
+		{
+			s.insert(p);
+			result.push_back(matrix[i][j]);
+			i += direction[fangxiang][0];
+			j += direction[fangxiang][1];
+		}
+		else  //如果当前坐标已经用了，那么返回上次刚插入的，换方向前进
+		{
+			i -= direction[fangxiang][0];
+			j -= direction[fangxiang][1];
+			fangxiang = (fangxiang >= 3 ? 0 : fangxiang + 1);
+			i += direction[fangxiang][0];
+			j += direction[fangxiang][1];
+			continue;
+		}
+	}
+	return result;
+}
+
+bool canJump(vector<int>& nums)  //跳跃游戏--动态规划
+{
+	if (nums.size() <= 1)
+	{
+		return true;
+	}
+	if (nums[0] == 0)
+	{
+		return false;
+	}
+	vector<bool> flag(nums.size(), false);  //从0到当前的位置是否能走到,初始化走不到
+	flag[0] = true;  //第0个位置肯定能走到
+	for (int i=1; i<nums.size(); ++i)
+	{
+		for (int j=i-1; j>=0; --j)  //往当前位置找，如果之前有一个位置能到达，且从这个之前的位置最大走的步数大于等于之间的距离，那么当前位置能走到
+		{
+			if (flag[j] && nums[j] >= i - j)
+			{
+				flag[i] = true;
+				break;  //只需要找到其中一种方式即可,所以直接break
+			}
+		}
+	}
+	return flag[nums.size() - 1];
+}
+
+vector<vector<int>> merge(vector<vector<int>>& intervals)  //合并区间
+{
+	if (intervals.size() <= 1)
+	{
+		return intervals;
+	}
+	//按照较小值的大小排起来，若相等就比较较大值
+	//如果不排的话，会出现[2,3][5,7][3,5]的结果为[2,5][3,7]
+	//排序是为了一点一点递增加空间,比如两个不相交区间后面有可以让两者联系起来的区间，那么这个联系区间肯定介于两者之间，所以排序后，可以让前面的先和这个联系区间合并，再跟后面的合并
+	sort(intervals.begin(), intervals.end());  
+	vector< vector<int> > result;
+	result.push_back(intervals[0]);  //先把第一个插进去
+	for (int i=1; i<intervals.size(); ++i)
+	{
+		vector<int> tmp = intervals[i];
+		for (int j=0; j<result.size(); ++j)  //寻找已经插入的是否可以合并区间
+		{
+			if (tmp[1] < result[j][0] || tmp[0] > result[j][1])  //如果区间不存在重叠
+			{
+				if (j == result.size() - 1)  //如果当前已经是最后一个判断区间了
+				{
+					result.push_back(tmp); //直接插入
+					break;
+				}
+				else
+				{
+					continue;  //如果不是最后一个判断区间，那么继续下一个区间判断按
+				}
+			}
+			else
+			{
+				//合并区间
+				result[j][0] = min(result[j][0], tmp[0]);
+				result[j][1] = max(result[j][1], tmp[1]);
+				break;  
+				//合并之后这个就用了，所以break掉，
+				//因为是排好序的，因此接下来的那个区间，如果有关系就可以合并，不需要再循环来看看下一个是否合并
+				//因为如果与当前能合并的话，肯定不能跟当前区间的之前的和之后的无法合并
+				//若能与前面的合并，那么排序的话就应该是待合并的区间在当前区间前面，而实际sort是相反的
+				//同理与后面的一样
+			}
+		}
+	}
+	//以下为去重
+	set< vector<int> > s;
+	for (int i=0; i<result.size(); ++i)
+	{
+		s.insert(result[i]);
+	}
+	result.clear();
+	result.assign(s.begin(), s.end());
+	return result;
+}
+
+vector<vector<int>> generateMatrix(int n)  //螺旋矩阵 II
+{
+	if (n == 1)
+	{
+		return { {1} };
+	}
+	set< pair<int, int> > s;
+	vector< vector<int> > result(n, vector<int>(n));
+	int fangxiang = 0, i = 0, j = 0;
+	int num = 1;
+	int direction[][2] = { {0,1},{1,0},{0,-1},{-1,0} };  //右->下->左->上->右。。。。
+	while(num <= n * n)
+	{
+		if (j < 0 || i < 0 || j >= n || i >= n)  //如果超过范围，就返回并选择下一个方向
+		{
+			i -= direction[fangxiang][0];
+			j -= direction[fangxiang][1];
+			fangxiang = (fangxiang >= 3 ? 0 : fangxiang + 1);
+			i += direction[fangxiang][0];
+			j += direction[fangxiang][1];
+			continue;
+		}
+		pair<int, int> p(i, j); 
+		if (s.find(p) != s.end())  //如果当前坐标已经用过，那么就转换方向
+		{
+			i -= direction[fangxiang][0];
+			j -= direction[fangxiang][1];
+			fangxiang = (fangxiang >= 3 ? 0 : fangxiang + 1);
+			i += direction[fangxiang][0];
+			j += direction[fangxiang][1];
+		}
+		else
+		{
+			s.insert(p);
+			result[i][j] = num;
+			num++;
+			i += direction[fangxiang][0];
+			j += direction[fangxiang][1];
+		}
+	}
+	return result;
+}
+
+string getPermutation_item(string s)  //获取下一个数
+{
+	int x = 0, y = s.size() - 1;
+	for (int i=s.size() - 1; i >= 0; --i)
+	{
+		if (s[i] > s[i - 1])
+		{
+			x = i - 1;
+			break;
+		}
+	}
+	for (int i=s.size() - 1; i >= 0; --i)
+	{
+		if (s[i] > s[x])
+		{
+			y = i;
+			break;
+		}
+	}
+	swap(s[x], s[y]);
+	sort(s.begin() + x + 1, s.end());
+	return s;
+}
+string getPermutation(int n, int k)  //第k个排列
+{
+	if (n == 1)
+	{
+		return "1";
+	}
+	string result;
+	for (int i=1; i<=n; ++i)
+	{
+		result += std::to_string(i);
+	}
+	while (k > 1)
+	{
+		result = getPermutation_item(result);
+		--k;
+	}
+	return result;
+}
+
 int main()
 {
 	//两数相加
@@ -2144,4 +2415,25 @@ int main()
 
 	//全排列 II
 	//permuteUnique
+
+	//旋转图像
+	//rotate
+
+	//字母异位词分组
+	//groupAnagrams
+
+	//螺旋矩阵
+	//spiralOrder
+
+	//跳跃游戏
+	//canJump
+
+	//合并区间
+	//merge
+
+	//螺旋矩阵 II
+	//generateMatrix
+
+	//第k个排列
+	//getPermutation
 }
