@@ -1,5 +1,6 @@
 #include "pch.h"
 #include <iostream>
+#include <sstream>
 #include <vector>
 #include <map>
 #include <stack>
@@ -2288,6 +2289,246 @@ string getPermutation(int n, int k)  //第k个排列
 	return result;
 }
 
+ListNode* rotateRight(ListNode* head, int k)  //旋转链表
+{
+	if (!head || k == 0)
+	{
+		return head;
+	}
+	ListNode* tmp = head;
+	ListNode* pre = nullptr;
+	int n = 0;
+	while (tmp)
+	{
+		++n;
+		pre = tmp;
+		tmp = tmp->next;
+	}
+	k = k % n;
+	pre->next = head; //将最后一个元素的下一个指向开头
+	int i = n - k;
+	while (i > 1)  //因为已经成环了，所以这里要找到返回值的前一个元素,所以是>1
+	{
+		head = head->next;
+		--i;
+	}
+	tmp = head;  //暂存这个前一个元素
+	head = head->next;  //让head成为真正的返回值
+	tmp->next = nullptr;  //将这个前一个元素的下一个为null，这样就不是环了
+	return head;
+}
+
+int uniquePaths(int m, int n)  //不同路径
+{
+	if (m == 0 || n == 0)
+	{
+		return 0;
+	}
+	else if (m == 1 || n == 1)
+	{
+		return 1;
+	}
+	vector< vector<int> > dp(m, vector<int>(n));  //到ij坐标最多多少个路径
+	for (int i=0; i<m; ++i)  //第0行只能一个路径
+	{
+		dp[i][0] = 1;
+	}
+	for (int j=0; j<n; ++j)  //第0列只能有一个路径
+	{
+		dp[0][j] = 1;
+	}
+	for (int i=1; i<m; ++i)
+	{
+		for (int j=1; j<n; ++j)
+		{
+			//由于只能向右和向下，因此每个坐标的路径，只能是左边一个或上边一个过来
+			dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
+		}
+	}
+	return dp[m - 1][n - 1];
+}
+
+int uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid)  //不同路径 II--带障碍物--动态规划
+{
+	if (obstacleGrid.size() == 0)
+	{
+		return 0;
+	}
+	vector< vector<long int> > dp(obstacleGrid.size(), vector<long int>(obstacleGrid[0].size(), 0));
+	if (obstacleGrid[0][0] == 0)  //如果第一个不为障碍物则为1，否则为0
+	{
+		dp[0][0] = 1;
+	}
+	for (int i=1; i<obstacleGrid.size(); ++i) 
+	{
+		//第0列，如果是障碍物的位置则为0，否则就只能是上边一个过来，左侧过来的为0，因此是dp[i - 1][0]+0
+		if (obstacleGrid[i][0] == 0)
+		{
+			dp[i][0] = dp[i - 1][0];
+		}
+	}
+	for (int j=1; j<obstacleGrid.at(0).size(); ++j)
+	{
+		//第0行，如果障碍物则为0，否则就只能是左边一个过来的，上面的过来为0，因此是dp[0][j - 1]+0
+		if (obstacleGrid[0][j] == 0)
+		{
+			dp[0][j] = dp[0][j - 1];
+		}
+	}
+	for (int i=1; i<obstacleGrid.size(); ++i)
+	{
+		for (int j=1; j<obstacleGrid.at(i).size(); ++j)
+		{
+			if (obstacleGrid[i][j] == 0)  //不为障碍物的话，等于左侧+上侧过来的总数
+			{
+				dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
+			}
+			else  //如果障碍物则为0
+			{
+				dp[i][j] = 0;
+			}
+		}
+	}
+	return dp[obstacleGrid.size() - 1][obstacleGrid.at(0).size() - 1];
+}
+
+int minPathSum(vector<vector<int>>& grid)  //最小路径和--动态规划
+{
+	if (grid.size() == 0)
+	{
+		return 0;
+	}
+	int sum = 0;
+	if(grid.at(0).size() == 1)
+	{
+		for (int i=0; i<grid.size(); ++i)
+		{
+			sum += grid[i][0];
+		}
+		return sum;
+	}
+	//dp表示到达ij的最小和
+	vector< vector<int> > dp(grid.size(), vector<int>(grid.at(0).size(), 0));
+	dp[0][0] = grid[0][0];
+	for (int i=1; i<grid.size(); ++i)
+	{
+		dp[i][0] = dp[i - 1][0] + grid[i][0];  //只能上侧过来，因此没有最小一说，只能相加
+	}
+	for (int j=1; j<grid.at(0).size(); ++j)
+	{
+		dp[0][j] = dp[0][j - 1] + grid[0][j];  //只能左侧过来，因此没有最小一说，只能相加
+	}
+	for (int i=1; i<grid.size(); ++i)
+	{
+		for (int j=1; j<grid.at(i).size(); ++j)
+		{
+			//只能是左侧和上侧移动过来，因此取最小的那个
+			dp[i][j] = min(dp[i - 1][j], dp[i][j - 1]) + grid[i][j];
+		}
+	}
+	return dp[grid.size() - 1][grid.at(0).size() - 1];
+}
+
+string simplifyPath(string path)  //简化路径
+{
+	stringstream is(path);   //作为输入流
+	vector<string> strs;
+	string res = "", tmp = "";
+	while (getline(is, tmp, '/')) {  //依次查输入流的每个字符直到遇到/，然后进入循环执行结束后继续流
+		if (tmp == "" || tmp == ".")  //跳过
+			continue;
+		else if (tmp == ".." && !strs.empty())  //..是返回上一级，因此要把里面的最后一个去掉
+			strs.pop_back();
+		else if (tmp != "..")  //添加进去
+			strs.push_back(tmp);
+	}
+	for (string str : strs)
+		res += "/" + str;
+	if (res.empty())
+		return "/";
+	return res;
+}
+
+void setZeroes(vector<vector<int>>& matrix)  //矩阵置零
+{
+	if (matrix.size() == 0)
+	{
+		return;
+	}
+	unordered_set<int> heng, shu;
+	for (int i=0; i<matrix.size(); ++i)
+	{
+		for (int j=0; j<matrix.at(i).size(); ++j)
+		{
+			if (matrix[i][j] == 0)  //等于0就加入这个行和列
+			{
+				heng.insert(i);
+				shu.insert(j);
+			}
+		}
+	}
+	for (int i=0; i<matrix.size(); ++i)
+	{
+		for (int j=0; j<matrix.at(i).size(); ++j)
+		{
+			if (heng.find(i) != heng.end() || shu.find(j) != shu.end())
+			{
+				matrix[i][j] = 0;
+			}
+		}
+	}
+}
+
+bool searchMatrix(vector<vector<int>>& matrix, int target)  //搜索二维矩阵
+{
+	if (matrix.size() == 0)
+	{
+		return false;
+	}
+	else if (matrix.at(0).size() == 0)
+	{
+		return false;
+	}
+	else if (target < matrix[0][0])
+	{
+		return false;
+	}
+	else if (target > matrix[matrix.size() - 1][matrix.at(0).size() - 1])
+	{
+		return false;
+	}
+	//整个为递增的
+	int n = matrix.size(), m = matrix.at(0).size(), hang = 0;
+	for (int i=0; i<n; ++i)  //先找到第几行
+	{
+		if (matrix[i][0] <= target && matrix[i][m - 1] >= target)
+		{
+			hang = i;
+			break;
+		}
+	}
+	vector<int> tmp = matrix[hang];
+	int l = 0, r = m - 1;
+	while (l <= r)  //二分查找
+	{
+		int mid = (r - l) / 2 + l;
+		if (tmp[mid] == target)
+		{
+			return true;
+		}
+		else if (tmp[mid] < target)
+		{
+			l = mid + 1;
+		}
+		else
+		{
+			r = mid - 1;
+		}
+	}
+	--l;
+	return tmp[l] == target ? true : false;
+}
+
 int main()
 {
 	//两数相加
@@ -2436,4 +2677,25 @@ int main()
 
 	//第k个排列
 	//getPermutation
+
+	//旋转链表
+	//rotateRight
+
+	//不同路径
+	//uniquePaths
+
+	//不同路径 II
+	//uniquePathsWithObstacles
+
+	//最小路径和
+	//minPathSum
+
+	//简化路径
+	//simplifyPath
+
+	//矩阵置零
+	//setZeroes
+
+	//搜索二维矩阵
+	//searchMatrix
 }
