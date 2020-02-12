@@ -2529,6 +2529,358 @@ bool searchMatrix(vector<vector<int>>& matrix, int target)  //搜索二维矩阵
 	return tmp[l] == target ? true : false;
 }
 
+void sortColors(vector<int>& nums)  //颜色分类
+{
+	if (nums.size() <= 1)
+	{
+		return;
+	}
+	int l = 0, r = nums.size() - 1, index = 0; //l表示元素0的右哨兵边界，r表示元素2的左哨兵边界，index表示当前的元素
+	while (index <= r)
+	{
+		if (nums[index] == 0)  //如果当前这个为0，那么就交换0的右边界哨兵和这个
+		{
+			swap(nums[index], nums[l]);
+			//因为l哨兵肯定小于等于index，也就是说l哨兵已经扫描过了，所以交换后index的数不是0就是1，因此直接跳过即可
+			//并且这里可以看到，l指向的值肯定是1，因为如果是0的话，那么当index指向这个0的时候，就已经都加一而跳过了.
+			++index;
+			++l;
+		}
+		else if (nums[index] == 2) //换过来之后index的值可能还为2，因此还需要继续判断当前值,所以index不动
+		{
+			swap(nums[index], nums[r]);
+			--r;
+		}
+		else
+		{
+			index++;  //等于1直接跳过即可
+		}
+	}
+}
+
+vector< vector<int> > combine_v;
+void combine_item(int n, int k, vector<int> v, int index)
+{
+	if (v.size() == k)
+	{
+		combine_v.push_back(v);
+		return;
+	}
+	else if (v.size() > k)
+	{
+		return;
+	}
+	for (int i=index; i<=n; ++i)
+	{
+		v.push_back(i);
+		combine_item(n, k, v, i+1);  //下一次就从i+1开始
+		v.pop_back();  //把用过的去掉
+	}
+}
+vector<vector<int>> combine(int n, int k)  //组合
+{
+	if (k > n || k == 0 || n == 0)
+	{
+		return {};
+	}
+	combine_item(n, k, {}, 1);
+	return combine_v;
+}
+
+vector< vector<int> > subsets_v;
+void subsets_item(vector<int> &nums, int k, int index, vector<int> v)
+{
+	if (v.size() == k)
+	{
+		subsets_v.push_back(v);
+		return;
+	}
+	else if(v.size() > k)
+	{
+		return;
+	}
+	for (int i=index; i<nums.size(); ++i)
+	{
+		v.push_back(nums[i]);
+		subsets_item(nums, k, i + 1, v);  //当前位置加上后，再从下一个位置开始
+		v.pop_back();
+	}
+}
+vector<vector<int>> subsets(vector<int>& nums)  //子集
+{
+	if (nums.size() == 0)
+	{
+		return { {} };
+	}
+	sort(nums.begin(), nums.end());
+	subsets_v.push_back({});
+	for (int i=1; i<=nums.size(); ++i)
+	{
+		subsets_item(nums, i, 0, {});  //每次从下标0开始
+	}
+	return subsets_v;
+}
+
+int removeDuplicates(vector<int>& nums)  //删除排序数组中的重复项 II
+{
+	/*
+	快指针：遍历整个数组；
+	慢指针：记录可以覆写数据的位置；
+	题目中规定每个元素最多出现两次，
+	因此，应检查快指针指向的元素和慢指针指针所指向单元的前一个元素是否相等。
+	相等则不更新慢指针，只更新快指针；
+	不相等时，先将慢指针后移一位，再将快指针指向的元素覆写入慢指针指向的单元，最后更新快指针
+	*/
+	if (nums.size() <= 2)
+	{
+		return nums.size();
+	}
+	int slow = 1, fast = 2;
+	while (fast < nums.size())
+	{
+		if (nums[slow - 1] != nums[fast])
+		{
+			++slow;
+			nums[slow] = nums[fast];
+		}
+		++fast;
+	}
+	return slow + 1;
+}
+
+bool search_1(vector<int>& nums, int target)  //搜索旋转排序数组 II--一趟搜索竟然不慢
+{
+	if (nums.size() == 0)
+	{
+		return false;
+	}
+	for (int num : nums)
+	{
+		if (num == target)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+bool search_2(vector<int>& nums, int target)  //搜索旋转排序数组 II--二分查找
+{
+	if (nums.size() == 0)
+	{
+		return false;
+	}
+	int l = 0, r = nums.size() - 1;
+	while (l <= r)
+	{
+		int mid = (r - l) / 2 + l;
+		if (nums[mid] == target)
+		{
+			return true;
+		}
+		if (nums[l] == nums[mid])
+		{
+			++l;
+			continue;
+		}
+		if (nums[l] < nums[mid])   //在l到mid为升序
+		{
+			if (target > nums[mid] || nums[l] > target)  //如果不在这部分区间，那么直接跳过
+			{
+				l = mid + 1;
+			}
+			else
+			{
+				r = mid - 1;
+			}
+		}
+		else  //后半部分有序
+		{
+			if (target > nums[r] || target < nums[mid])  //如果不在这部分区间，直接跳过
+			{
+				r = mid - 1;
+			}
+			else
+			{
+				l = mid + 1;
+			}
+		}
+	}
+	if (l == 0)
+	{
+		return nums[l] == target ? true : false;
+	}
+	--l;
+	return nums[l] == target ? true : false;
+}
+
+ListNode* deleteDuplicates(ListNode* head) //删除排序链表中的重复元素 II
+{
+	if (!head || !head->next)
+	{
+		return head;
+	}
+	//先找头
+	if (head->val != head->next->val)  //如果与头指针值与第二个不同，那么头指针就是返回值的第一个元素
+	{
+		head = head;
+	}
+	else  //如过第一个与第二个一样，那么三个指针，pre，now（head），next(n)
+	{
+		ListNode *pre = head;
+		head = head->next;
+		ListNode* n = head->next;
+		//只要存在pre->val = now->val 或者now->val = n->val，就说明当前这个now不是唯一的，因此不能当头元素
+		while ( pre && head && n && (pre->val == head->val || head->val == n->val))
+		{
+			pre = pre->next;
+			head = head->next;
+			n = n->next;
+		}
+		if (!n)  //如果此时n到了null元素了，也就是说之前的元素不满足唯一，此时head就是最后一个元素
+		{
+			if (head->val != pre->val)  //如果最后一个不等于前一个，那么此时只有最后一个元素满足要求，因此直接返回
+			{
+				return head;
+			}
+			else  //如果相等的话，说明最后一个元素与倒数第二个元素相等，因此此时没有满足的元素，直接返回
+			{
+				return nullptr;
+			}
+		}
+	}
+	ListNode* tmp = head;  //头元素
+	ListNode* result = tmp;  //返回结果
+	ListNode* x = head;  //相当于pre
+	head = head->next;  //相当于now
+	ListNode* y = head->next;  //相当于next
+	while (x && head && y)
+	{
+		if (x->val != head->val && head->val != y->val)  //如果一个值满足唯一，那么就接入到结果中
+		{
+			tmp->next = head;
+			tmp = tmp->next;
+		}
+		//向后移动
+		x = x->next;
+		head = head->next;
+		y = y->next;
+	}
+	//退出while时候，最后一个元素还未判断
+	if (head->val != x->val)  //最后一个元素不等于倒数第二个，那么最后一个肯定要加入
+	{
+		tmp->next = head;
+		tmp = tmp->next;
+		tmp->next = nullptr;
+	}
+	else  //如果最后一个等于倒数第二个，那么直接不要了，直接等于null
+	{
+		tmp->next = nullptr;
+	}
+	return result;
+}
+
+ListNode* partition(ListNode* head, int x)  //分隔链表
+{
+	if (!head)
+	{
+		return head;
+	}
+	//初始化，t1表示小于x的，t2表示大于等于x的
+	ListNode* t1 = new ListNode(x);
+	ListNode* t2 = new ListNode(x);
+	ListNode* t = t2;
+	ListNode* result = t1;
+	while (head)
+	{
+		if (head->val < x)
+		{
+			t1->next = head;
+			t1 = t1->next;
+		}
+		else
+		{
+			t2->next = head;
+			t2 = t2->next;
+		}
+		head = head->next;
+	}
+	t2->next = nullptr;  //最后的话t2的后面应该置为nullptr
+	t = t->next;  //跳过初始化的那个
+	t1->next = t; //将t1的后面接上t
+	return result->next;  //跳过初始化那个，然后返回
+}
+
+vector<int> grayCode(int n)  //格雷编码
+{
+	if (n == 0)
+	{
+		return { 0 };
+	}
+	else if (n >= 25)
+	{
+		return {};
+	}
+	//已知n-1的编码，那么n的编码，就是对n-1的编码倒序遍历，每个元素的二进制在后面添上1(也就是乘2加1)后push_back,并且把当前遍历到的这个二进制后面直接添0(也就是乘2)覆盖原值
+	vector<int> result;
+	result.push_back(0);
+	for (int i=1; i<=n; ++i)
+	{
+		int n = result.size();
+		for (int j = n - 1; j >= 0; --j)
+		{
+			int tmp = result[j];
+			result.push_back(tmp * 2 + 1);
+			result[j] = tmp * 2;
+		}
+	}
+	return result;
+}
+
+set< vector<int> > subsetsWithDup_s;
+void subsetsWithDup_item(vector<int>& nums, int k, int index, vector<int> v)
+{
+	if (v.size() == k)
+	{
+		subsetsWithDup_s.insert(v);
+		return;
+	}
+	else if (v.size() > k)
+	{
+		return;
+	}
+	for (int i=index; i<nums.size(); ++i)
+	{
+		v.push_back(nums[i]);  //添加当前元素
+		subsetsWithDup_item(nums, k, i + 1, v);  //从下一个元素开始
+		v.pop_back();
+	}
+}
+vector<vector<int>> subsetsWithDup(vector<int>& nums)  //子集 II
+{
+	if (nums.size() == 0)
+	{
+		return { {} };
+	}
+	sort(nums.begin(), nums.end());
+	for (int i=1; i<=nums.size(); ++i)  //多个深度优先搜索
+	{
+		subsetsWithDup_item(nums, i, 0, {});
+	}
+	vector< vector<int> > result;
+	result.assign(subsetsWithDup_s.begin(), subsetsWithDup_s.end());
+	return result;
+}
+
+int numDecodings(string s)  //解码方法
+{
+	if (s.size() == 0)
+	{
+		return 0;
+	}
+	
+}
+
 int main()
 {
 	//两数相加
@@ -2698,4 +3050,34 @@ int main()
 
 	//搜索二维矩阵
 	//searchMatrix
+
+	//颜色分类
+	//sortColors
+
+	//组合
+	//combine
+
+	//子集
+	//subsets
+
+	//删除排序数组中的重复项 II
+	//removeDuplicates
+
+	//搜索旋转排序数组 II
+	//search
+
+	//删除排序链表中的重复元素 II
+	//deleteDuplicates
+
+	//分隔链表
+	//partition
+
+	//格雷编码
+	//grayCode
+
+	//子集 II
+	//subsetsWithDup
+
+	//解码方法
+	//numDecodings
 }
