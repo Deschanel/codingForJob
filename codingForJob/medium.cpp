@@ -2872,13 +2872,539 @@ vector<vector<int>> subsetsWithDup(vector<int>& nums)  //子集 II
 	return result;
 }
 
-int numDecodings(string s)  //解码方法
+int numDecodings(string s)  //解码方法--动态规划
 {
 	if (s.size() == 0)
 	{
 		return 0;
 	}
-	
+	if (s[0] == '0')
+	{
+		return 0;
+	}
+	if (s.size() == 1)
+	{
+		return 1;
+	}
+	vector<int> dp(s.size(), 0);  //截至到下标为i的字符得到的总数
+	dp[0] = 1;
+	//处理dp[1]的时候
+	if (s[1] == '0') //当第二个字符为0的时候，只能跟前一个字符放在一起看
+	{
+		if (s[0] == '1' || s[0] == '2')  //如果前一个字符为1或2，那么只能是10或20，只有一个，否则就没有,整个字符串就没有，直接返回
+		{
+			dp[1] = 1;
+		}
+		else 
+		{
+			dp[1] = 0;
+			return 0;
+		}
+	}
+	else //如果s[1]不为0
+	{
+		if (s[0] == '1' || (s[0] == '2' && s[1] >= '1' && s[1] <= '6'))
+		{
+			dp[1] = 2;
+		}
+		else
+		{
+			dp[1] = 1;
+		}
+	}
+	for (int i=2; i<s.size(); ++i)
+	{
+		//下标第i个为0，那么只能与前一个合并起来看，
+		//如果前一个1或2，那么就前i-2个的所有组合，再直接在后面加上合并起来的数
+		//否则为0
+		if (s[i] == '0')  
+		{
+			if (s[i - 1] == '1' || s[i - 1] == '2')
+			{
+				dp[i] = dp[i - 2];
+			}
+			else
+			{
+				return 0;
+			}
+		}
+		else  //如果不为0的话
+		{
+			if (s[i - 1] == '1')
+			{
+				//那么就是下标前i-1个组合后在后面加上下标第i个数
+				//或者后两个组合起来，在下标前i-2个组合后加在后面
+				dp[i] = dp[i - 1] + dp[i - 2];
+			}
+			else if(s[i - 1] == '2' && s[i] >= '1' && s[i] <= '6')
+			{
+				//同理上面的s[i-1] = '1'
+				dp[i] = dp[i - 1] + dp[i - 2];
+			}
+			else
+			{
+				//这样的话就只能把下标第i个数单独看，当下标前i-1个数组合后，加在后面
+				dp[i] = dp[i - 1];
+			}
+		}
+	}
+	return dp[s.size() - 1];
+}
+
+ListNode* reverseBetween(ListNode* head, int m, int n)  //反转链表 II
+{
+	if (!head || m == n)
+	{
+		return head;
+	}
+	ListNode* t1 = new ListNode(0); //用来表示反转部分
+	ListNode* result = head;
+	ListNode* t2 = head;   //表示反转部分的前一个
+	int flag = m;  //保存m的值
+	while (m > 1)  //一直到反转部分的第一个结束
+	{
+		if (m == 2)
+		{
+			t2 = head;  //记录反转部分的前一个
+		}
+		head = head->next;
+		--m;
+		--n;
+	}
+	ListNode* t = head;  //记录反转部分的第一个，也就是反转后的最后一个
+	while (n > 0)
+	{
+		ListNode* tmp = head;  //保存当前元素
+		head = head->next;  //指向下一个
+		tmp->next = t1;  //将当前元素的下一个指向前面那个，也就是反转过来
+		t1 = tmp;  //将他指向反转后的前一个元素，以便当作接下来head的后一个元素，也就是反转
+		--n;
+	}
+	t->next = head;  //反转后的最后一个的下一个要指向经过反转区后的第一个
+	if (flag == 1)
+	{
+		return t1;  //如果要反转的包括第一个，那么直接返回反转后的反转区第一个
+	}
+	else
+	{
+		t2->next = t1;  //否则，就将反转区的前一个的下一个指向反转后的第一个
+	}
+	return result;  //返回结果
+}
+
+vector<string> restoreIpAddresses_v;
+void restoreIpAddresses_item(int n, string s, string ip)
+{
+	if (n == 4)  //如果用到第4个. 
+	{
+		if (s.size() == 0)  //如果输入的string都用了，那么加入
+		{
+			restoreIpAddresses_v.push_back(ip);
+		}
+		return;
+	}
+	else if (n > 4)
+	{
+		return;
+	}
+	for (int i=1; i<4; ++i)  //两个点之间的数从1-3个
+	{
+		if (s.size() < i)  //如果剩余字符串的个数不足以加入到ip字符串中，那么直接break
+		{
+			break;
+		}
+		int val = std::stoi(s.substr(0, i));  //从剩余字符串中从下标0开始截取i个并转换为int
+		if (val > 255 || i != std::to_string(val).size())  //如果截取的大于255，或者截取的字符串个数不等于当前需要的个数，继续下一个
+		{
+			continue;
+		}
+		//递归，用到了第n+1个点，剩余字符串为从下标第i到最后(因为从0-i用了)，ip加上从0到i的字符，如果n=3，说明用了3个了，因此不加点了，否则就加
+		restoreIpAddresses_item(n + 1, s.substr(i), ip + s.substr(0, i) + (n == 3 ? "" : "."));
+	}
+}
+vector<string> restoreIpAddresses(string s)  //复原IP地址
+{
+	if (s.size() < 4 || s.size() > 12)
+	{
+		return {};
+	}
+	restoreIpAddresses_item(0, s, "");
+	return restoreIpAddresses_v;
+}
+
+
+void inorderTraversal_item(TreeNode* root, vector<int> &result)
+{
+	if (!root)
+	{
+		return;
+	}
+	if (root->left)
+	{
+		inorderTraversal_item(root->left, result);
+	}
+	result.push_back(root->val);
+	if (root->right)
+	{
+		inorderTraversal_item(root->right, result);
+	}
+}
+vector<int> inorderTraversal_1(TreeNode* root)  //二叉树的中序遍历--递归
+{
+	if (!root)
+	{
+		return {};
+	}
+	vector<int> result;
+	inorderTraversal_item(root, result);
+	return result;
+}
+
+void inorderTraversal_goAlongLeft(TreeNode* root, stack<TreeNode*> &s)
+{
+	while (root)
+	{
+		s.push(root);
+		root = root->left;
+	}
+}
+vector<int> inorderTraversal_2(TreeNode* root)  //二叉树的中序遍历--迭代
+{
+	if (!root)
+	{
+		return {};
+	}
+	stack<TreeNode*> s;
+	vector<int> result;
+	while (true)
+	{
+		inorderTraversal_goAlongLeft(root, s);
+		if (s.empty())
+		{
+			break;
+		}
+		root = s.top();
+		s.pop();
+		result.push_back(root->val);
+		root = root->right;
+	}
+	return result;
+}
+
+vector<TreeNode*> generateTrees_item(int zuixiao, int zuida)
+{
+	vector<TreeNode*> result;
+	if (zuixiao > zuida)
+	{
+		result.push_back(nullptr);
+		return result;
+	}
+	for (int i=zuixiao; i<=zuida; ++i)
+	{
+		vector<TreeNode*> lTrees = generateTrees_item(zuixiao, i - 1);  //所有满足条件的左子树
+		vector<TreeNode*> rTrees = generateTrees_item(i + 1, zuida);  //所有满足条件的右子树
+		for (TreeNode* l : lTrees)
+		{
+			for (TreeNode* r : rTrees)
+			{
+				TreeNode* root = new TreeNode(i);  //这个必须加在这里，不能在lTrees上面，因为如果在那个上面，就相当于对同一个root反复修改其左右子树，最后pushback的只有修改到最后的一个,因此这里需要每次新建
+				root->left = l;
+				root->right = r;
+				result.push_back(root);
+			}
+		}
+	}
+	return result;
+}
+vector<TreeNode*> generateTrees(int n)  //不同的二叉搜索树 II
+{
+	if (n < 1)
+	{
+		return {};
+	}
+	if (n == 1)
+	{
+		TreeNode* result = new TreeNode(1);
+		return { result };
+	}
+	return generateTrees_item(1, n);
+}
+
+int numTrees_item(int zuixiao, int zuida)
+{
+	if (zuixiao > zuida)
+	{
+		return 1;
+	}
+	int sum = 0;
+	for (int i=zuixiao; i<=zuida; ++i)
+	{
+		int lsum = numTrees_item(zuixiao, i - 1);
+		int rsum = numTrees_item(i + 1, zuida);
+		sum += (lsum * rsum);
+	}
+	return sum;
+}
+int numTrees_1(int n)  //不同的二叉搜索树--递归超时了
+{
+	if (n < 1)
+	{
+		return 0;
+	}
+	if (n == 1)
+	{
+		return 1;
+	}
+	return numTrees_item(1, n);
+}
+
+int numTrees_2(int n)  //不同的二叉搜索树--动态规划
+{
+	if (n < 1)
+	{
+		return 0;
+	}
+	if (n == 1)
+	{
+		return 1;
+	}
+	//定义序列长度为i的个数，result[i],因为是长度为i，所以4567这个也是result[4],1234也是result[4]
+	//以i为根的话，个数就是[1, i-1]的个数与[i+1, n]的个数的乘积
+	//那么把所有i从1到n的个数相加就是结果
+	vector<int> result(n + 1, 0);
+	result[0] = 1;
+	result[1] = 1;
+	for (int i=2; i<=n; ++i)  //个数依次为2-n
+	{
+		//当i个数时，以j为根的个数为result[j - 1] * result[i - j],把从1到i的所有当作根，累加就是i个数时的结果
+		for (int j=1; j<=i; ++j)  //从1到i依次为根
+		{
+			result[i] += result[j - 1] * result[i - j];
+		}
+	}
+	return result[n];
+}
+
+int numTrees_3(int n)  //不同的二叉搜索树--卡特兰数
+{
+	if (n < 1)
+	{
+		return 0;
+	}
+	if (n == 1)
+	{
+		return 1;
+	}
+	long int result = 1;
+	for (int i=1; i<=n; ++i)
+	{
+		result = 2 * (2 * i - 1) * result / (i + 1);
+	}
+	return result;
+}
+
+vector<vector<int>> zigzagLevelOrder(TreeNode* root)  //二叉树的锯齿形层次遍历
+{
+	if (!root)
+	{
+		return {};
+	}
+	vector< vector<int> > result;
+	bool flag = false;  //当前层是否是从右边往左走的
+	queue<TreeNode*> q;
+	q.push(root);
+	while (!q.empty())  //本质上是层次遍历，因此要用两个while
+	{
+		vector<int> tmp;
+		int i = q.size();  //当前层元素个数
+		flag = !flag;  //当前层与上一层相反
+		stack<TreeNode*> s;  //记录下一层的顺序
+		while (i > 0)
+		{
+			root = q.front();
+			q.pop();
+			tmp.push_back(root->val);
+			//把下一层按照顺序添加进stack中
+			if (flag)  //此层从右往左走，所以对于stack要先添加左边的
+			{
+				if (root->left)
+				{
+					s.push(root->left);
+				}
+				if (root->right)
+				{
+					s.push(root->right);
+				}
+			}
+			else  //否则先添加右子树
+			{
+				if (root->right)
+				{
+					s.push(root->right);
+				}
+				if (root->left)
+				{
+					s.push(root->left);
+				}
+			}
+			--i;
+		}
+		while (!s.empty())  //把下一层的加入进queue中，这里的stack已经保证了正确是顺序
+		{
+			q.push(s.top());
+			s.pop();
+		}
+		result.push_back(tmp);
+	}
+	return result;
+}
+
+TreeNode* buildTree_item(vector<int> preorder, vector<int> inorder)
+{
+	//前序遍历的第一个是当前树的根节点，
+	//此根节点在中序遍历的位置的左侧为左子树，右侧为右子树
+	//这样就循环递归下去就可以
+	if (preorder.size() == 0 || inorder.size() == 0)
+	{
+		return nullptr;
+	}
+	TreeNode* root = new TreeNode(preorder[0]);  //当前根节点为前序遍历的第一个
+	vector<int>::iterator ifind = find(inorder.begin(), inorder.end(), preorder[0]);  //在中序遍历中寻找根节点元素
+	if (ifind == inorder.end())  //如果没有，就说明不能成为二叉树
+	{
+		return nullptr;
+	}
+	vector<int> inorder_left;  //中序遍历的左子树部分
+	inorder_left.assign(inorder.begin(), ifind);  //应该是中序序列的第一个到根节点的前一个
+	vector<int> inorder_right;  //中序遍历的右子树部分
+	inorder_right.assign(++ifind, inorder.end()); //应该是中序序列的根节点后一个到最后
+	vector<int> preorder_left;  //先序遍历的左子树部分
+	vector<int> preorder_right;  //先序遍历的右子树部分
+	//显然有中序遍历的左(右)子树部分的个数，与先序遍历的左(右)子树部分的个数分别相同，
+	//即inorder_left.size = preorder_left.size, inorder_right.size = preorder_right.size
+	//因为他们都是此时根节点的左(右)子树的所有元素，
+	//而且在先序遍历中，第一个为根元素，然后是左子树的所有元素，然后是右子树的所有元素
+	//那么也就是说，从先序遍历中的根节点后面的一个往后拿出inorder_left.size()个数个元素，
+	//就是preorder_left的元素，同理剩下的为preorder_right的元素
+	preorder_left.assign(preorder.begin() + 1, preorder.begin() + 1 + inorder_left.size());
+	preorder_right.assign(preorder.begin() + 1 + inorder_left.size(), preorder.end());
+	TreeNode* l = buildTree_item(preorder_left, inorder_left);
+	TreeNode* r = buildTree_item(preorder_right, inorder_right);
+	root->left = l;
+	root->right = r;
+	return root;
+}
+TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder)  //从前序与中序遍历序列构造二叉树
+{
+	if (preorder.size() == 0 || inorder.size() == 0)
+	{
+		return nullptr;
+	}
+	if (preorder.size() == 1 || inorder.size() == 1)
+	{
+		TreeNode* root = new TreeNode(preorder[0]);
+		return root;
+	}
+	return buildTree_item(preorder, inorder);
+}
+
+TreeNode* buildTree_item(vector<int> inorder, vector<int> postorder)
+{
+	if (inorder.size() == 0 || postorder.size() == 0)
+	{
+		return nullptr;
+	}
+	TreeNode* root = new TreeNode(postorder[postorder.size() - 1]); //后序遍历最后一个元素为当前的根元素
+	vector<int>::iterator ifind = find(inorder.begin(), inorder.end(), postorder[postorder.size() - 1]);
+	vector<int> inorder_left;
+	vector<int> inorder_right;
+	inorder_left.assign(inorder.begin(), ifind);  //中序序列根元素左侧为左子树
+	inorder_right.assign(++ifind, inorder.end());  //中序序列的根元素右侧为右子树
+	vector<int> postorder_left;
+	vector<int> postorder_right;
+	//后序遍历序列，前inorder_left.size()个元素为左子树元素，后面的除去最后一个剩下的为右子树元素
+	postorder_left.assign(postorder.begin(), postorder.begin() + inorder_left.size());
+	postorder_right.assign(postorder.begin() + inorder_left.size(), postorder.end() - 1);
+	TreeNode* l = buildTree_item(inorder_left, postorder_left);
+	TreeNode* r = buildTree_item(inorder_right, postorder_right);
+	root->left = l;
+	root->right = r;
+	return root;
+}
+TreeNode* buildTree(vector<int>& inorder, vector<int>& postorder)  //从中序与后序遍历序列构造二叉树
+{
+	if (postorder.size() == 0 || inorder.size() == 0)
+	{
+		return nullptr;
+	}
+	if (postorder.size() == 1 || inorder.size() == 1)
+	{
+		TreeNode* root = new TreeNode(postorder[0]);
+		return root;
+	}
+	return buildTree_item(inorder, postorder);
+}
+
+TreeNode* sortedListToBST_item(vector<int> tmp)
+{
+	//给定列表中的中间元素将会作为二叉搜索树的根，
+	//该点左侧的所有元素递归的去构造左子树，
+	//同理右侧的元素构造右子树。这必然能够保证最后构造出的二叉搜索树是平衡的
+	if (tmp.size() == 0)
+	{
+		return nullptr;
+	}
+	int n = tmp.size();
+	n /= 2;
+	TreeNode* root = new TreeNode(tmp[n]);
+	vector<int> tmp_l, tmp_r;
+	tmp_l.assign(tmp.begin(), tmp.begin() + n);
+	tmp_r.assign(tmp.begin() + n + 1, tmp.end());
+	TreeNode* l = sortedListToBST_item(tmp_l);
+	TreeNode* r = sortedListToBST_item(tmp_r);
+	root->left = l;
+	root->right = r;
+	return root;
+}
+TreeNode* sortedListToBST(ListNode* head)  //有序链表转换二叉搜索树
+{
+	if (!head)
+	{
+		return nullptr;
+	}
+	vector<int> tmp;
+	while (head)
+	{
+		tmp.push_back(head->val);
+		head = head->next;
+	}
+	return sortedListToBST_item(tmp);
+}
+
+vector< vector<int> > pathSum_v;
+void pathSum_item(TreeNode* root, int target, vector<int> tmp)
+{
+	if (!root)  //为空，则肯定不是叶子节点
+	{
+		return;
+	}
+	tmp.push_back(root->val);
+	if (target == root->val && !root->left && !root->right)  //target的值等于当前节点值，且为叶子节点
+	{
+		pathSum_v.push_back(tmp);  //那么就加入结果
+		return;
+	}
+	pathSum_item(root->left, target - root->val, tmp); //递归查找左子树
+	pathSum_item(root->right, target - root->val, tmp);  //递归查找右子树
+}
+vector<vector<int>> pathSum(TreeNode* root, int sum)  //路径总和 II
+{
+	if (!root)
+	{
+		return {};
+	}
+	pathSum_item(root, sum, {});
+	return pathSum_v;
 }
 
 int main()
@@ -3080,4 +3606,34 @@ int main()
 
 	//解码方法
 	//numDecodings
+
+	//反转链表 II
+	//reverseBetween
+
+	//复原IP地址
+	//restoreIpAddresses
+
+	//二叉树的中序遍历
+	//inorderTraversal
+
+	//不同的二叉搜索树 II
+	//generateTrees
+
+	//不同的二叉搜索树
+	//numTrees
+
+	//二叉树的锯齿形层次遍历
+	//zigzagLevelOrder
+
+	//从前序与中序遍历序列构造二叉树
+	//buildTree
+
+	//从中序与后序遍历序列构造二叉树
+	//buildTree
+
+	//有序链表转换二叉搜索树
+	//sortedListToBST
+
+	//路径总和 II
+	//pathSum
 }
