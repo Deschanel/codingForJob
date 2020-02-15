@@ -3407,6 +3407,354 @@ vector<vector<int>> pathSum(TreeNode* root, int sum)  //路径总和 II
 	return pathSum_v;
 }
 
+void flatten(TreeNode* root)  //二叉树展开为链表--先序遍历
+{
+	if (!root)
+	{
+		return;
+	}
+	stack<TreeNode*> s;
+	TreeNode* tmp = new TreeNode(0);
+	TreeNode* result = tmp;
+	s.push(root);
+	while (!s.empty())  //先序遍历，然后按着顺序把上一个的右子树指向遍历到的这个
+	{
+		root = s.top();
+		s.pop();
+		tmp->left = nullptr;
+		tmp->right = root;
+		tmp = root;
+		if (root->right)
+		{
+			s.push(root->right);
+		}
+		if (root->left)
+		{
+			s.push(root->left);
+		}
+	}
+	root = result->right;
+}
+
+class Node {
+public:
+	int val;
+	Node* left;
+	Node* right;
+	Node* next;
+
+	Node() : val(0), left(NULL), right(NULL), next(NULL) {}
+
+	Node(int _val) : val(_val), left(NULL), right(NULL), next(NULL) {}
+
+	Node(int _val, Node* _left, Node* _right, Node* _next)
+		: val(_val), left(_left), right(_right), next(_next) {}
+};
+Node* connect(Node* root)  //填充每个节点的下一个右侧节点指针
+{
+	//根据锯齿状遍历呀，
+	if (!root)
+	{
+		return nullptr;
+	}
+	queue<Node*> q;
+	q.push(root);
+	while (!q.empty())
+	{
+		int i = q.size();
+		if (i == 1)  //根节点时候
+		{
+			root = q.front();
+			q.pop();
+			root->next = nullptr;
+			if (root->left)
+			{
+				q.push(root->left);
+			}
+			if (root->right)
+			{
+				q.push(root->right);
+			}
+			continue;
+		}
+		//非根节点
+		Node* t1 = q.front();  //先拿出第一个作为慢指针  
+		q.pop();
+		--i;  //减去数量
+		if (t1->left)  //加入左右指针
+		{
+			q.push(t1->left);
+		}
+		if (t1->right)
+		{
+			q.push(t1->right);
+		}
+		while (i > 0) //由于i>1，所以这里肯定能进入
+		{
+			Node* t2 = q.front();  //当前指针
+			q.pop();
+			if (t2->left)  //加入左右子指针
+			{
+				q.push(t2->left);
+			}
+			if (t2->right)
+			{
+				q.push(t2->right);
+			} 
+			t1->next = t2;  //慢指针的下一个指向当前指针
+			t1 = t2;  //更新慢指针为当前指针，等待下一次使用
+			--i;  //数量减
+		}
+		t1->next = nullptr;  //最后一个指针的下一个指向nullptr
+	}
+	return root;  //因为这个题是完美二叉树，而root只在i=1时用的，所以root永远指向根节点
+}
+
+Node* connect(Node* root)  //填充每个节点的下一个右侧节点指针 II
+{
+	if (!root)
+	{
+		return nullptr;
+	}
+	queue<Node*> q;
+	Node* result = root;
+	q.push(root);
+	while (!q.empty())
+	{
+		int i = q.size();
+		if (i == 1)  //根节点时候
+		{
+			root = q.front();
+			q.pop();
+			root->next = nullptr;
+			if (root->left)
+			{
+				q.push(root->left);
+			}
+			if (root->right)
+			{
+				q.push(root->right);
+			}
+			continue;
+		}
+		//非根节点
+		Node* t1 = q.front();  //先拿出第一个作为慢指针  
+		q.pop();
+		--i;  //减去数量
+		if (t1->left)  //加入左右指针
+		{
+			q.push(t1->left);
+		}
+		if (t1->right)
+		{
+			q.push(t1->right);
+		}
+		while (i > 0) //由于i>1，所以这里肯定能进入
+		{
+			Node* t2 = q.front();  //当前指针
+			q.pop();
+			if (t2->left)  //加入左右子指针
+			{
+				q.push(t2->left);
+			}
+			if (t2->right)
+			{
+				q.push(t2->right);
+			}
+			t1->next = t2;  //慢指针的下一个指向当前指针
+			t1 = t2;  //更新慢指针为当前指针，等待下一次使用
+			--i;  //数量减
+		}
+		t1->next = nullptr;  //最后一个指针的下一个指向nullptr
+	}
+	//因为此题不是完美二叉树，可能出现只有一个孩子的情况，
+	//所以root会被使用很多次，所以会变，所以得用result保存刚开始的root
+	return result;
+}
+
+int ladderLength(string beginWord, string endWord, vector<string>& wordList)  //单词接龙
+{
+	if (wordList.size() == 0)
+	{
+		return 0;
+	}
+	if (beginWord == endWord)
+	{
+		return 1;
+	}
+	bool flag = true;
+	map<string, vector<string>> m;
+	for (string s : wordList)  //构造邻接表
+	{
+		if (s == endWord)
+		{
+			flag = false;
+		}
+		for (int i=0; i<s.size(); ++i)
+		{
+			string tmp = s;
+			tmp[i] = '*';
+			m[tmp].push_back(s);
+		}
+	}
+	if (flag)  //如果worlist里面没有endword，那么返回0
+	{
+		return 0;
+	}
+	queue< pair<string, int> > q;
+	map<string, bool> visited;
+	q.push(pair<string, int>(beginWord, 1));
+	int n = beginWord.size();
+	while (!q.empty())  //广度优先搜索
+	{
+		string currentString = q.front().first;
+		int currentLevel = q.front().second;
+		q.pop();
+		for (int i=0; i<n; ++i)
+		{
+			string newWord = currentString;
+			newWord[i] = '*';
+			map<string, vector<string>>::iterator ifind = m.find(newWord);
+			if (ifind != m.end())
+			{
+				vector<string> tmp = ifind->second;
+				for (auto s : tmp)
+				{
+					if (s == endWord)
+					{
+						return currentLevel + 1;
+					}
+					map<string, bool>::iterator vfind = visited.find(s);
+					if (vfind == visited.end() || !vfind->second)
+					{
+						visited[s] = true;
+						q.push(pair<string, int>(s, currentLevel + 1));
+					}
+				}
+			}
+		}
+	}
+	return 0;
+}
+
+void sumNumbers_item(TreeNode* root, int sum, vector<int> &tmp)
+{
+	if (!root)
+	{
+		return;
+	}
+	if (!root->left && !root->right)  //如果是叶子节点，那么就加入进去，这条路径就结束了
+	{
+		sum = sum * 10 + root->val;
+		tmp.push_back(sum);
+		return;
+	}
+	sum = sum * 10 + root->val;
+	if (root->left)
+	{
+		sumNumbers_item(root->left, sum, tmp);  //往左延伸路径
+	}
+	if (root->right)
+	{
+		sumNumbers_item(root->right, sum, tmp);  //往右延伸路径
+	}
+}
+int sumNumbers(TreeNode* root)  //求根到叶子节点数字之和
+{
+	if (!root)
+	{
+		return 0;
+	}
+	vector<int> tmp;
+	sumNumbers_item(root, 0, tmp);
+	long int result = 0;
+	for (int i : tmp)
+	{
+		result += i;
+	}
+	return result;
+}
+
+void solve(vector<vector<char>>& board)  //被围绕的区域
+{
+	if (board.size() == 0 || board[0].size() == 0)
+	{
+		return;
+	}
+	int n = board.size(), m = board[0].size();
+	vector<int> parent(n * m, -1);
+	set<int> s;  //记录O且是在边缘的索引
+	for (int i=0; i<n; ++i)
+	{
+		for (int j=0; j<m; ++j)
+		{
+			if ((i == 0 || j == 0 || i == n - 1 || j == m - 1) && board[i][j] == 'O')
+			{
+				s.insert(i * m + j);  //插入数据
+			}
+			parent[i * m + j] = i * m + j;
+		}
+	}
+	int direction[][2] = { {1,0}, {0,1}, {-1,0},{0,-1} };
+	for (int i=0; i<n; ++i)
+	{
+		for (int j=0; j<m; ++j)
+		{
+			if (board[i][j] == 'X')
+			{
+				continue;
+			}
+			int rootx = parent[i * m + j]; 
+			while (rootx != parent[rootx])  //当前O位置的老大
+			{
+				rootx = parent[rootx];
+			}
+			for (int k=0; k<4; ++k)  //四个方向各找
+			{
+				int x = i + direction[k][0], y = j + direction[k][1];
+				if (x >= 0 && x < n && y >= 0 && y < m && board[x][y] == 'O')
+				{
+					int rooty = parent[x * m + y];
+					while (rooty != parent[rooty])
+					{
+						rooty = parent[rooty];
+					}
+					if (rootx != rooty)  //如果老大不同
+					{
+						if (s.find(rooty) == s.end())  //如果rooty是属于O且边缘的，那么应该让他当老大
+						{
+							parent[rooty] = rootx;
+						}
+						else  //否则就是rootx老大
+						{
+							parent[rootx] = rooty;
+						}
+					}
+				}
+			}
+		}
+	}
+	for (int i = 0; i < n; ++i)
+	{
+		for (int j = 0; j < m; ++j)
+		{
+			if (board[i][j] == 'X')
+			{
+				continue;
+			}
+			int root = parent[i * m + j];
+			while (root != parent[root])   //寻找当前老大
+			{
+				root = parent[root];
+			}
+			if (s.find(root) == s.end())  //如果老大在s里面
+			{
+				board[i][j] = 'X';
+			}
+		}
+	}
+}
+
 int main()
 {
 	//两数相加
@@ -3636,4 +3984,22 @@ int main()
 
 	//路径总和 II
 	//pathSum
+
+	//二叉树展开为链表
+	//flatten
+
+	//填充每个节点的下一个右侧节点指针
+	//connect
+
+	//填充每个节点的下一个右侧节点指针 II
+	//connect
+
+	//单词接龙
+	//ladderLength
+
+	//求根到叶子节点数字之和
+	//sumNumbers
+
+	//被围绕的区域
+	//solve
 }
