@@ -3755,6 +3755,514 @@ void solve(vector<vector<char>>& board)  //被围绕的区域
 	}
 }
 
+vector< vector<string> > partition_v;
+bool isHuiWenChuan(string s)  //判断是否是回文串
+{
+	if (s.size() == 1)
+	{
+		return true;
+	}
+	int i = 0, j = s.size() - 1;
+	while (i < j)
+	{
+		if (s[i] != s[j])
+		{
+			return false;
+		}
+		++i;
+		--j;
+	}
+	return true;
+}
+void partition_item(string s, vector<string> tmp)
+{
+	if (s.size() == 0)  //如果剩下的size为0，那么就加入
+	{
+		if (tmp.size() > 0)
+		{
+			partition_v.push_back(tmp);
+		}
+		return;
+	}
+	for (int i=1; i<=s.size(); ++i)  //从s中分割出i个长度的字符串
+	{
+		string newString = s.substr(0, i);
+		if (isHuiWenChuan(newString))   //如果是回文串，就说明此次分割有效，那么继续剩下字符串的分割，否则就剪枝
+		{
+			tmp.push_back(newString);
+			partition_item(s.substr(i), tmp);
+			tmp.pop_back();  //将前面分割的去掉，继续分割i+1个试试
+		}
+	}
+}
+vector<vector<string>> partition(string s)  //分割回文串
+{
+	if (s.size() == 0)
+	{
+		return {};
+	}
+	if (s.size() == 1)
+	{
+		return { {s} };
+	}
+	partition_item(s, {});
+	return partition_v;
+}
+
+class Node {
+public:
+	int val;
+	vector<Node*> neighbors;
+
+	Node() {
+		val = 0;
+		neighbors = vector<Node*>();
+	}
+
+	Node(int _val) {
+		val = _val;
+		neighbors = vector<Node*>();
+	}
+
+	Node(int _val, vector<Node*> _neighbors) {
+		val = _val;
+		neighbors = _neighbors;
+	}
+};
+map<Node*, Node*> cloneGraph_m;
+Node* cloneGraph(Node* node)  //克隆图
+{
+	if (!node)
+	{
+		return nullptr;
+	}
+	if (cloneGraph_m.count(node)) //如果已经有了这个克隆了，直接返回
+	{
+		return cloneGraph_m[node];
+	}
+	Node* result = new Node(node->val);
+	cloneGraph_m[node] = result;
+	for (Node* nei : node->neighbors)
+	{
+		if (nei)
+		{
+			Node* tmp = cloneGraph(nei); //返回每个邻居的克隆
+			result->neighbors.push_back(tmp);
+		}
+	}
+	return result;
+}
+
+int canCompleteCircuit(vector<int>& gas, vector<int>& cost)  //加油站
+{
+	if (gas.size() == 0 || cost.size() == 0)
+	{
+		return -1;
+	}
+	if (gas.size() != cost.size())
+	{
+		return -1;
+	}
+	vector<int> dp(gas.size(), 0); //表示i出发到i+1(不在i+1加油)油的实际获得量
+	for (int i = 0; i < gas.size(); ++i)
+	{
+		dp[i] = gas[i] - cost[i];
+	}
+	bool flag = true; //是否有成功的
+	int result = -1;
+	for (int i = 0; i < dp.size(); ++i)
+	{
+		if (dp[i] >= 0)  //刚开始出发的必须要能到达第i+1站，因此要大于等于0
+		{
+			flag = true;
+			int sum = 0;
+			for (int j = i; j < dp.size(); ++j)
+			{
+				sum += dp[j];
+				if (sum < 0)
+				{
+					flag = false;
+					break;
+				}
+			}
+			if (!flag)  //从i到最后一个是满足要求的
+			{
+				continue;
+			}
+			for (int j = 0; j < i; ++j)
+			{
+				sum += dp[j];
+				if (sum < 0)
+				{
+					flag = false;
+					break;
+				}
+			}
+			if (flag)  //从0到i也是满足要求的，加上上面的，因此整个循环是满足要求的
+			{
+				result = i;
+				break;
+			}
+		}
+	}
+	return result;
+}
+
+int singleNumber(vector<int>& nums)
+{
+	unordered_set<int> s;
+	long int sum = 0;
+	for (int i: nums)
+	{
+		sum += i;
+		s.insert(i);
+	}
+	long int tmp = 0;
+	for (unordered_set<int>::iterator ii = s.begin(); ii != s.end(); ii++)
+	{
+		tmp += (*ii);
+	}
+	return (tmp * 3 - sum) / 2;
+}
+
+class Node {
+public:
+	int val;
+	Node* next;
+	Node* random;
+
+	Node(int _val) {
+		val = _val;
+		next = NULL;
+		random = NULL;
+	}
+};
+map<Node*, Node*> copyRandomList_m;  //指针与拷贝一一对应
+Node* copyRandomList(Node* head)  //复制带随机指针的链表
+{
+	if (!head)  //如果null，那么返回null
+	{
+		return nullptr;
+	
+	}
+	if (copyRandomList_m.count(head))  //如果存在了，就直接返回拷贝
+	{
+		return copyRandomList_m[head];
+	}
+	Node* result = new Node(head->val);  //创建拷贝
+	copyRandomList_m[head] = result;  //加入一一对应关系
+	Node* n = copyRandomList(head->next);  //递归进行下一个
+	Node* r = copyRandomList(head->random);  //递归进行随机指针
+	result->next = n;  //赋值
+	result->random = r; //赋值
+	return result;  //返回结果
+}
+
+bool wordBreak_item(string s, vector<string>& wordDict)
+{
+	if (s.size() == 0)
+	{
+		return true;
+	}
+	bool flag = false;
+	for (string word : wordDict)   //遍历单词表
+	{
+		if (s.size() < word.size())  //如果s的长度小，说明此时的单词肯定不行
+		{
+			continue;
+		}
+		string tmp = s;  //每次循环得需要传过来的s，所以得暂存,否则下一个单词时候就是截取了的字符串里
+		string newString = tmp.substr(0, word.size());  //对tmp截取根word一样长的字符串
+		if (newString == word)  //如果相等继续操作，否则剪枝看看下一个单词
+		{
+			while (newString.size() == word.size() && newString == word)  //循环，既然截取后与单词相等，那么就要一直循环把相等的去掉,是为了减少时间,否则会超时
+			{
+				tmp = tmp.substr(word.size());
+				newString = tmp.substr(0, word.size());
+			}
+			bool t = wordBreak_item(tmp, wordDict);  //剩下不相等的，递归看看其他单词是否可以
+			if (t)  //如果有一个成功，就返回就可以了
+			{
+				flag = true;
+				break;
+			}
+		}
+	}
+	return flag;
+}
+bool wordBreak(string s, vector<string>& wordDict)  //单词拆分
+{
+	return wordBreak_item(s, wordDict);
+}
+
+void reorderList(ListNode* head)  //重排链表
+{
+	if (!head)
+	{
+		return;
+	}
+	vector<ListNode*> tmp;  //保存所有节点
+	int n = 0;
+	while (head)
+	{
+		++n;
+		tmp.push_back(head);
+		head = head->next;
+	}
+	int t = n - 1;
+	n % 2 == 0 ? n /= 2 : n = n / 2 + 1;  //如果是偶数个，那么只需遍历前n/2个，否则需要遍历到第n/2+1个，并且中间那个需要特殊处理
+	ListNode* result = new ListNode(0);
+	ListNode* temp = result;
+	for (int i = 0; i < n; ++i)
+	{
+		if (t - i == i)  //中间的那个特殊处理
+		{
+			result->next = tmp[i];
+			result = result->next;
+			break;
+		}
+		result->next = tmp[i];
+		result = result->next;
+		result->next = tmp[t - i];
+		result = result->next;
+	}
+	result->next = nullptr;  //最后一个需要指向null
+	head = temp->next;
+}
+
+vector<int> preorderTraversal(TreeNode* root)  //二叉树的前序遍历--迭代
+{
+	if (!root)
+	{
+		return {};
+	}
+	stack<TreeNode*> s;
+	s.push(root);
+	vector<int> result;
+	while (!s.empty())
+	{
+		root = s.top();
+		s.pop();
+		result.push_back(root->val);
+		if (root->right)
+		{
+			s.push(root->right);
+		}
+		if (root->left)
+		{
+			s.push(root->left);
+		}
+	}
+	return result;
+}
+
+void preorderTraversal_1_item(TreeNode* root, vector<int> &result)
+{
+	if (!root)
+	{
+		return;
+	}
+	result.push_back(root->val);
+	preorderTraversal_1_item(root->left, result);
+	preorderTraversal_1_item(root->right, result);
+}
+vector<int> preorderTraversal_1(TreeNode* root)  //二叉树的前序遍历--递归
+{
+	if (!root)
+	{
+		return {};
+	}
+	vector<int> result;
+	preorderTraversal_1_item(root, result);
+	return result;
+}
+
+ListNode* insertionSortList(ListNode* head)  //对链表进行插入排序
+{
+	if (!head)
+	{
+		return nullptr;
+	}
+	ListNode* preHead = new ListNode(0);  ////哨兵节点
+	ListNode* cur = head;
+	ListNode* pre = preHead;  
+	ListNode* n = nullptr;  //下一个指针
+	while (cur)
+	{
+		n = cur->next;
+		while (pre->next && pre->next->val < cur->val)  //如果pre的下一个小于当前值，一直找到比当前值大的
+		{
+			pre = pre->next;
+		}
+		cur->next = pre->next;  //当前值的下一个就是第一个比他大的
+		pre->next = cur;  //前一个指向当前值
+		pre = preHead;  //再重新开始
+		cur = n;
+	}
+	return preHead->next;
+}
+
+
+ListNode* sortList(ListNode* head)  //排序链表--归并排序
+{
+	//在 O(n log n) 时间复杂度和常数级空间复杂度下，对链表进行排序
+	if (!head)
+	{
+		return nullptr;
+	}
+	if (!head->next)
+	{
+		return head;
+	}
+	ListNode* slow = head;
+	ListNode* fast = head->next;  //快慢指针
+	while (fast && fast->next)  //直到slow到达中点，fast->next到达了终点
+	{
+		fast = fast->next->next;
+		slow = slow->next;
+	}
+	ListNode* mid = slow->next;  //mid为后半程的起点
+	slow->next = nullptr;  //slow代表的中点下一个为null
+	slow = head;  //前半段开始
+	slow = sortList(slow);  //排序好前面的
+	mid = sortList(mid);  //排序好后面的
+	ListNode* result = new ListNode(0);  //哨兵
+	ListNode* t = result;  //记录哨兵
+	//下面是合并操作
+	while (slow || mid)  //合并操作
+	{
+		if (slow && mid)  //如果两者都有，则较小的上去
+		{
+			if (slow->val < mid->val)
+			{
+				result->next = slow;
+				slow = slow->next;
+			}
+			else
+			{
+				result->next = mid;
+				mid = mid->next;
+			}
+		}
+		else if (slow && !mid)  //只有slow，整体分别加入到后面
+		{
+			result->next = slow;
+			slow = slow->next;
+		}
+		else  //只有mid，整体加入后面
+		{
+			result->next = mid;
+			mid = mid->next;
+		}
+		result = result->next;
+	}
+	result->next = nullptr;  //最后一个下一个指向null
+	return t->next;  //返回哨兵后边的实际
+}
+
+int evalRPN(vector<string>& tokens)  //逆波兰表达式求值
+{
+	if (tokens.size() == 0)
+	{
+		return 0;
+	}
+	stack<int> s;
+	int result = 0;
+	for (int i=0; i<tokens.size(); ++i)
+	{
+		if (tokens[i] == "+" || tokens[i] == "-" || tokens[i] == "*" || tokens[i] == "/")
+		{
+			int x = s.top(); s.pop();
+			int y = s.top(); s.pop();
+			if (tokens[i] == "+")
+			{
+				s.push(x + y);
+			}
+			else if (tokens[i] == "-")
+			{
+				s.push(y - x);
+			}
+			else if (tokens[i] == "*")
+			{
+				s.push(x * y);
+			}
+			else
+			{
+				s.push(y / x);
+			}
+		}
+		else
+		{
+			int tmp = std::stoi(tokens[i]);
+			s.push(tmp);
+		}
+	}
+	return s.empty() ? 0 : s.top();
+}
+
+string reverseWords(string s)  //翻转字符串里的单词
+{
+	if (s.size() == 0)
+	{
+		return "";
+	}
+	int n = s.size();
+	string result;
+	int i = 0;
+	while (i < n)  //遍历
+	{
+		while (i < n && s[i] == ' ')  //如果是空格，就跳过
+		{
+			++i;
+		}
+		if (i == n)  //如果一直到最后一个是空格，就直接break
+		{
+			break;
+		}
+		string tmp;
+		while (i < n && s[i] != ' ')  //从不是空格的开始，直到遇到空格
+		{
+			tmp += s[i];
+			++i;
+		}
+		result = tmp + ' ' + result;  //加入进结果
+	}
+	while (result[result.size() - 1] == ' ')  //把多的空格删除掉
+	{
+		result.pop_back();
+	}
+	return result;
+}
+
+int findMin(vector<int>& nums)  //寻找旋转排序数组中的最小值
+{
+	if (nums.size() == 0)
+	{
+		return 0;
+	}
+	if (nums.size() == 1)
+	{
+		return nums[0];
+	}
+	int l = 0, r = nums.size() - 1;
+	int result = INT_MAX;
+	while (l <= r)
+	{
+		int mid = (r - l) / 2 + l;
+		if (nums[l] <= nums[mid]) //l->mid为升序
+		{
+			result = min(nums[l], result);
+			l = mid + 1;
+		}
+		else //mid->r为升序
+		{
+			result = min(result, nums[mid]);
+			r = mid - 1;
+		}
+	}
+	return result;
+}
+
 int main()
 {
 	//两数相加
@@ -4002,4 +4510,43 @@ int main()
 
 	//被围绕的区域
 	//solve
+
+	//分割回文串
+	//partition
+
+	//克隆图
+	//cloneGraph
+
+	//加油站
+	//canCompleteCircuit
+
+	//只出现一次的数字 II
+	//singleNumber
+
+	//复制带随机指针的链表
+	//copyRandomList
+
+	//单词拆分
+	//wordBreak
+
+	//重排链表
+	//reorderList
+
+	//二叉树的前序遍历
+	//preorderTraversal
+
+	//对链表进行插入排序
+	//insertionSortList
+
+	//排序链表
+	//sortList
+
+	//逆波兰表达式求值
+	//evalRPN
+
+	//翻转字符串里的单词
+	//reverseWords
+
+	//寻找旋转排序数组中的最小值
+	//findMin
 }
