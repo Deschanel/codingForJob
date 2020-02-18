@@ -4263,6 +4263,282 @@ int findMin(vector<int>& nums)  //寻找旋转排序数组中的最小值
 	return result;
 }
 
+int findPeakElement(vector<int>& nums)  //寻找峰值
+{
+	if (nums.size() <= 1)
+	{
+		return 0;
+	}
+	if (nums.size() == 2)
+	{
+		return nums[0] > nums[1] ? 0 : 1;
+	}
+	int l = 0, r = nums.size() - 1;
+	while (l <= r)  //二分法
+	{
+		//如果mid大于mid+1的话，说明峰值在mid和其左侧，否则就是在右侧
+		int mid = (r - l) / 2 + l;
+		if (mid + 1 < nums.size() && nums[mid] < nums[mid + 1])
+		{
+			l = mid + 1;
+		}
+		else
+		{
+			r = mid - 1;
+		}
+	}
+	return l;
+}
+
+int compareVersion(string version1, string version2)  //比较版本号
+{
+	if (version1.size() == 0 && version2.size() == 0)
+	{
+		return 0;
+	}
+	if (version1.size() == 0)
+	{
+		return -1;
+	}
+	if (version2.size() == 0)
+	{
+		return 1;
+	}
+	int i = 0, j = 0;
+	while (i < version1.size() || j < version2.size())
+	{
+		int x = 0, y = 0;
+		string s1, s2;
+		while (i < version1.size())  //一直循环到点结束
+		{
+			if (version1[i] == '.')
+			{
+				break;
+			}
+			s1 += version1[i];
+			++i;
+		}
+		while (j < version2.size())  //一直循环到点结束
+		{
+			if (version2[j] == '.')
+			{
+				break;
+			}
+			s2 += version2[j];
+			++j;
+		}
+		if (s1.size() == 0 && s2.size() > 0)  //如果没有了，就是说i到头了
+		{
+			y = std::stoi(s2);
+			if (y > 0)  //如果v2剩下的大于0，如1和1.1就说明v2大
+			{
+				return -1;
+			}
+		}
+		else if (s1.size() > 0 && s2.size() == 0)  //如果没有了，就是j到头了
+		{
+			x = std::stoi(s1);
+			if (x > 0)  //如果v1剩下的大于0，如1.1和1，就是v1大
+			{
+				return 1;
+			}
+		}
+		else if (s1.size() == 0 && s2.size() == 0)  //如果都没有了，就直接返回0
+		{
+			return 0;
+		}
+		else  //如果都有的话
+		{
+			x = std::stoi(s1);
+			y = std::stoi(s2);
+			if (x > y)  //如果x>y,就是v1大
+			{
+				return 1;
+			}
+			else if (x < y) //如果y>x，就是v2大
+			{
+				return -1;
+			}
+			//这里省略了相等情况，就得继续比较后面的
+		}
+		//跳过点
+		++i;
+		++j;
+	}
+	return 0;
+}
+
+string fractionToDecimal(int numerator, int denominator)  //分数到小数
+{
+	if (numerator == 0)
+	{
+		return "0";
+	}
+	if (denominator == 0)
+	{
+		return "";
+	}
+	string result;
+	long long num = static_cast<long long>(numerator);
+	long long den = static_cast<long long>(denominator);
+	if ((num > 0) ^ (den > 0))
+	{
+		result.push_back('-');
+	}
+	num = abs(num);  den = abs(den);
+	result.append(std::to_string(num / den));
+	num %= den;
+	if (num == 0)
+	{
+		return result;
+	}
+	result.push_back('.');  //不整除的话就是小数，就应该插入小数点
+	unordered_map<int, int> um;  //记录重复余数的下标,这里不能记录结果中的数字出现坐标，因为比如1.255，这里不是循环小数，但是要记录5的话，就成了循环小数，应该是记录除法中余数的出现
+	int index = result.size() - 1;
+	while (num && um.count(num) == 0)  //如果num不为0，且之前没出现过
+	{
+		++index;  //下标指向哨兵
+		um[num] = index;  //插入这个
+		num *= 10;
+		result += std::to_string(num / den);
+		num %= den;
+	}
+	if (um.count(num) == 1)  //如果出现过这个数，那么在它位置上插入(
+	{
+		result.insert(um[num], "(");
+		result.push_back(')');
+	}
+	return result;
+}
+
+class BSTIterator {   //二叉搜索树迭代器
+public:
+	vector<int> tmp;
+	int index = -1;  //表示已经用过的数
+	BSTIterator(TreeNode* root) {
+		stack<TreeNode*> s;
+		while (true)
+		{
+			while (root)
+			{
+				s.push(root);
+				root = root->left;
+			}
+			if (s.empty())
+			{
+				break;
+			}
+			root = s.top(); s.pop();
+			tmp.push_back(root->val);
+			root = root->right;
+		}
+	}
+
+	/** @return the next smallest number */
+	int next() {
+
+		return tmp[++index];  //因为index表示已经用过的数，因此要先++
+	}
+
+	/** @return whether we have a next smallest number */
+	bool hasNext() {
+		if (index + 1 < tmp.size())  //因为index表示已用过的数，因此要看看index+1是否还有吗
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+};
+
+static bool largestNumber_compare(string s1, string s2)  //返回s1>s2 ?
+{
+	if (s1.size() == 0)  //如果s1为空的，那么直接返回s2
+	{
+		return false;
+	}
+	if (s2.size() == 0)  //如果s2为空的，直接返回s1
+	{
+		return true;
+	}
+	if (s1.size() == 1 && s2.size() == 1)  //都为1个，那么返回较大的那个
+	{
+		int x = s1[0] - '0', y = s2[0] - '0';
+		return (x > y);
+	}
+	int i = 0, j = 0;
+	while (i < s1.size() || j < s2.size())  //遍历所有的字符串
+	{
+		////如果此时i超过了最大下标，那么从0开始，
+		//这里必须要说一下，假设234与2344比较的话，肯定是2344234大于2342344，
+		//也就是说如果某一个字符串遍历到最后了，还没分出大小的话(这里234到最后了)，此时i=2,j=2
+		//接下来要比较2344中的j=3也就是4和i=0的大小，谁大谁就在前面
+		//上面的2344中的4大于234中的2，因此2344大于234
+		//再假设543，5432，肯定是5435432大于5432543，也就是当543到达3(i=2)时，5432此时也到达3(j=2)，
+		//那么很显然此时，要不就是543加入到5432后面，要不就是5432加入到543后面，前面的三位是543是相同的
+		//那么第四位肯定是较大的一个，而这个第四位，
+		//要不就是还剩下字符的那个(5432)的下一位(2)，此时是543放在5432的后面5432543，
+		//要不就是还剩下字符的那个(5432)的第一位(5)，也就是5432放在543的后面，而由于当前位的前面所有位都是相同的，因此也就是用完字符的那个的第一位
+		//如果此时还未分出胜负，则还是要i++,j++，直到分出胜负,
+		//此时还要说明的是，比如11和111，是不是就一直循环了呢，显然由于i和j的变换不同步，总会退出循环的
+		//自己可以按照代码试试这个例子
+		if (i >= s1.size())  
+		{
+			i = 0;
+		}
+		if (j >= s2.size())
+		{
+			j = 0;
+		}
+		int x = s1[i] - '0', y = s2[j] - '0';
+		if (x > y)
+		{
+			return true;
+		}
+		else if (y > x)
+		{
+			return false;
+		}
+		++i;
+		++j;
+	}
+	return true;
+}
+string largestNumber(vector<int>& nums)  //最大数
+{
+	if (nums.size() == 0)
+	{
+		return "";
+	}
+	if (nums.size() == 1)
+	{
+		return std::to_string(nums[0]);
+	}
+	vector<string> tmp;
+	string result;
+	for (int i : nums)
+	{
+		tmp.push_back(std::to_string(i));
+	}
+	sort(tmp.begin(), tmp.end(), largestNumber_compare);  //按照自定义排序
+	if (tmp[0] == "0")
+	{
+		return "0";
+	}
+	//sort后会得到[1,102,21]->[21, 102, 1],直接组合起来就行
+	for (string s : tmp)  //组合
+	{
+		result += s;
+	}
+	while (result[0] == '0' && result.size() > 1)  //除掉result前面的0
+	{
+		result = result.substr(1);
+	}
+	return result;
+}
+
 int main()
 {
 	//两数相加
@@ -4549,4 +4825,19 @@ int main()
 
 	//寻找旋转排序数组中的最小值
 	//findMin
+
+	//寻找峰值
+	//findPeakElement
+
+	//比较版本号
+	//compareVersion
+
+	//分数到小数
+	//fractionToDecimal
+
+	//二叉搜索树迭代器
+	//class BSTIterator
+
+	//最大数
+	//largestNumber
 }
