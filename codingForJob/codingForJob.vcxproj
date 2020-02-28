@@ -154,8 +154,9 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="codingForJob.cpp" />
+    <ClCompile Include="easy.cpp" />
     <ClCompile Include="hard.cpp" />
+    <ClCompile Include="jianZhiOffer.cpp" />
     <ClCompile Include="medium.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

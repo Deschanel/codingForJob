@@ -23,13 +23,16 @@
     <ClCompile Include="pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="codingForJob.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="medium.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="hard.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="easy.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="jianZhiOffer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
