@@ -483,7 +483,7 @@ int minDistance(string word1, string word2)  //编辑距离
 	return dp[word1.size()][word2.size()];
 }
 
-int main
+int main()
 {
 	//K 个一组翻转链表
 	//reverseKGroup
