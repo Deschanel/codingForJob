@@ -6,6 +6,8 @@
 #include <string>
 #include <stack>
 #include <queue>
+#include <set>
+#include <map>
 using namespace std;
 
 int findRepeatNumber_1(vector<int>& nums)    ////面试题03. 数组中重复的数字
@@ -582,6 +584,528 @@ int numWays(int n)  //面试题10- II. 青蛙跳台阶问题
 	return cur % 1000000007;
 }
 
+int minArray(vector<int>& numbers)  //面试题11. 旋转数组的最小数字
+{
+	if (numbers.size() == 0)
+	{
+		return -1;
+	}
+	if (numbers.size() == 1)
+	{
+		return numbers[0];
+	}
+	int result = INT_MAX;
+	int l = 0, r = numbers.size() - 1;
+	while (l <= r)
+	{
+		int mid = (r - l) / 2 + l;
+		if (numbers[l] < numbers[mid])  //如果严格小于，说明l到mid递增，那么result赋值后，看看后面的是否还有更小的
+		{
+			result = min(result, numbers[l]);
+			l = mid + 1;
+		}
+		else if(numbers[l] == numbers[mid])  //相等的话,赋值当前的l，然后跳过他，看看后面的数组的最小值
+		{
+			result = min(result, numbers[l]);
+			++l;
+		}
+		else  //后边有序
+		{
+			result = min(result, numbers[mid]);
+			r = mid - 1;
+		}
+	}
+	return result;
+}
+
+int exist_direction[4][2] = { {1,0},{-1,0},{0,1},{0,-1} };
+set< pair<int, int> > exist_s; //存储用过的行列, 这里也可以定义一个与board相同大小的bool值矩阵，表示第i行第j个是否呗使用了
+bool exist_dfs(vector<vector<char>>& board, string word, int n, int row, int column)
+{
+	if (board.size() == 0 || board.at(0).size() == 0 || word.size() == 0)
+	{
+		return false;
+	}
+	if (n == word.size())
+	{
+		return true;
+	}
+	if (row == -1 || column == -1)  //第一个数字还没开始找
+	{
+		for (int i=0; i < board.size(); ++i)
+		{
+			for (int j=0; j < board.at(i).size(); ++j)
+			{
+				if (board[i][j] == word[n])
+				{
+					pair<int, int> p(i, j);
+					exist_s.insert(p);   //第一个字符直接放进去就可以
+					bool flag = exist_dfs(board, word, n + 1, i, j);
+					if (flag)
+					{
+						return true;
+					}
+					exist_s.erase(p);  //弹出当前用过的，再从下一个字符开始作为开头看看
+				}
+			}
+		}
+	}
+	else  //后面的数字
+	{
+		for (int i=0; i<4; ++i)
+		{
+			int x = row + exist_direction[i][0], y = column + exist_direction[i][1];
+			if (x >= 0 && x < board.size() && y >= 0 && y < board.at(0).size())
+			{
+				if (board[x][y] == word[n])
+				{
+					pair<int, int> p(x, y);
+					set< pair<int, int> >::iterator ifind = exist_s.find(p);
+					if (ifind != exist_s.end())  //如果当前字符用过了
+					{
+						continue;
+					}
+					exist_s.insert(p);
+					bool flag = exist_dfs(board, word, n + 1, x, y);
+					if (flag)
+					{
+						return true;
+					}
+					exist_s.erase(p);  //弹出当前方向的字符，再从剩余方向进行，因为这个字符可能后面用到
+				}
+			}
+		}
+	}
+	return false;
+}
+bool exist(vector<vector<char>>& board, string word)   //面试题12. 矩阵中的路径
+{
+	if (board.size() == 0 || board.at(0).size() == 0 || word.size() == 0)
+	{
+		return false;
+	}
+	return exist_dfs(board, word, 0, -1, -1);
+}
+vector< vector<bool> > exist_1_visited;  //定义一个与board相同大小的bool值矩阵，表示第i行第j个是否使用了
+bool exist_1_dfs(vector<vector<char>>& board, string word, int n, int row, int column)
+{
+	if (board.size() == 0 || board.at(0).size() == 0 || word.size() == 0)
+	{
+		return false;
+	}
+	if (n == word.size())
+	{
+		return true;
+	}
+	if (row == -1 || column == -1)  //第一个数字还没开始找
+	{
+		for (int i = 0; i < board.size(); ++i)
+		{
+			for (int j = 0; j < board.at(i).size(); ++j)
+			{
+				if (board[i][j] == word[n] && !exist_1_visited[i][j])
+				{
+					exist_1_visited[i][j] = true;
+					bool flag = exist_dfs(board, word, n + 1, i, j);
+					if (flag)
+					{
+						return true;
+					}
+					exist_1_visited[i][j] = false;  //弹出当前用过的，再从下一个字符开始作为开头看看
+				}
+			}
+		}
+	}
+	else  //后面的数字
+	{
+		for (int i = 0; i < 4; ++i)
+		{
+			int x = row + exist_direction[i][0], y = column + exist_direction[i][1];
+			if (x >= 0 && x < board.size() && y >= 0 && y < board.at(0).size())
+			{
+				if (board[x][y] == word[n] && !exist_1_visited[x][y])
+				{
+					exist_1_visited[x][y] = true;
+					bool flag = exist_dfs(board, word, n + 1, x, y);
+					if (flag)
+					{
+						return true;
+					}
+					exist_1_visited[x][y] = false;  //弹出当前方向的字符，再从剩余方向进行，因为这个字符可能后面用到
+				}
+			}
+		}
+	}
+	return false;
+}
+bool exist_1(vector<vector<char>>& board, string word)   //面试题12. 矩阵中的路径
+{
+	if (board.size() == 0 || board.at(0).size() == 0 || word.size() == 0)
+	{
+		return false;
+	}
+	for (int i = 0; i < board.size(); ++i)
+	{
+		vector<bool> tmp;
+		for (int j = 0; j < board.at(i).size(); ++j)
+		{
+			tmp.push_back(false);
+		}
+		exist_1_visited.push_back(tmp);
+	}
+	return exist_1_dfs(board, word, 0, -1, -1);
+}
+
+int movingCount_direction[4][2] = { {1,0},{-1,0},{0,1},{0,-1} };
+vector< vector<bool> > movingCount_visited;   //判断是否走过了
+int movingCount_result = 1;   //最后的结果,第一个(0,0)肯定能在，因此就从这个开始走
+int movingCount_sum(int n)  //计算n的各位加起来
+{
+	int sum = 0;
+	while (n > 0)
+	{
+		sum += (n % 10);
+		n /= 10;
+	}
+	return sum;
+}
+void movingCount_dfs(int row, int column, int k, int m, int n)
+{
+	if (k == 0)
+	{
+		movingCount_result = 1;
+		return;
+	}
+	for (int i=0; i<4; ++i)
+	{
+		int x = row + movingCount_direction[i][0], y = column + movingCount_direction[i][1];
+		if (x >= 0 && x < m && y >= 0 && y < n)
+		{
+			int sumx = movingCount_sum(x), sumy = movingCount_sum(y);
+			if (sumx + sumy <= k && !movingCount_visited[x][y])
+			{
+				movingCount_visited[x][y] = true;  //走过了就不要走回来了，因此不能再恢复为false
+				++movingCount_result;
+				movingCount_dfs(x, y, k, m, n);
+			}
+		}
+	}
+}
+int movingCount(int m, int n, int k)  //面试题13. 机器人的运动范围
+{
+	if (k == 0)
+	{
+		return 1;
+	}
+	for (int i=0; i<m; ++i)
+	{
+		vector<bool> tmp;
+		for (int j=0; j<n; ++j)
+		{
+			tmp.push_back(false);
+		}
+		movingCount_visited.push_back(tmp);
+	}
+	movingCount_visited[0][0] = true;
+	movingCount_dfs(0, 0, k, m, n);
+	delete[] movingCount_direction;  //删除
+	movingCount_visited.clear();  //清空数据
+	return movingCount_result;
+}
+
+int cuttingRope(int n)  //面试题14- I. 剪绳子
+{
+	if (n <= 1)
+	{
+		return 0;
+	}
+	if (n == 2)
+	{
+		return 1;
+	}
+	if (n == 3)
+	{
+		return 2;
+	}
+	//当我们知道dp(n-1)为n-1时候的最大值，
+	//而n=n-1+1或n=n-2+2或n=n-3+3。。。。n=1+n-1
+	//也就是说dp(n) = max(dp(n-i)*dp(i))， i从n-1到n/2
+	//从另一个角度来说，假设每一刀都是对应最大值时候的其中一刀
+	//剪第一刀时，有1,2,3....n-1种情况，那么就剪成了i+j=n,然后dp(n) = max(dp(n-i)*dp(i))
+	//那么有没有一种切法能够使得结果不在max(dp(n-i)*dp(i))中呢
+	//我们假设存在，那么第一刀下去切出了k+l=n,然后就是对k和l分别切，然而k最多只能是dp(k),l最多是dp(l)，因此dp(n)还是等于dp(k)*dp(l)
+	vector<int> dp(n + 1, 0);
+	dp[0] = 0;
+	dp[1] = 1;
+	dp[2] = 2;  //这个只是为了得出结果，与实际n=2时候不符
+	dp[3] = 3;  //这个只是为了得出结果，与实际n=3时候不符
+	for (int i = 4; i <= n; ++i)
+	{
+		for (int j = i - 1; j >= i / 2; --j)  //显然根据i-j和j的对称性，j到i/2就可以了
+		{
+			dp[i] = max(dp[i], dp[j] * dp[i - j]);
+		}
+	}
+	return dp[n];
+}
+int cuttingRope_1(int n)  //面试题14- I. 剪绳子
+{
+	//有2和3的话，尽量切出2和3，因为切出4，可以看成两个2，切出5，不如切成2和3，切出6，不如切成3和3
+	//切出7，不如3和2和2.。。。也就是说尽量切出2和3
+	//他俩比较的话，尽量切出3，因此比方6的话3*3>2*2*2
+	if (n <= 1)
+	{
+		return 0;
+	}
+	if (n == 2)
+	{
+		return 1;
+	}
+	if (n == 3)
+	{
+		return 2;
+	}
+	int a = n / 3, b = n % 3;
+	if (b == 0) //3的倍数
+	{
+		return pow(3, a);
+	}
+	else if (b == 1)//比如7，3 3 1要小于3 2 2,也就是说应该切出3 3 3 ... 3 2 2
+	{
+		return pow(3, a - 1) * 4;
+	}
+	else  //b=2
+	{
+		return pow(3, a) * 2;
+	}
+}
+
+int cuttingRope(int n)   //面试题14- II. 剪绳子 II  需要取余1000000007
+{
+	if (n <= 1)
+	{
+		return 0;
+	}
+	if (n == 2)
+	{
+		return 1;
+	}
+	if (n == 3)
+	{
+		return 2;
+	}
+	int a = n / 3, b = n % 3;
+	if (b == 1)
+	{
+		a -= 1;
+	}
+	int result = 1;
+	int tmp = result;
+	for (int i = 1; i <= a; ++i)  //pow(3, a)分开累加
+	{
+		if (result > INT_MAX / 3)
+		{
+			tmp = result;
+			result = result % 1000000007 + result % 1000000007;
+			result %= 1000000007;
+			result += (tmp % 1000000007);
+		}
+		else
+		{
+			result *= 3;
+		}
+	}
+	if (b == 1)
+	{
+		if (result > INT_MAX / 4)   //乘以4要分开累加
+		{
+			tmp = result;
+			result = result % 1000000007 + result % 1000000007;
+			result %= 1000000007;
+			result += (tmp % 1000000007);
+			result %= 1000000007;
+			result += (tmp % 1000000007);
+		}
+		else
+		{
+			result *= 4;
+		}
+	}
+	else if (b == 2)
+	{
+		if (result > INT_MAX / 2)  //乘以2要分开累加
+		{
+			result = result % 1000000007 + result % 1000000007;
+		}
+		else
+		{
+			result *= 2;
+		}
+	}
+	return result % 1000000007;;
+}
+
+int hammingWeight(uint32_t n)  //面试题15. 二进制中1的个数
+{
+	//n&(n-1)为清除最低位的1；n&(-n)为得到最低位的1
+	if (n == 0)
+	{
+		return 0;
+	}
+	int result = 0;
+	while (n != 0)
+	{
+		++result;
+		n &= (n - 1);
+	}
+	return result;
+}
+
+double myPow(double x, int n)  //面试题16. 数值的整数次方
+{
+	if (x == 0 && n < 0)
+	{
+		return 0.0;
+	}
+	if ((x == 0 && n == 0) || n == 0 || x == 1)
+	{
+		return 1.0;
+	}
+	if (n == 1)
+	{
+		return x;
+	}
+	unsigned int ui = 0; //转换为unsigned int
+	if (n < 0)
+	{
+		ui = -(n + 1);  //避免int_min情况
+		ui += 1;
+	}
+	else
+	{
+		ui = n;
+	}
+	double result = myPow(x, ui >> 1);   //右移比除以2快
+	result = result * result;
+	if (ui & 1)  //判断%2余数直接用&1就可以，如果是奇数，则括号里为true
+	{
+		result *= x;
+	}
+	if (n < 0)
+	{
+		result = 1.0 / result;
+	}
+	return result;
+}
+
+vector<int> printNumbers(int n)   //面试题17. 打印从1到最大的n位数--leetcode上太简单
+{
+	if (n == 0)
+	{
+		return {};
+	}
+	//先找到最大的数
+	int ma = 9;
+	for (int i = 1; i < n; ++i)
+	{
+		ma = ma * 10 + 9;
+	}
+	vector<int> result(ma);
+	for (int i = 0; i < ma; ++i)
+	{
+		result[i] = i + 1;
+	}
+	return result;
+}
+
+string printNumbers_string_plus1(string s)  //s表示的数字加上1,s表示的数是>=0的，非负数
+{
+	if (s.size() == 0)
+	{
+		return "";
+	}
+	int i = s.size() - 1;
+	int jinwei = 1;  //因为表示的是s的数字加1，所以刚开始要设为1呀
+	while (i >= 0)
+	{
+		int tmp = s[i] - '0' + jinwei;
+		if (tmp < 10)
+		{
+			s[i] = tmp + '0';
+			jinwei = 0;
+			break;
+		}
+		else
+		{
+			s[i] = tmp - 10 + '0';
+			jinwei = 1;
+			--i;
+		}
+	}
+	if (jinwei)
+	{
+		s = "1" + s;
+	}
+	return s;
+}
+vector<string> printNumbers_string(int n)   //面试题17. 打印从1到最大的n位数, 这里要考虑n超大的情况
+{
+	//这个采用数字的字符串+1的方法，一直到字符串+1后位数大于n为止
+	if (n == 0)
+	{
+		return {};
+	}
+	vector<string> result;
+	result.push_back("1");
+	string s = "1";
+	while (true)
+	{
+		s = printNumbers_string_plus1(s);
+		if (s.size() > n)
+		{
+			break;
+		}
+		result.push_back(s);
+	}
+	return result;
+}
+
+vector<string> printNumbers_string_v;  //结果
+void printNumbers_string_1_dfs(string s, int n)
+{
+	if (s.size() == n)
+	{
+		//先去掉s前面的0
+		int i = 0;
+		while (i < s.size() && s[i] == '0')
+		{
+			++i;
+		}
+		if (i < s.size())  //防止s="000000000"这种情况
+		{
+			s = s.substr(i);
+			printNumbers_string_v.push_back(s);
+		}
+		return;
+	}
+	for (char k = '0'; k <= '9'; ++k)
+	{
+		s.push_back(k);
+		printNumbers_string_1_dfs(s, n);  //这一位以k的全都完了，然后弹出k，接下去
+		s.pop_back();
+	}
+}
+vector<string> printNumbers_string_1(int n)   //面试题17. 打印从1到最大的n位数, 这里要考虑n超大的情况
+{
+	//实际上就是0-9，n个数字全排列，只不过要把前面的0去掉
+	if (n == 0)
+	{
+		return {};
+	}
+	printNumbers_string_1_dfs("", n);
+	return printNumbers_string_v;
+}
+
 int main()
 {
 	//面试题03. 数组中重复的数字
@@ -612,5 +1136,29 @@ int main()
 
 	//面试题10- II. 青蛙跳台阶问题
 	//numWays
+
+	//面试题11. 旋转数组的最小数字
+	//minArray
+
+	//面试题12. 矩阵中的路径
+	//exist
+
+	//面试题13. 机器人的运动范围
+	//movingCount
+
+	//面试题14- I. 剪绳子
+	//cuttingRope
+
+	//面试题14- II. 剪绳子 II
+	//cuttingRope
+
+	//面试题15. 二进制中1的个数
+	//hammingWeight
+
+	//面试题16. 数值的整数次方
+	//myPow
+
+	//面试题17. 打印从1到最大的n位数
+	//printNumbers
 	return 0;
 }

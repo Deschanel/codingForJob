@@ -483,6 +483,40 @@ int minDistance(string word1, string word2)  //编辑距离
 	return dp[word1.size()][word2.size()];
 }
 
+int findMin(vector<int>& nums)  //寻找旋转排序数组中的最小值 II
+{
+	if (nums.size() == 0)
+	{
+		return -1;
+	}
+	if (nums.size() == 1)
+	{
+		return nums[0];
+	}
+	int result = INT_MAX;
+	int l = 0, r = nums.size() - 1;
+	while (l <= r)
+	{
+		int mid = (r - l) / 2 + l;
+		if (nums[l] == nums[mid])  //相等的话就先看看result与l表示的数谁小，然后跳过这个数，看后面的数组的最小值
+		{
+			result = min(result, nums[l]);
+			++l;
+		}
+		else if (nums[l] < nums[mid])  //l到mid是升序
+		{
+			result = min(result, nums[l]);
+			l = mid + 1;
+		}
+		else  //mid到r是升序
+		{
+			result = min(result, nums[mid]);
+			r = mid - 1;
+		}
+	}
+	return result;
+}
+
 int main()
 {
 	//K 个一组翻转链表
@@ -511,4 +545,7 @@ int main()
 
 	//编辑距离
 	//minDistance
+
+	//寻找旋转排序数组中的最小值 II
+	//findMin
 }
