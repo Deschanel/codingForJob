@@ -1106,6 +1106,963 @@ vector<string> printNumbers_string_1(int n)   //面试题17. 打印从1到最大的n位数, 
 	return printNumbers_string_v;
 }
 
+ListNode* deleteNode(ListNode* head, int val)  //面试题18. 删除链表的节点
+{
+	if (!head)
+	{
+		return nullptr;
+	}
+	if (head->val == val)
+	{
+		head = head->next;
+		return head;
+	}
+	ListNode* result = head;
+	while (head->next && head->next->val != val)
+	{
+		head = head->next;
+	}
+	if (head->next)  //while中就只能是head->next->val = val跳出来了
+	{
+		ListNode* tmp = head->next->next;
+		head->next = tmp;
+	}
+	//如果要是head->next跳出来了，就说明当前元素为尾元素，按理说应该要判断一下这个尾元素是否与val相等
+	//然后在head为倒数第二个元素的时候，在while中已经判断了倒数第一个元素不等于val，否则head指针不可能向后走
+	//所以这里就没有else了
+	return result;
+}
+
+ListNode* deleteNode_1(ListNode* head, ListNode* p)  //面试题18. 删除链表的节点
+{
+	//这里p是待删除的节点
+	if (!head)  //头指针为空，说明这个p不在链表里
+	{
+		return nullptr;
+	}
+	//首先要说明的是，如果p不在所给的链表里，那么需要O(n)的时间来遍历判断是否在不在
+	//如果题目要是明确说在，也要看p是否是尾节点
+	//假设明确说了在
+	if (!p)  //如果p是空
+	{
+		return head;
+	}
+	if (p->next)  //p不是尾指针
+	{
+		//将p->next的值直接覆盖p的值，然后将p指向原先next的next
+		ListNode* tmp = p->next->next;
+		p->val = p->next->val;
+		p->next = tmp;
+	}
+	else  //尾指针
+	{
+		if (head == p)  //如果p是头指针
+		{
+			head = head->next;
+		}
+		else  //p不是头指针
+		{
+			ListNode* tmp = head;
+			while (tmp->next && tmp->next != p)
+			{
+				tmp = tmp->next;
+			}
+			//既然p肯定存在链表中，且是尾指针，那么当tmp为倒数第二个元素时就退出了while
+			tmp->next = nullptr;  //直接让倒数第二个元素的下一个为空即可
+		}
+	}
+	return head;
+}
+
+ListNode* deleteDuplicates(ListNode* head)  //18的引申--删除排序链表中的重复元素,删除所有重复的元素，使得每个元素只出现一次
+{
+	if (!head)
+	{
+		return nullptr;
+	}
+	//由于重复的元素保留一个即可，因此我们保留第一个
+	ListNode* result = head;
+	while (head)
+	{
+		ListNode* n = head->next;
+		while (n && n->val == head->val)  //若最后的元素也是重复元素时，n会指向null，则下面的直接head的next指向null
+		{
+			n = n->next;
+		}
+		head->next = n;
+		head = n;
+	}
+	return result;
+}
+
+ListNode* deleteDuplicates(ListNode* head) //18的引申--删除排序链表中的重复元素 II, 只保留原始链表中 没有重复出现的数字
+{
+	if (!head || !head->next)
+	{
+		return head;
+	}
+	ListNode* result = new ListNode(0);  //哨兵
+	ListNode* tmp = result;
+	//先看头节点
+	if (head->val != head->next->val) //head是唯一的
+	{
+		result->next = head;  //加入到result后面
+		tmp = tmp->next;  //指向待加入后续节点的那个,此时就是head
+	}
+	//这里要说明的是，如果一个值与前后的值都不相同，那么这个数应该是返回结果的一部分
+	ListNode* pre = head;  //如果头指针是唯一的，前面就已经加入了，因此不需要管了
+	head = head->next;
+	ListNode* n = head->next;
+	while (pre && head && n)
+	{
+		if (head->val != pre->val && head->val != n->val)  //head是唯一的
+		{
+			tmp->next = head;
+			tmp = tmp->next;
+		}
+		pre = pre->next;
+		head = head->next;
+		n = n->next;
+	}
+	//当n为空时候退出来了，此时我们需要看看倒数第一个元素与倒数第二个是否相等，也就是head和pre
+	if (head->val != pre->val)  //如果不相等，就说明最后一个元素唯一
+	{
+		tmp->next = head;
+		tmp = tmp->next;
+	}
+	tmp->next = nullptr; //最后一个指向nullptr
+	return result->next;
+}
+
+bool isMatch_recursion(string s, string p)
+{
+	if (p.empty())
+	{
+		return s.empty();
+	}
+	if (s.empty())
+	{
+		if (p.size() > 1 && p[1] == '*')
+		{
+			return isMatch_recursion(s, p.substr(2));
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		if (p.size() > 1 && p[1] == '*')
+		{
+			if (s[0] == p[0] || p[0] == '.')
+			{
+				//return isMatch_recursion(s.substr(1), p.substr(2)) || isMatch_recursion(s, p.substr(2)) || isMatch_recursion(s.substr(1), p);
+				return isMatch_recursion(s, p.substr(2)) || isMatch_recursion(s.substr(1), p);  //匹配一次的时候，也可以跳过s中的这个字符，跳过后，被跳过的字符，就相当于匹配0次
+			}
+			else
+			{
+				return isMatch_recursion(s, p.substr(2));
+			}
+		}
+		else
+		{
+			if (s[0] == p[0] || p[0] == '.')
+			{
+				return isMatch_recursion(s.substr(1), p.substr(1));
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
+}
+bool isMatch(string s, string p)  //面试题19. 正则表达式匹配
+{
+	if (s.size() == 0 && p.size() == 0)
+	{
+		return true;
+	}
+	else if (p.size() == 0 && s.size() != 0)
+	{
+		return false;
+	}
+	return isMatch_recursion(s, p);
+}
+
+bool isNumber(string s)  //面试题20. 表示数值的字符串
+{
+	if (s.size() == 0)
+	{
+		return false;
+	}
+	//消除空格,只能出现在末尾和开头
+	while (s.size() && s[0] == ' ')  //消除前面的空格
+	{
+		s = s.substr(1);
+	}
+	if (s.size() == 0)  //消除前面的空格之后没了
+	{
+		return false;
+	}
+	while (s.size() && s[s.size() - 1] == ' ')  //消除后面的空格
+	{
+		s.pop_back();
+	} 
+	if (s.size() == 0)  //消除后面的空格之后没了
+	{
+		return false;
+	}
+	int i = 0;
+	if (s[i] == '+' || s[i] == '-')  //有正负号
+	{
+		++i;
+	}
+	string zhengshu, xiaoshu, zhishu;
+	//寻找整数部分
+	while (i < s.size())
+	{
+		if (s[i] >= '0' && s[i] <= '9')  //整数部分只能是0-9，遇到.或e或E要跳出,否则false
+		{
+			zhengshu = s[i] + zhengshu;
+			++i;
+		}
+		else if (s[i] == '.' || s[i] == 'e' || s[i] == 'E')
+		{
+			break;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	if (i == s.size())  //如果全都是整数
+	{
+		return true;
+	}
+	if (s[i] == '.')  //如果跳出来的是小数点，那么小数部分开始
+	{
+		++i;  //跳过小数点
+		while (i < s.size())
+		{
+			if (s[i] >= '0' && s[i] <= '9')  //小数部分只能是0-9，遇到e或E要跳出，其他字符都为false
+			{
+				xiaoshu = s[i] + xiaoshu;
+				++i;
+			}
+			else if (s[i] == 'e' || s[i] == 'E')
+			{
+				break;
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
+	if (xiaoshu.size() == 0 && zhengshu.size() == 0)  //小数部分为空且整数部分为空,就类似于.e9这样的，不行，但是1.e9可以
+	{
+		return false;
+	}
+	if (i == s.size())  //整数或者小数部分有一个，且i到头了
+	{
+		return true;
+	}
+	//如果没到头的话，只能是e或E在某个循环里break了，否则其他字符就会返回false了
+	//e或E后面的
+	++i; //跳过e或E
+	if (i >= s.size())  //e或E是最后一个字符
+	{
+		return false;
+	}
+	if (s[i] == '+' || s[i] == '-')  //e或E后面要是有正负号，就跳过
+	{
+		++i;
+	}
+	if (i == s.size())  //正负号是最后一个字符
+	{
+		return false;
+	}
+	while (i < s.size()) //由于上面判断了e或E是否是最后一个字符，所以能到这里就说明e或E或正负号不是最后一个字符
+	{
+		if (s[i] >= '0' && s[i] <= '9')  //e或E后面可以是正负号，正负号后面只能是数字
+		{
+			zhishu = s[i] + zhishu;
+			++i;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	return true;  //有可能整数小数都没有，如e9，那么此时肯定不行
+}
+
+vector<int> exchange(vector<int>& nums)  //面试题21. 调整数组顺序使奇数位于偶数前面
+{
+	if (nums.size() <= 1)
+	{
+		return nums;
+	}
+	int l = 0, r = nums.size() - 1;
+	while (l < r)
+	{
+		//找到左边的
+		while (l < r && (nums[l] & 1) == 1)  //遇到偶数要break，遇到奇数要继续
+		{
+			++l;
+		}
+		while (l < r && (nums[r] & 1) == 0)  //遇到奇数要break，遇到偶数要继续
+		{
+			--r;
+		}
+		if (l < r)
+		{
+			swap(nums[l], nums[r]);
+			++l;
+			--r;
+		}
+	}
+	return nums;
+}
+
+ListNode* getKthFromEnd(ListNode* head, int k)   //面试题22. 链表中倒数第k个节点
+{
+	if (k <= 0 || !head)
+	{
+		return nullptr;
+	}
+	//定义两个指针
+	ListNode* fast = head;
+	int i = k;
+	while (i > 0 && fast)
+	{
+		fast = fast->next;
+		--i;
+	}
+	if (i > 0)  //如果i仍然大于0，说明fast为空了，说明还没走出k个距离就空了，说明总数小于k
+	{
+		return nullptr;
+	}
+	while (fast)
+	{
+		fast = fast->next;
+		head = head->next;
+	}
+	return head;
+}
+
+ListNode *detectCycle(ListNode *head) //面试题23. 环形链表的入口
+{
+	//假设从头指针到环入口的长度为l，从环入口到相遇点距离为m，环的剩余部分为n
+	//相遇的时候，慢指针走了l+m，快指针走了l+m+n+m=l+2m+n
+	//由于快指针速度是慢指针的2倍，所以l+2m+n = 2(l+m)，所以l=n
+	//那么现在只需要慢指针再走n步就是环的入口
+	//如果此时头指针从头开始走，慢指针从相遇点开始走，两者速度相同
+	//由于两者速度相同，且l=n，那么正好当头指针走了l步时慢指针走了l步，也就是n步，而现在正好也就是二者在环的入口相遇了
+	//也就是说当两者相遇时，正好就是环的入口
+	if (!head || !head->next)
+	{
+		return nullptr;
+	}
+	ListNode* slow = head;
+	ListNode* fast = head;
+	while (fast && fast->next)
+	{
+		fast = fast->next->next;
+		slow = slow->next;
+		if (slow == fast)  //相遇了
+		{
+			break;
+		}
+	}
+	if (!fast || !fast->next)  //如果fast或下一个为空，说明没有环
+	{
+		return nullptr;
+	}
+	while (head != slow)  //两者不相遇就一直走，当两者相遇时，就是到了环的入口
+	{
+		head = head->next;
+		slow = slow->next;
+	}
+	return head;
+}
+
+ListNode* reverseList(ListNode* head)  //面试题24. 反转链表
+{
+	if (!head)
+	{
+		return nullptr;
+	}
+	ListNode* p = nullptr;
+	while (head)
+	{
+		ListNode* tmp = head->next;
+		head->next = p;
+		p = head;
+		head = tmp;
+	}
+	return p;
+}
+
+ListNode* mergeTwoLists(ListNode* l1, ListNode* l2)  //面试题25. 合并两个排序的链表
+{
+	//迭代
+	if (!l1)
+	{
+		return l2;
+	}
+	if (!l2)
+	{
+		return l1;
+	}
+	ListNode* result = new ListNode(0);  //哨兵节点
+	ListNode* tmp = result;
+	while (l1 && l2)
+	{
+		if (l1->val <= l2->val)
+		{
+			tmp->next = l1;
+			l1 = l1->next;
+		}
+		else
+		{
+			tmp->next = l2;
+			l2 = l2->next;
+		}
+		tmp = tmp->next;
+	}
+	if (l1)  //l1不为空
+	{
+		tmp->next = l1;
+	}
+	else if (l2)
+	{
+		tmp->next = l2;
+	}
+	else
+	{
+		tmp->next = nullptr;
+	}
+	return result->next;
+}
+
+bool isSubStructure_item(TreeNode* A, TreeNode* B)
+{
+	if (!B)
+	{
+		return true;
+	}
+	else if (!A)
+	{
+		return false;
+	}
+	bool child = false;
+	if (A->val == B->val)  //如果值相同,看看左右子节点相不相同，如果相同的话，就往下递归左右子树，否则就不递归
+	{
+		if ((!A->left && !B->left) || (A->left && !B->left) || (A->left && B->left && A->left->val == B->left->val))  //如果两者左子树都不存在,或者A有B没有，或者都有且值相等
+		{
+			if ((!A->right && !B->right) || (A->right && !B->right) || (A->right && B->right && A->right->val == B->right->val))
+			{
+				child = true;
+			}
+		}
+		child = child && isSubStructure_item(A->left, B->left) && isSubStructure_item(A->right, B->right);
+	}
+	if (child)
+	{
+		return true;
+	}
+	return isSubStructure_item(A->left, B) || isSubStructure_item(A->right, B);
+}
+bool isSubStructure(TreeNode* A, TreeNode* B)  //面试题26. 树的子结构,自己的解法
+{
+	if (!A || !B)  //约定空树不是任意一个树的子结构
+	{
+		return false;
+	}
+	return isSubStructure_item(A, B);
+}
+
+bool isSubStructure_item_1_equal(TreeNode* A, TreeNode* B)
+{
+	if (!B)
+	{
+		return true;
+	}
+	else if (!A)
+	{
+		return false;
+	}
+	if (A->val == B->val)
+	{
+		return isSubStructure_item_1_equal(A->left, B->left) && isSubStructure_item_1_equal(A->right, B->right);
+	}
+	else
+	{
+		return false;
+	}
+}
+bool isSubStructure_item_1(TreeNode* A, TreeNode* B)
+{
+	if (!B)
+	{
+		return true;
+	}
+	else if (!A)
+	{
+		return false;
+	}
+	bool result = false;
+	if (A->val == B->val)  //如果A当前的节点等于B的节点值，那么去看看以A这个节点为根节点的树是否与B匹配,只有左右子树都匹配，才可以
+	{
+		result = isSubStructure_item_1_equal(A->left, B->left) && isSubStructure_item_1_equal(A->right, B->right);
+	}
+	if (result)  //如果左右子树都匹配
+	{
+		return true;
+	}
+	return isSubStructure_item_1(A->left, B) || isSubStructure_item_1(A->right, B);  //左右子树中有一个能与之匹配即可
+}
+bool isSubStructure_1(TreeNode* A, TreeNode* B)  //面试题26. 树的子结构
+{
+	if (!A || !B)  //约定空树不是任意一个树的子结构
+	{
+		return false;
+	}
+	return isSubStructure_item_1(A, B);
+}
+
+TreeNode* mirrorTree(TreeNode* root)  //面试题27. 二叉树的镜像
+{
+	if (!root || (!root->left && !root->right))
+	{
+		return root;
+	}
+	//左右互换
+	TreeNode* tmp = root->left;
+	root->left = root->right;
+	root->right = tmp;
+	//递归把左右子树都镜像
+	mirrorTree(root->left);
+	mirrorTree(root->right);
+	return root;
+}
+
+bool isSymmetric_item(TreeNode* A, TreeNode* B)  //A是对称线左边的树，B是对称线右边的树
+{
+	if (!A && !B)
+	{
+		return true;
+	}
+	if ((!A && B) || (A && !B))
+	{
+		return false;
+	}
+	if (A->val != B->val)
+	{
+		return false;
+	}
+	//对应关系是左边树的左边对应右边树的右边，左边树的右边对应右边树左边
+	return isSymmetric_item(A->left, B->right) && isSymmetric_item(A->right, B->left);
+}
+bool isSymmetric(TreeNode* root)  //面试题28. 对称的二叉树
+{
+	if (!root || (!root->left && !root->right))
+	{
+		return true;
+	}
+	if ((root->left && !root->right) || (!root->left && root->right))
+	{
+		return false;
+	}
+	//以上是对于根节点
+	return isSymmetric_item(root->left, root->right);
+}
+
+vector<int> spiralOrder(vector<vector<int>>& matrix)  //面试题29. 顺时针打印矩阵
+{
+	if (matrix.size() == 0 || matrix.at(0).size() == 0)
+	{
+		return {};
+	}
+	vector< vector<bool> > visited(matrix.size(), vector<bool>(matrix.at(0).size(), false));  //是否被访问了的
+	//移动的优先级是右->下->左->上->右->...
+	int direction[4][2] = { {0, 1}, {1, 0}, {0, -1}, {-1, 0} };
+	int n = matrix.size(), m = matrix.at(0).size(), i = 0, d = 0; //i是下标，d是当前的方向
+	int row = 0, column = 0;  //表示到达的坐标
+	vector<int> result(n * m, 0);
+	while (i < n * m)
+	{
+		if (row >= 0 && row < n && column >= 0 && column < m && !visited[row][column])
+		{
+			result[i] = matrix[row][column];
+			visited[row][column] = true;
+			row += direction[d][0];
+			column += direction[d][1];
+			++i; //写入了才要下一个，否则不动等待写入
+		}
+		else
+		{
+			//先返回原先的点，然后再变换方向
+			row -= direction[d][0];
+			column -= direction[d][1];
+			//再变换方向
+			d = (d + 1) % 4;
+			row += direction[d][0];
+			column += direction[d][1];
+		}
+	}
+	return result;
+}
+
+class MinStack {   // 面试题30. 包含min函数的栈
+public:
+	int minValue;
+	stack<int> s;
+	stack<int> tmp; //存放插入到第i个元素时，对应的最小值
+	/** initialize your data structure here. */
+	MinStack() {
+	}
+
+	void push(int x) {
+		if (tmp.empty() || x < minValue)  //如果为空或者x较小的话
+		{
+			minValue = x;
+		}
+		tmp.push(minValue);  //永远压入当前最小值
+		s.push(x);
+	}
+
+	void pop() {
+		//无论最小值是不是在栈顶，就要把tmp的栈顶清除掉，
+		//因为tmp存放的是截至到此时s中的最小值,
+		//也就是说s中剩余2个，tmp就应该是剩余两个，因为是截至s中有两个元素时对应的最小值
+		if (!s.empty() && !tmp.empty())
+		{
+			tmp.pop();
+			s.pop();
+			if (!tmp.empty())
+			{
+				minValue = tmp.top();
+			}
+		}
+	}
+
+	int top() {
+		if (s.empty())
+		{
+			return -1;
+		}
+		return s.top();
+	}
+
+	int min() {
+		return minValue;
+	}
+};
+
+bool validateStackSequences(vector<int>& pushed, vector<int>& popped)  //面试题31. 栈的压入、弹出序列
+{
+	if (pushed.size() == 0 && popped.size() == 0)
+	{
+		return true;
+	}
+	else if (pushed.size() != popped.size())
+	{
+		return false;
+	}
+	stack<int> s;
+	int i = 0, j = 0;
+	while (i < pushed.size() && j < popped.size())
+	{
+		while (i < pushed.size() && pushed[i] != popped[j]) //如果当前的i和j不相等，那么就压入栈中，等待一会始放
+		{
+			s.push(pushed[i]);
+			++i;
+		}
+		//跳过当前相等的，或者没有相等的话，i就超过了pushed的size，就会退出循环
+		++i;
+		++j;
+		while (j < popped.size() && !s.empty() && s.top() == popped[j])  //看看是否可以poped的元素一直在s中
+		{
+			++j;
+			s.pop();
+		}
+	}
+	return (i >= pushed.size() && j >= popped.size() && s.empty());
+}
+
+vector<int> levelOrder(TreeNode* root)  //面试题32 - I. 从上到下打印二叉树
+{
+	if (!root)
+	{
+		return {};
+	}
+	queue<TreeNode*> q;
+	vector<int> result;
+	q.push(root);
+	while (!q.empty())
+	{
+		root = q.front();
+		if (!root)
+	{
+		return {};
+	}
+	queue<TreeNode*> q;
+	vector<int> result;
+	q.push(root);
+	while (!q.empty())
+	{
+		root = q.front();
+		q.pop();
+		result.push_back(root->val);
+		if (root->left)
+		{
+			q.push(root->left);
+		}
+		if (root->right)
+		{
+			q.push(root->right);
+		}
+	}
+	return result;
+		result.push_back(root->val);
+		if (root->left)
+		{
+			q.push(root->left);
+		}
+		if (root->right)
+		{
+			q.push(root->right);
+		}
+	}
+	return result;
+}
+
+vector<vector<int>> levelOrder_ii(TreeNode* root)  //面试题32 - II. 从上到下打印二叉树 II
+{
+	if (!root)
+	{
+		return {};
+	}
+	queue<TreeNode*> q;
+	vector< vector<int> > result;
+	q.push(root);
+	while (!q.empty())
+	{
+		int i = q.size();
+		vector<int> tmp;
+		while (i > 0)
+		{
+			root = q.front();
+			q.pop();
+			--i;
+			tmp.push_back(root->val);
+			if (root->left)
+			{
+				q.push(root->left);
+			}
+			if (root->right)
+			{
+				q.push(root->right);
+			}
+		}
+		result.push_back(tmp);
+	}
+	return result;
+}
+
+vector<vector<int>> levelOrder_iii(TreeNode* root)  //面试题32 - III. 从上到下打印二叉树 III
+{
+	if (!root)
+	{
+		return {};
+	}
+	bool flag = true;  //下一层是否是从左向右
+	queue<TreeNode*> q;
+	vector< vector<int> > result;
+	q.push(root);
+	while (!q.empty())
+	{
+		flag = !flag;
+		int i = q.size();
+		vector<int> tmp;
+		stack<TreeNode*> s;  //假设queue这一层从左往右遍历，那么在加入下一层节点左右孩子时，需要下一层从左往右加入s中，然后再插入到q中
+		while (i > 0)
+		{
+			root = q.front();
+			q.pop();
+			--i;
+			tmp.push_back(root->val);
+			if (flag)  //如果下一层是从左往右，那么应该先加入右孩子
+			{ 
+				if (root->right)
+				{
+					s.push(root->right);
+				}
+				if (root->left)
+				{
+					s.push(root->left);
+				}
+			}
+			else  //如果下一层是从右往左，那么应该先加入左孩子
+			{
+				if (root->left)
+				{
+					s.push(root->left);
+				}
+				if (root->right)
+				{
+					s.push(root->right);
+				}
+			}
+		}
+		while (!s.empty())
+		{
+			q.push(s.top());
+			s.pop();
+		}
+		result.push_back(tmp);
+	}
+	return result;
+}
+
+vector<vector<int>> levelOrder_iii(TreeNode* root)  //面试题32 - III. 从上到下打印二叉树 III,剑指offer的解法
+{
+	if (!root)
+	{
+		return {};
+	}
+	bool flag = true;  //下一层是否是从左向右
+	vector< vector<int> > result;
+	vector< stack<TreeNode*> > vs(2); //定义两个栈
+	int cur = 0, next = 1;  //当前栈和下一个栈
+	vs[0].push(root);
+	while (!vs[0].empty() || !vs[1].empty())  //两个栈有一个不为空
+	{
+		flag = !flag;
+		vector<int> tmp;
+		int i = vs[cur].size();
+		while (i > 0)
+		{
+			root = vs[cur].top();
+			vs[cur].pop();
+			--i;
+			tmp.push_back(root->val);
+			if (flag)  //下一层为左到右,表示这一层的遍历顺序是从右到左,那么应该先加入右孩子，这样栈的顺序就是从左到右
+			{
+				if (root->right)
+				{
+					vs[next].push(root->right);
+				}
+				if (root->left)
+				{
+					vs[next].push(root->left);
+				}
+			}
+			else  //下一层先右往左，表示这一层是从左向右遍历，那么先加入左孩子,这样栈的顺序就是从右向左
+			{
+				if (root->left)
+				{
+					vs[next].push(root->left);
+				}
+				if (root->right)
+				{
+					vs[next].push(root->right);
+				}
+			}
+		}
+		cur = 1 - cur;  //下一个循环的cur就是1-cur了
+		next = 1 - next; //下一个循环的next就是1-next了
+		result.push_back(tmp);
+	}
+	return result;
+}
+
+bool verifyPostorder_item(vector<int>& postorder)
+{
+	if (postorder.size() <= 1)
+	{
+		return true;
+	}
+	int rootVal = postorder[postorder.size() - 1];  //后序遍历root值在最后
+	bool flag = true;  //是否是左子树的值
+	vector<int> l, r;  //左右子树的值序列
+	for (int i = 0; i < postorder.size() - 1; ++i)
+	{
+		if (flag)  //小于root值
+		{
+			if (postorder[i] > rootVal)  //flag为true，说明是小于root的值，而此时发现了一个大于root值，说明之后应该是右子树的内容
+			{
+				r.push_back(postorder[i]);
+				flag = false;  //此时往后都是右子树的值，因此flag为false
+			}
+			else
+			{
+				l.push_back(postorder[i]);
+			}
+		}
+		else //此时往后都是右子树的值,按道理说应该是大于root的值
+		{
+			if (postorder[i] < rootVal)  //按理说此时应该都是右子树的值,都应该大于root值，但是此时有个值却小于root的值，那么说明不是二叉搜索树
+			{
+				return false;
+			}
+			else
+			{
+				r.push_back(postorder[i]);
+			}
+		}
+	}
+	return verifyPostorder_item(l) && verifyPostorder_item(r);  //只有当左右子树都满足条件才是二叉搜索树
+}
+bool verifyPostorder(vector<int>& postorder)  //面试题33. 二叉搜索树的后序遍历序列
+{
+	if (postorder.size() <= 1)
+	{
+		return true;
+	}
+	return verifyPostorder_item(postorder);
+}
+
+vector< vector<int> > pathSum_result;
+void pathSum_dfs(int sum, vector<int> tmp, TreeNode* root)
+{
+	if (!root)
+	{
+		return;
+	}
+	tmp.push_back(root->val);  //加入此时的根节点，在路径上
+	if (root->val == sum && !root->left && !root->right)  //如果剩余的sum和当前根节点相同，并且此时的节点为叶子节点，那么加入
+	{
+		pathSum_result.push_back(tmp);
+	}
+	else  
+	{
+		//否则，要不就是非叶子节点，虽然有可能存在root->val = sum，但是下面可能有正负的抵消了，因此需要递归下去
+		//否则，要不就是root->val != sum,那更应该分别取左右子树寻找,为空的子树就不要走了,都为空就更不需要往下走了
+		if (root->left)
+		{
+			pathSum_dfs(sum - root->val, tmp, root->left);
+		}
+		if (root->right)
+		{
+			pathSum_dfs(sum - root->val, tmp, root->right);
+		}
+	}
+}
+vector<vector<int>> pathSum(TreeNode* root, int sum)  //面试题34. 二叉树中和为某一值的路径
+{
+	if (!root)
+	{
+		return {};
+	}
+	pathSum_dfs(sum, {}, root);
+	return pathSum_result;
+}
+
 int main()
 {
 	//面试题03. 数组中重复的数字
@@ -1160,5 +2117,67 @@ int main()
 
 	//面试题17. 打印从1到最大的n位数
 	//printNumbers
+
+	//面试题18. 删除链表的节点
+	//deleteNode
+
+	//18的引申--删除排序链表中的重复元素,删除所有重复的元素，使得每个元素只出现一次
+	//deleteDuplicates
+
+	//18的引申--删除排序链表中的重复元素 II, 只保留原始链表中 没有重复出现的数字
+
+	//面试题19. 正则表达式匹配
+	//isMatch
+
+	//面试题20. 表示数值的字符串
+	//isNumber
+
+	//面试题21. 调整数组顺序使奇数位于偶数前面
+	//exchange
+
+	//面试题22. 链表中倒数第k个节点
+	//getKthFromEnd
+
+	//面试题23. 环形链表的入口
+	//detectCycle
+
+	//面试题24. 反转链表
+	//reverseList
+
+	//面试题25. 合并两个排序的链表
+	//mergeTwoLists
+
+	//面试题26. 树的子结构
+	//isSubStructure
+
+	//面试题27. 二叉树的镜像
+	//mirrorTree
+
+	//面试题28. 对称的二叉树
+	//isSymmetric
+
+	//面试题29. 顺时针打印矩阵
+	//spiralOrder
+
+	//面试题30. 包含min函数的栈
+	//class MinStack
+
+	//面试题31. 栈的压入、弹出序列
+	//validateStackSequences
+
+	//面试题32 - I. 从上到下打印二叉树
+	//levelOrder
+
+	//面试题32 - II. 从上到下打印二叉树 II
+	//levelOrder_ii
+
+	//面试题32 - III. 从上到下打印二叉树 III
+	//levelOrder_iii
+
+	//面试题33. 二叉搜索树的后序遍历序列
+	//verifyPostorder
+
+	//面试题34. 二叉树中和为某一值的路径
+	//pathSum
 	return 0;
 }
