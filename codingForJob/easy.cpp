@@ -5798,6 +5798,59 @@ bool lemonadeChange(vector<int>& bills)  //柠檬水找零
 	return true;
 }
 
+int orangesRotting(vector<vector<int>>& grid) //994. 腐烂的橘子
+{
+	if (grid.size() == 0 || grid.at(0).size() == 0)
+	{
+		return -1;
+	}
+	int direction[4][2] = { {0, 1}, {0, -1}, {1, 0}, {-1, 0} };
+	queue< pair<int, int> > q;
+	for (int i = 0; i < grid.size(); ++i)
+	{
+		for (int j = 0; j < grid.at(i).size(); ++j)
+		{
+			if (grid[i][j] & 2)
+			{
+				q.push(pair<int, int>(i, j));  //所有烂橘子都看成广度优先搜索的同一层
+			}
+		}
+	}
+	int result = -1;
+	pair<int, int> p;
+	while (!q.empty())
+	{
+		int i = q.size();
+		++result;
+		while (i > 0) //遍历当前层的，附近的就加入到第二层
+		{
+			p = q.front();
+			q.pop();
+			--i;
+			for (int j = 0; j < 4; ++j)  //看看四个方向
+			{
+				int x = p.first + direction[j][0], y = p.second + direction[j][1];
+				if (x >= 0 && x < grid.size() && y >= 0 && y < grid.at(0).size() && grid[x][y] == 1)
+				{
+					grid[x][y] = 2;
+					q.push(pair<int, int>(x, y));
+				}
+			}
+		}
+	}
+	for (int i = 0; i < grid.size(); ++i)
+	{
+		for (int j = 0; j < grid.at(i).size(); ++j)
+		{
+			if (grid[i][j] & 1)  //如果还有新鲜的
+			{
+				return -1;
+			}
+		}
+	}
+	return result == -1 ? 0 : result;  //如果全都是空格的话，result过来后还是-1，但是应该返回0
+}
+
 int main()
 {
 	//两数之和
@@ -6383,4 +6436,7 @@ int main()
 
 	//柠檬水找零
 	//lemonadeChange
+
+	//994. 腐烂的橘子
+	//orangesRotting
 }

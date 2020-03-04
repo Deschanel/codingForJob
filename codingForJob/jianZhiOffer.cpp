@@ -8,6 +8,7 @@
 #include <queue>
 #include <set>
 #include <map>
+#include <unordered_map>
 using namespace std;
 
 int findRepeatNumber_1(vector<int>& nums)    ////面试题03. 数组中重复的数字
@@ -2063,6 +2064,611 @@ vector<vector<int>> pathSum(TreeNode* root, int sum)  //面试题34. 二叉树中和为某
 	return pathSum_result;
 }
 
+class Node {
+public:
+	int val;
+	Node* next;
+	Node* random;
+
+	Node(int _val) {
+		val = _val;
+		next = NULL;
+		random = NULL;
+	}
+};
+unordered_map<Node*, Node*> copyRandomList_m;  //存放源节点和复制节点键值对
+Node* copyRandomList(Node* head)  //面试题35. 复杂链表的复制
+{
+	if (!head)
+	{
+		return head;
+	}
+	Node* result = new Node(head->val); 
+	Node* tmp = result;  //用于连接的临时节点
+	Node* head_r = head;  //用于random指针的连接
+	//首先根据next，把链表复制出来
+	copyRandomList_m.insert(pair<Node*, Node*>(head, result));
+	head = head->next;
+	while (head)
+	{
+		Node* t = new Node(head->val);
+		tmp->next = t;
+		copyRandomList_m.insert(pair<Node*, Node*>(head, t)); //插入键值对
+		head = head->next;
+		tmp = tmp->next;
+	}
+	//然后开始赋值random指针
+	tmp = result;
+	while (head_r && tmp) //他俩相同长度，所以写一个其实也可以
+	{
+		if (head_r->random && copyRandomList_m.count(head_r->random))  //如果存在
+		{
+			tmp->random = copyRandomList_m[head_r->random];
+		}
+		else
+		{
+			tmp->random = nullptr;
+		}
+		head_r = head_r->next;
+		tmp = tmp->next;
+	}
+	return result;
+}
+
+Node* copyRandomList(Node* head)  //面试题35. 复杂链表的复制,剑指offer做法，空间为O(1)，时间为O(n),我哭了，程序完成后源链表要恢复原样
+{
+	if (!head)
+	{
+		return head;
+	}
+	//复制的节点连接在被复制节点的后面
+	Node* tmp = head;
+	while (tmp)
+	{
+		Node* t = new Node(tmp->val);
+		t->next = tmp->next;
+		tmp->next = t;  //将复制的节点放到被复制节点的后面
+		tmp = tmp->next->next;
+	}
+	//上面就做完了1-1'-2-2'-3-3'这样的
+	//接下来进项random的指定,比如1的random指向3，那么只需要让1'的random指向3'
+	tmp = head;
+	while (tmp)
+	{
+		if (!tmp->random)  //如果源链表中的random为空，那么复制节点的random也得空
+		{
+			tmp->next->random = nullptr;
+		}
+		else  //否则的话，复制节点的random就是源节点random的自身拷贝，也就是源节点random的下一个
+		{
+			tmp->next->random = tmp->random->next;
+		}
+		tmp = tmp->next->next;  //指向下一个源链表的节点
+	}
+	//将复制的节点抽出来,源链表要恢复原样
+	Node* result = head->next;
+	Node* t = result;
+	tmp = head;
+	while (t->next)
+	{
+		tmp->next = t->next;
+		tmp = tmp->next;
+		t->next = tmp->next;
+		t = t->next;
+	}
+	tmp->next = nullptr;
+	return result;
+}
+
+class Node {
+public:
+	int val;
+	Node* left;
+	Node* right;
+
+	Node() {}
+
+	Node(int _val) {
+		val = _val;
+		left = NULL;
+		right = NULL;
+	}
+
+	Node(int _val, Node* _left, Node* _right) {
+		val = _val;
+		left = _left;
+		right = _right;
+	}
+};
+Node* treeToDoublyList_item(Node* root) //让其内部是双向链表，但是首和尾不能连起来
+{
+	if (!root)
+	{
+		return nullptr;
+	}
+	if (!root->left && !root->right)
+	{
+		return root;
+	}
+	Node* l = treeToDoublyList_item(root->left);  //左子树成为双向链表，但是没有首尾相连,中序遍历先遍历左边的
+	Node* head = l;
+	if (!l)  //左子树为空
+	{
+		head = root;
+	}
+	else
+	{
+		//找到左子树中最靠右的节点
+		while (l->right)
+		{
+			l = l->right;
+		}
+		//最后一个左子树的节点的后继为root，root的前驱为最后一个左子树中序遍历的节点
+		//l为最靠左的节点，因此其左节点为nullptr
+		l->right = root;
+		root->left = l;
+	}
+	Node* r = treeToDoublyList_item(root->right);  //右子树成为双向链表，但是没有首尾相连，弄完root和左边的，中序遍历再来右边的
+	if(r)  //不能让其首尾相连，因此r为nullptr时候不管了，此时root就是最后一个
+	{
+		//右子树第一个为root的后继，root的后继为右子树中序遍历第一个
+		root->right = r;
+		r->left = root;  //r为最靠右的节点，因此其右节点为nullptr，所以主函数中一直往右找循环，不会变成死循环
+	}
+	return head;
+}
+Node* treeToDoublyList(Node* root)  //面试题36. 二叉搜索树与双向链表
+{
+	if (!root)
+	{
+		return nullptr;
+	}
+	if (!root->left && !root->right)
+	{
+		root->left = root;
+		root->right = root;
+		return root;
+	}
+	Node* result = treeToDoublyList_item(root); //此时成为一个链表，但是首尾还没连接起来
+	Node* tmp = result;
+	while (tmp->right)
+	{
+		tmp = tmp->right;
+	}
+	tmp->right = result;
+	result->left = tmp;
+	return result;
+}
+
+void treeToDoublyList_inorder(Node* root, stack<Node*> &s)
+{
+	while (root)
+	{
+		s.push(root);
+		root = root->left;
+	}
+}
+Node* treeToDoublyList(Node* root)  //面试题36. 二叉搜索树与双向链表--迭代中序遍历
+{
+	if (!root)
+	{
+		return nullptr;
+	}
+	if (!root->left && !root->right)
+	{
+		root->left = root;
+		root->right = root;
+		return root;
+	}
+	stack<Node*> s;
+	Node* result = new Node(1);  //哨兵节点
+	Node* tmp = result;
+	while (true)
+	{
+		treeToDoublyList_inorder(root, s);
+		if (s.empty())
+		{
+			break;
+		}
+		root = s.top();
+		s.pop();
+		tmp->right = root;
+		root->left = tmp;
+		tmp = tmp->right;
+		//中序遍历迭代的到右子树
+		root = root->right;
+	}
+	//break后，tmp为最后一个元素
+	result = result->right;  //跳过哨兵
+	result->left = tmp;
+	tmp->right = result;
+	return result;
+}
+
+class Codec {  //面试题37. 序列化二叉树
+public:
+
+	// Encodes a tree to a single string.
+	string serialize(TreeNode* root) {  //层次遍历序列化--迭代
+		if (!root)
+		{
+			return "[]";
+		}
+		string s;
+		queue<TreeNode*> q;
+		q.push(root);
+		while (!q.empty())
+		{
+			root = q.front();
+			q.pop();
+			if (!root)  //root为空
+			{
+				s += "null,";
+				continue;
+			}
+			//不为空的话
+			s += std::to_string(root->val);
+			s += ",";
+			//加入下一级
+			q.push(root->left);
+			q.push(root->right);
+		}
+		//消除掉最后的null和逗号
+		while (s[s.size() - 1] < '0' || s[s.size() - 1] > '9')
+		{
+			s.pop_back();
+		}
+		s = "[" + s + "]";
+		return s;
+	}
+
+	// Decodes your encoded data to tree.
+	TreeNode* deserialize(string data) {
+		if (data.size() == 0)
+		{
+			return nullptr;
+		}
+		while (data.size() > 0 && (data[data.size() - 1] < '0' || data[data.size() - 1] > '9')) //最后不是数字
+		{
+			data.pop_back();
+		}
+		if (data.size() == 0)  //如果空了
+		{
+			return nullptr;
+		}
+		//消除前面的非数字类字符，负号是算数字字符的
+		int i = 0;
+		while (i < data.size())
+		{
+			if ((data[i] >= '0' && data[i] <= '9') || data[i] == '-' || data[i] == '+')
+			{
+				break;
+			}
+			++i;
+		}
+		data = data.substr(i);
+		i = 0;
+		queue<TreeNode*> q_t; //存储所有的指针
+		while (i < data.size())
+		{
+			string tmp;
+			while (i < data.size() && data[i] != ',')
+			{
+				tmp += data[i];
+				++i;
+			}
+			if (tmp == "null")
+			{
+				q_t.push(nullptr);
+			}
+			else if (tmp.size() > 0)
+			{
+				TreeNode* A = new TreeNode(std::stoi(tmp));
+				q_t.push(A);
+			}
+			++i;
+		}
+		if (q_t.empty())
+		{
+			return nullptr;
+		}
+		TreeNode* root = q_t.front();
+		TreeNode* tmp = root;
+		q_t.pop();
+		queue<TreeNode*> q;  //用于存放已完成的节点
+		q.push(root);
+		while (!q.empty())
+		{
+			tmp = q.front();
+			q.pop();
+			if (!q_t.empty())
+			{
+				tmp->left = q_t.front();
+				q_t.pop();
+				if (tmp->left)
+				{
+					q.push(tmp->left);
+				}
+			}
+			else
+			{
+				break;
+			}
+			if (!q_t.empty())
+			{
+				tmp->right = q_t.front();
+				q_t.pop();
+				if (tmp->right)
+				{
+					q.push(tmp->right);
+				}
+			}
+			else
+			{
+				break;
+			}
+		}
+		return root;
+	}
+};
+
+void permutation_dfs(string &s, unordered_set<int> &us, unordered_set<string> &st, string &tmp)  //引用更快，快好多
+{
+	if (tmp.size() == s.size())
+	{
+		if (!st.count(tmp))
+		{
+			st.insert(tmp);
+		}
+		return;
+	}
+	else if (tmp.size() > s.size())
+	{
+		return;
+	}
+	for (int i = 0; i < s.size(); ++i)
+	{
+		unordered_set<int>::iterator ifind = us.find(i);
+		if (ifind == us.end())  //说明当前下标的元素没用
+		{
+			tmp.push_back(s[i]);
+			us.insert(i);
+			permutation_dfs(s, us, st, tmp);
+			us.erase(i);
+			tmp.pop_back();  //tmp也要把当前字符去掉
+		}
+	}
+}
+vector<string> permutation(string s)  //面试题38. 字符串的排列
+{
+	if (s.size() == 0)
+	{
+		return {};
+	}
+	if (s.size() == 1)
+	{
+		return { s };
+	}
+	unordered_set<string> st; //临时存放结果
+	unordered_set<int> us;  //存放下标值是否用过了
+	string tmp;  //用于引用
+	permutation_dfs(s, us, st, tmp);
+	vector<string> result;
+	unordered_set<string>::iterator i = st.begin();
+	for (; i != st.end(); i++)
+	{
+		result.push_back(*i);
+	}
+	return result;
+}
+
+int majorityElement(vector<int>& nums)  //面试题39. 数组中出现次数超过一半的数字
+{
+	//时间复杂度为O(n), 空间O(n)
+	if (nums.size() == 0)
+	{
+		return -1;
+	}
+	int n = nums.size();
+	unordered_map<int, int> um;
+	for (int i : nums)
+	{
+		um[i]++;
+		if (um[i] >= n / 2 + 1)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+int majorityElement(vector<int>& nums)  //面试题39. 数组中出现次数超过一半的数字
+{
+	//时间复杂度为O(n), 空间O(1)
+	//貌似是什么投票算法
+	if (nums.size() == 0)
+	{
+		return -1;
+	}
+	int candidate = nums[0];  //候选人
+	int count = 1;  //候选人的次数
+	for (int i=1; i<nums.size(); ++i)
+	{
+		if (count == 0)
+		{
+			candidate = nums[i];
+			count = 1;
+		}
+		else
+		{
+			if (nums[i] == candidate)
+			{
+				++count;
+			}
+			else
+			{
+				--count;
+			}
+		}
+	}
+	return count > 0 ? candidate : -1;
+}
+
+vector<int> getLeastNumbers(vector<int>& arr, int k)  //面试题40. 最小的k个数
+{
+	if (arr.size() == 0 || k == 0 || k > arr.size())
+	{
+		return {};
+	}
+	multiset<int> ms;
+	multiset<int>::iterator toDel;
+	for (int i : arr)
+	{
+		if (ms.size() < k)
+		{
+			ms.insert(i);
+		}
+		else
+		{
+			if (i < *(ms.rbegin()))
+			{
+				toDel = ms.end();
+				--toDel;
+				ms.erase(toDel);
+				ms.insert(i);
+			}
+		}
+	}
+	vector<int> result;
+	result.assign(ms.begin(), ms.end());
+	return result;
+}
+
+class MedianFinder {  //面试题41. 数据流中的中位数
+public:
+	/** initialize your data structure here. */
+	vector<int> minHeap, maxHeap; //最小堆和最大堆，满足最小堆里面的数大于等于最大堆里面的数
+	MedianFinder() {
+
+	}
+
+	void addNum(int num) {
+		if (((minHeap.size() + maxHeap.size()) & 1) == 0)  //如果平均分配了,优先往大顶堆放
+		{
+			//优先往大顶堆放要注意了，如果这个数比最小堆的堆顶元素(就是最小堆的最小值)大的话，
+			//那么应该将这个数放到最小堆里，并且将最小堆的最小数放到最大堆里
+			if (minHeap.size() > 0 && num > minHeap[0])  //这个数比最小堆的堆顶元素(就是最小堆的最小值)大
+			{
+				minHeap.push_back(num);  //放进最小堆
+				push_heap(minHeap.begin(), minHeap.end(), greater<int>());  //重新调整堆结构,greater是最小堆的
+				num = minHeap[0];  //令num等于最小值
+				//pop_heap()不是真的把最大（最小）的元素从堆中弹出来。而是重新排序堆。
+				//它把first和last交换，然后将[first, last - 1)的数据再做成一个堆
+				pop_heap(minHeap.begin(), minHeap.end(), greater<int>());
+				minHeap.pop_back();  //将last处的删掉
+			}
+			maxHeap.push_back(num);
+			push_heap(maxHeap.begin(), maxHeap.end(), less<int>());
+		}
+		else  //否则往最小堆放
+		{
+			//这里也要注意，往最小堆放的时候，如果这个值小于最大堆的最大值时，应该放入最大堆中，然后将最大堆的最大值放到最小堆
+			if (maxHeap.size() > 0 && num < maxHeap[0])  //这个值小于最大堆的最大值
+			{
+				maxHeap.push_back(num);
+				push_heap(maxHeap.begin(), maxHeap.end(), less<int>());
+				num = maxHeap[0];
+				pop_heap(maxHeap.begin(), maxHeap.end(), less<int>());
+				maxHeap.pop_back();
+			}
+			minHeap.push_back(num);
+			push_heap(minHeap.begin(), minHeap.end(), greater<int>());
+		}
+	}
+
+	double findMedian() {
+		if (minHeap.size() == 0 && maxHeap.size() == 0)
+		{
+			return 0.0;
+		}
+		else if (minHeap.size() == 0)
+		{
+			return maxHeap[0] * 1.0;
+		}
+		else if (maxHeap.size() == 0)
+		{
+			return minHeap[0] * 1.0;
+		}
+		else
+		{
+			if (((minHeap.size() + maxHeap.size()) & 1) == 0)  //如果是偶数个，那么就是两个堆顶相加除以2
+			{
+				return (minHeap[0] + maxHeap[0]) * 1.0 / 2.0;
+			}
+			else  //奇数个
+			{
+				//因为优先往大顶堆放，因此要去大顶堆寻找
+				return maxHeap[0];
+			}
+		}
+	}
+};
+
+int maxSubArray(vector<int>& nums)  //面试题42. 连续子数组的最大和
+{
+	if (nums.size() == 0)
+	{
+		return 0;
+	}
+	if (nums.size() == 1)
+	{
+		return nums[0];
+	}
+	int result = nums[0];
+	int sum = 0;
+	for (int i : nums)
+	{
+		if (i > 0)  //说明对sum有增益作用
+		{
+			sum += i;
+		}
+		else  //无增益作用，加上还小于原来的,所以重新开始
+		{
+			sum = i;
+		}
+		result = max(result, sum);
+	}
+	return result;
+}
+
+int maxSubArray(vector<int>& nums)  //面试题42. 连续子数组的最大和--动态规划
+{
+	if (nums.size() == 0)
+	{
+		return 0;
+	}
+	if (nums.size() == 1)
+	{
+		return nums[0];
+	}
+	vector<int> dp(nums.size(), 0);  //下标第i个数字为结尾的子数组的最大值
+	dp[0] = nums[0];
+	int result = nums[0];
+	for (int i=1; i<nums.size(); ++i)
+	{
+		if (dp[i - 1] < 0)  //包含第i-1个的字符小于0，那么就舍弃
+		{
+			dp[i] = nums[i];
+		}
+		else
+		{
+			dp[i] = dp[i - 1] + nums[i];
+		}
+		result = max(result, dp[i]);
+	}
+	return result;
+}
+
 int main()
 {
 	//面试题03. 数组中重复的数字
@@ -2179,5 +2785,29 @@ int main()
 
 	//面试题34. 二叉树中和为某一值的路径
 	//pathSum
+
+	//面试题35. 复杂链表的复制
+	//copyRandomList
+
+	//面试题36. 二叉搜索树与双向链表
+	//treeToDoublyList
+
+	//面试题37. 序列化二叉树
+	//class Codec
+
+	//面试题38. 字符串的排列
+	//permutation
+
+	//面试题39. 数组中出现次数超过一半的数字
+	//majorityElement
+
+	//面试题40. 最小的k个数
+	//getLeastNumbers
+
+	//面试题41. 数据流中的中位数
+	//class MedianFinder
+
+	//面试题42. 连续子数组的最大和
+	//maxSubArray
 	return 0;
 }
