@@ -2669,6 +2669,356 @@ int maxSubArray(vector<int>& nums)  //面试题42. 连续子数组的最大和--动态规划
 	return result;
 }
 
+int countDigitOne_item(string s)
+{
+	//这个也可以这样理解，21345分为1-20000,200001-21345
+	//对于200001-21345中的数所有的1其实根1-1345一样，因此这边可以递归求解
+	//对于1-20000来说，也即是00001-20000
+	//对于最高位万位出现1的次数，有10000-19999共10000个，
+	//而万位的数字只能是0或1
+	//因此千位的1出现次数位01xxx和11xxx，各有10^3个
+	//百位则是0x1xx和1x1xx，各有10^3个
+	//十位则是0xx1x和1xx1x，各有10^3个
+	//各位则是0xxx1和1xxx1，各有10^3个
+	//所以就相当于(0或1)xxxx,把1放到其中一个x上，剩下的x是0-9的全排列，而且有0和1两种，因此就是2 * 4 * 10^3
+	//所以就是除最高位外，某一位置1，然后其他非最高位全排列，共有最高位的数字个
+	if (s.size() == 0)
+	{
+		return 0;
+	}
+	else if (stoi(s) == 0)
+	{
+		return 0;
+	}
+	else if (stoi(s) < 10)
+	{
+		return 1;
+	}
+	int sum = 0;
+	//比如21345，分为1-1345, 1346-21345
+	//下面是1346-21345
+	//先统计在1在最高位的次数，共有10000-19999个数，
+	if (s[0] == '1')
+	{
+		sum += (stoi(s) - pow(10, s.size() - 1) + 1);
+	}
+	else if (s[0] > '1' && s[0] <= '9')
+	{
+		sum += pow(10, s.size() - 1);
+	}
+	//然后剩下位中的个数，分成两段，分别是1346-11345, 11346-21345
+	sum = sum + (s[0] - '0') * (s.size() - 1) * pow(10, s.size() - 2);  //然后统计
+	//下面是1-1345
+	sum += countDigitOne_item(s.substr(1)); //再统计
+	return sum;
+}
+int countDigitOne(int n)  //面试题43. 1～n整数中1出现的次数,这里要明确11中1出现了两次，不是算1个
+{
+	if (n <= 0)
+	{
+		return 0;
+	}
+	if (n < 10)
+	{
+		return 1;
+	}
+	return countDigitOne_item(std::to_string(n));
+}
+
+int findNthDigit_item(int n)  //几位数占多少位置，比如2位数共有90个，一个占2个位置，90就占180个位置
+{
+	if (n == 0)
+	{
+		return 0;
+	}
+	else if(n == 1)
+	{
+		return 10;
+	}
+	//n位数
+	int result = n * pow(10, n - 1);
+	return result > INT_MAX / 9 ? INT_MAX : result * 9;
+}
+int findNthDigit(int n)  //面试题44. 数字序列中某一位的数字
+{
+	if (n < 0)
+	{
+		return -1;
+	}
+	if (n <= 9)
+	{
+		return n;
+	}
+	int pre = n;
+	int i = 0;
+	while (n > 0)
+	{
+		pre = n;
+		++i;
+		n -= findNthDigit_item(i);
+	}
+	//循环退出后，表明所要求的数在i位数中,此时pre表示从第i位数的第一个字开始往后几个
+	int tmp = pre / i;  //表明从第一个i位数开始，跳过前面几个i位数
+	int mod = pre % i;  //表明跳过前面的i位数之后，要求的数在其所在的i位数中的第几位
+	//i位数第一个数是10000(i-1个0),从这个往后数第tmp个i位数,因为是+1递增的，所以直接加上tmp即可
+	int begin = pow(10, i - 1);
+	begin += tmp;
+	string s = std::to_string(begin);
+	return s[mod] - '0';
+}
+
+static bool minNumber_compare(string &s1, string &s2)  //这里要自定义规则升序,比如参数分别是a和b，要想得到升序排列，那么a < b，那么就要返回true
+{
+	//这里s1和s2在数组中的顺序是s1在前，s2在后,如果返回true，说明维持当前位置，否则就互换
+	if (s1.size() == 0 || s2.size() == 0)
+	{
+		return false;
+	}
+	string tmp1 = s1 + s2;  //s2放到s1后面
+	string tmp2 = s2 + s1;  //s1放到s2后面
+	//比较tmp1和tmp2的大小,可知两者必定是相同长度
+	for (int i=0; i<tmp1.size(); ++i)
+	{
+		if (tmp1[i] > tmp2[i])  //说明应该是s2 + s1的组合，说明在原数组中，s2应该在s1前面，所以应该是返回false，这样就把s2和s1位置互换
+		{
+			return false;
+		}
+		else if(tmp1[i] < tmp2[i])
+		{
+			return true;
+		}
+	}
+	return true;  //tmp1与tmp2相同的话，就把原先在前面的依然放到前面
+}
+string minNumber(vector<int>& nums)  //面试题45. 把数组排成最小的数
+{
+	//本质上是定义一种排序规则
+	if (nums.size() == 0)
+	{
+		return "";
+	}
+	if (nums.size() == 1)
+	{
+		return std::to_string(nums[0]);
+	}
+	vector<string> v;
+	for (int i : nums)
+	{
+		v.push_back(std::to_string(i));
+	}
+	sort(v.begin(), v.end(), minNumber_compare);
+	string result;
+	for (string s : v)
+	{
+		result.append(s);
+	}
+	return result;
+}
+
+int translateNum_result = 0;
+void translateNum_item(string s, int index)
+{
+	if (index >= s.size())
+	{
+		++translateNum_result;
+		return;
+	}
+	//从index开始一个数字或者两个数字
+	//一个字符
+	int x = s[index] - '0';
+	translateNum_item(s, index + 1);
+	//两个字符
+	if (index < s.size() - 1)  //还能够两个数字
+	{
+		if (s[index] == '0')  //可能会出现06这种，这样的应该分开0和6，而上面的单字符递归已经这样做了
+		{
+			return;
+		}
+		string tmp = s.substr(index, 2);
+		x = stoi(tmp);
+		if (x <= 25)  //小于25表示有映射的字母
+		{
+			translateNum_item(s, index + 2);
+		}
+	}
+}
+int translateNum(int num) //面试题46. 把数字翻译成字符串
+{
+	if (num < 0)
+	{
+		return 0;
+	}
+	if (num < 10)
+	{
+		return 1;
+	}
+	translateNum_item(std::to_string(num), 0);
+	return translateNum_result;
+}
+
+int maxValue(vector<vector<int>>& grid)
+{
+	if (grid.size() == 0 || grid.at(0).size() == 0)
+	{
+		return 0;
+	}
+	vector< vector<int> > dp(grid.size(), vector<int>(grid.at(0).size(), 0)); //到(i,j)的最大值,因为只能向下和向右，所以(i,j)时候的最大值，只能是dp[i-1][j]和dp[i][j-1]的最大值，加上当前位置的价值
+	dp[0][0] = grid[0][0];
+	for (int i = 1; i < grid.size(); ++i)  //第一列初始化
+	{
+		dp[i][0] = dp[i - 1][0] + grid[i][0];
+	}
+	for (int i=1; i<grid.at(0).size(); ++i)  //第一行初始化
+	{
+		dp[0][i] = dp[0][i - 1] + grid[0][i];
+	}
+	for (int i = 1; i < grid.size(); ++i)
+	{
+		for (int j = 1; j < grid.at(i).size(); ++j)
+		{
+			dp[i][j] = max(dp[i][j - 1], dp[i - 1][j]) + grid[i][j];
+		}
+	}
+	return dp[grid.size() - 1][grid.at(0).size() - 1];
+}
+
+int lengthOfLongestSubstring(string s)  //面试题48.最长不含重复字符的子字符串
+{
+	if (s.size() <= 1)
+	{
+		return s.size();
+	}
+	int result = 0;
+	unordered_map<char, int> um;  //记录字符最后出现的位置
+	for (int i = 0, j = 0; i < s.size(); ++i)  //j是无重复字符的字符串开始位置
+	{
+		if (um.count(s[i]))  //发现重复字符串
+		{
+			//那么应该让开始位置置为重复字符串最后出现位置+1和当前值的最大值
+			//这里要注意的是，如果um[s[i]] + 1 < j的话，不应该回到um[s[i]] + 1, 
+			//因为um[s[i]] + 1到j之间有重复的,否则j也不会是当前的位置，应该在靠前的位置,
+			//因为j就是截至到下标i的字符，最大无重复字串的开头，如果um[s[i]] + 1到j当前位置没有重复的话，j应该就是在um[s[i]] + 1处
+			//既然这个最大无重复字串开头不是um[s[i]] + 1，说明是有重复的
+			j = max(um[s[i]] + 1, j);
+		}
+		um[s[i]] = i;  //更新或者插入
+		result = max(result, i - j + 1);
+	}
+	return result;
+}
+
+int lengthOfLongestSubstring(string s)  //面试题48.最长不含重复字符的子字符串
+{
+	if (s.size() <= 1)
+	{
+		return s.size();
+	}
+	int result = 0;
+	unordered_map<char, int> um;  //记录字符最后出现的位置
+	vector<int> dp;  //记录包含下标i字符的最大不重复子串
+	dp[0] = 1;
+	for (int i = 1; i < s.size(); ++i)
+	{
+		if (um.count(s[i]))
+		{
+			int d = i - um[s[i]];  //这两个重复字符的距离
+			if (d > dp[i - 1]) 
+			{
+				//大于dp[i-1],说明，这两个重复子串之间还是有其他重复字符,那么就不能是两者之间的长度了
+				//并且由于um记录的是此重复字符串在此之前最后出现的位置，说明之间dp[i-1]表示的子串中没有这个字符了
+				dp[i] = dp[i - 1] + 1;
+			}
+			else
+			{
+				dp[i] = d;
+			}
+		}
+		else
+		{
+			dp[i] = dp[i - 1] + 1;  //此时这个字符没出现过，直接接到后面
+		}
+		um[s[i]] = i;  //更新或插入
+		result = max(result, dp[i]);
+	}
+	return result;
+}
+
+int nthUglyNumber(int n)  //面试题49. 丑数
+{
+	if (n <= 0 || n > 1690)
+	{
+		return -1;
+	}
+	if (n == 1)
+	{
+		return 1;
+	}
+	vector<int> dp(n + 1); //存放第n个丑数
+	dp[0] = 0;
+	dp[1] = 1;
+	dp[2] = 2;
+	for (int i = 3; i <= n; ++i)
+	{
+		dp[i] = INT_MAX;
+		//对于第i个丑数，是从第一个到i-1个丑数，三次分别乘2 3 5后，大于dp[i-1]的最小数
+		int x = 0, y = 0, z = 0;
+		//先乘以2
+		for (int j = 1; j < i; ++j)
+		{
+			x = dp[j] << 1;
+			if (x > dp[i - 1])
+			{
+				break;;
+			}
+		}
+		dp[i] = min(dp[i], x);
+		//乘以3
+		for (int j = 1; j < i; ++j)
+		{
+			y = dp[j] * 3;
+			if (y > dp[i - 1])
+			{
+				break;;
+			}
+		}
+		dp[i] = min(dp[i], y);
+		//乘以5
+		for (int j = 1; j < i; ++j)
+		{
+			z = dp[j] * 5;
+			if (z > dp[i - 1])
+			{
+				break;;
+			}
+		}
+		dp[i] = min(dp[i], z);
+	}
+	return dp[n];
+}
+
+char firstUniqChar(string s)  //面试题50. 第一个只出现一次的字符
+{
+	if (s.size() == 0)
+	{
+		return ' ';
+	}
+	unordered_map<char, int> um;  //int位出现的次数
+	for (char c : s)
+	{
+		um[c]++;
+	}
+	unordered_map<char, int>::iterator ifind;
+	for (char c : s)
+	{
+		ifind = um.find(c);
+		if (ifind != um.end() && ifind->second == 1)
+		{
+			return c;
+		}
+	}
+	return ' ';
+}
+
 int main()
 {
 	//面试题03. 数组中重复的数字
@@ -2809,5 +3159,29 @@ int main()
 
 	//面试题42. 连续子数组的最大和
 	//maxSubArray
+
+	//面试题43. 1～n整数中1出现的次数
+	//countDigitOne
+
+	//面试题44. 数字序列中某一位的数字
+	//findNthDigit
+
+	//面试题45. 把数组排成最小的数
+	//minNumber
+
+	//面试题46. 把数字翻译成字符串
+	//translateNum
+
+	//面试题47. 礼物的最大价值
+	//maxValue
+
+	//面试题48. 最长不含重复字符的子字符串
+	//lengthOfLongestSubstring
+
+	//面试题49. 丑数
+	//nthUglyNumber
+
+	//面试题50. 第一个只出现一次的字符
+	//firstUniqChar
 	return 0;
 }
