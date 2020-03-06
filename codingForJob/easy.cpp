@@ -5851,6 +5851,39 @@ int orangesRotting(vector<vector<int>>& grid) //994. 腐烂的橘子
 	return result == -1 ? 0 : result;  //如果全都是空格的话，result过来后还是-1，但是应该返回0
 }
 
+vector<vector<int>> findContinuousSequence(int target)  //面试题57 - II. 和为s的连续正数序列
+{
+	if (target <= 0)
+	{
+		return {};
+	}
+	int l = 1, r = 2; //表示区间的左右端点
+	vector< vector<int> > result;
+	while (l < r)
+	{
+		int sum = (l + r) * (r - l + 1) / 2;
+		if (sum == target)  //如果相等就加进去
+		{
+			vector<int> tmp;
+			for (int i=l; i <= r; ++i)
+			{
+				tmp.push_back(i);
+			}
+			result.push_back(tmp);
+			++l;
+		}
+		else if (sum < target) //小于的话，增加后一个数
+		{
+			++r;
+		}
+		else  //大于的话，l增加，去掉最前面的数
+		{
+			++l;
+		}
+	}
+	return result;
+}
+
 int main()
 {
 	//两数之和
@@ -6439,4 +6472,7 @@ int main()
 
 	//994. 腐烂的橘子
 	//orangesRotting
+
+	//面试题57 - II. 和为s的连续正数序列
+	//findContinuousSequence	
 }

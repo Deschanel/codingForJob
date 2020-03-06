@@ -9,6 +9,7 @@
 #include <set>
 #include <map>
 #include <unordered_map>
+#include <bitset>
 using namespace std;
 
 int findRepeatNumber_1(vector<int>& nums)    ////面试题03. 数组中重复的数字
@@ -3019,6 +3020,551 @@ char firstUniqChar(string s)  //面试题50. 第一个只出现一次的字符
 	return ' ';
 }
 
+int reversePairs_result = 0;
+void reversePairs_mergeSort(vector<int>& nums)
+{
+	if (nums.size() <= 1)
+	{
+		return;
+	}
+	int n = nums.size();
+	vector<int> l, r;
+	l.assign(nums.begin(), nums.begin() + n / 2);
+	r.assign(nums.begin() + n / 2, nums.end());
+	reversePairs_mergeSort(l);
+	reversePairs_mergeSort(r);
+	//合并并看看有多少个
+	int i = l.size() - 1, j = r.size() - 1;
+	int index = nums.size() - 1;
+	while (i >= 0 || j >= 0)
+	{
+		if (i < 0)  //左边没了，那么逆序对也没了
+		{
+			nums[index] = r[j];
+			--j;
+		}
+		else if (j < 0)  //右边没了，逆序对也没了
+		{
+			nums[index] = l[i];
+			--i;
+		}
+		else
+		{
+			if (l[i] > r[j])
+			{
+				nums[index] = l[i];
+				reversePairs_result += (j + 1);  //对于当前的l[i]，r[j](包括自身之前)都是小于l[i]的，因此都要加上
+				--i;
+			}
+			else
+			{
+				nums[index] = r[j];
+				--j;
+			}
+		}
+		--index;
+	}
+}
+int reversePairs(vector<int>& nums)  //面试题51. 数组中的逆序对
+{
+	if (nums.size() <= 1)
+	{
+		return 0;
+	}
+	reversePairs_mergeSort(nums);
+	return reversePairs_result;
+}
+
+ListNode *getIntersectionNode(ListNode *headA, ListNode *headB)  //面试题52. 两个链表的第一个公共节点
+{
+	if (!headA || !headB)
+	{
+		return nullptr;
+	}
+	ListNode* p1 = headA;
+	ListNode* p2 = headB;
+	int i = 0, j = 0;
+	while (p1 || p2)
+	{
+		if (p1)
+		{
+			++i;
+			p1 = p1->next;
+		}
+		if (p2)
+		{
+			++j;
+			p2 = p2->next;
+		}
+	}
+	while (j > i || i > j)
+	{
+		if (j > i)
+		{
+			headB = headB->next;
+			--j;
+		}
+		else
+		{
+			headA = headA->next;
+			--i;
+		}
+	}
+	//此时他俩可以往后一起进行
+	while (headA && headB && headA != headB)
+	{
+		headA = headA->next;
+		headB = headB->next;
+	}
+	if (!headA || !headB)  //如果为空了，说明没有
+	{
+		return nullptr;
+	}
+	return headA;
+}
+
+int search(vector<int>& nums, int target)  //面试题53 - I. 在排序数组中查找数字 I
+{
+	if (nums.size() == 0)
+	{
+		return 0;
+	}
+	int l = 0, r = nums.size() - 1;  //左右边界
+	while (l <= r)
+	{
+		int mid = (r - l) / 2 + l;
+		if (nums[mid] == target)  //如果中间的等于
+		{
+			if (nums[l] < target)  //如果左边的小于，那么就左边界向后
+			{
+				++l;
+			}
+			else if (nums[l] > target) //大于的话就是没有
+			{
+				return 0;
+			}
+			else  //如果左边界等于的话
+			{
+				if (nums[r] == target)  //右边界也等于，就退出，找到了左右边界
+				{ 
+					break;
+				}
+				else  //否则话只能是大于target，那么就向左走一个
+				{
+					--r;
+				}
+			}
+		}
+		else if (nums[mid] < target)  //如果中间的小于target
+		{
+			l = mid + 1;
+		}
+		else  //如果中间的大于
+		{
+			r = mid - 1;
+		}
+	}
+	return r - l + 1;  //还要包括左右边界，需要加1
+}
+
+int missingNumber(vector<int>& nums)  //面试题53 - II. 0～n-1中缺失的数字
+{
+	if (nums.size() == 0)
+	{
+		return 0;
+	}
+	int n = nums.size();
+	n = (n + 1) * n / 2;
+	for (int i : nums)
+	{
+		n -= i;
+	}
+	return n;
+}
+
+int missingNumber(vector<int>& nums)  //面试题53 - II. 0～n-1中缺失的数字
+{
+	if (nums.size() == 0)
+	{
+		return 0;
+	}
+	//二分法
+	int l = 0, r = nums.size() - 1;
+	while (l <= r)
+	{
+		int mid = (r - l) / 2 + l;
+		if (nums[mid] == mid)
+		{
+			//因为是排序好的，如果mid和下标一样，说明前面都是一一对应的，否则如果一个缺失，后面的都会错位
+			l = mid + 1;
+		}
+		//nums[mid] < mid，如果前面缺失，那么后面的整体前移，不会出现这种情况，后面缺失也不会这种情况，所以这种不会
+		else  //只能是nums[mid] > mid, 就说明mid及其后面都是错位移动过来的，所以缺失的应该在前面
+		{
+			r = mid - 1;
+		}
+	}
+	return l;
+}
+
+int missingNumber(vector<int>& nums)  //面试题53 - II. 0～n-1中缺失的数字
+{
+	if (nums.size() == 0)
+	{
+		return 0;
+	}
+	//二分法
+	int l = 0, r = nums.size() - 1;
+	while (l <= r)
+	{
+		int mid = (r - l) / 2 + l;
+		if (nums[mid] == mid)
+		{
+			//因为是排序好的，如果mid和下标一样，说明前面都是一一对应的，否则如果一个缺失，后面的都会错位
+			l = mid + 1;
+		}
+		//nums[mid] < mid，如果前面缺失，那么后面的整体前移，不会出现这种情况，后面缺失也不会这种情况，所以这种不会
+		else  //只能是nums[mid] > mid
+		{
+			if (mid == 0 || nums[mid - 1] == mid - 1)  //如果mid为0，或者前一个元素与其下标相等，那么mid就是缺失的那个
+			{
+				return mid;
+			}
+			else  //否则的话，乱序的在前面
+			{
+				r = mid - 1;
+			}
+		}
+	}
+	if (l == nums.size())  //如果l与nums的长度相同，说明缺失的是最后一个元素
+	{
+		return nums.size();
+	}
+	return -1;
+}
+
+int getNumberSameAsIndex(vector<int>& nums)  //数组中下标和数值相等的元素
+{
+	//排好序的数组，里面的数字都是唯一的，找到任意一个下标与值相等的元素
+	if (nums.size() == 0)
+	{
+		return 0;
+	}
+	int l = 0, r = nums.size() - 1;
+	while (l <= r)
+	{
+		int mid = (r - l) / 2 + l;
+		if (nums[mid] == mid)
+		{
+			return mid;
+		}
+		else if(nums[mid] < mid)
+		{
+			//如果值小于下标，因为值都是唯一的，向左看的话，下标减小，值也减小，所以左边没有相等的
+			l = mid + 1;
+		}
+		else
+		{
+			//如果值大于下标，因为值都是唯一的，向右看的话，下标增大，值也增大，所以右边没有相等的
+			r = mid - 1;
+		}
+	}
+	return -1;
+}
+
+void kthLargestGoAlongRight(TreeNode* root, stack<TreeNode*> &s)
+{
+	while (root)
+	{
+		s.push(root);
+		root = root->right;
+	}
+}
+int kthLargest(TreeNode* root, int k)
+{
+	if (!root || k <= 0)
+	{
+		return -1;
+	}
+	//我们可以右->根->左这样遍历
+	stack<TreeNode*> s;
+	while (true)
+	{
+		kthLargestGoAlongRight(root, s);
+		if (s.empty())
+		{
+			break;
+		}
+		root = s.top();
+		s.pop();
+		--k;  //当前元素拿出来了，就要减一
+		if (k == 0)
+		{
+			return root->val;
+		}
+		root = root->left;
+	}
+	return -1;
+}
+
+int maxDepth(TreeNode* root)  //面试题55 - I.二叉树的深度
+{
+	if (!root)
+	{
+		return 0;
+	}
+	int l = maxDepth(root->left);
+	int r = maxDepth(root->right);
+	return max(l, r) + 1;
+}
+
+bool isBalanced(TreeNode* root)  //面试题55 - II. 平衡二叉树
+{
+	if (!root || (!root->left && !root->right))
+	{
+		return true;
+	}
+	/*
+	if (abs(r - l) <= 1)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+	*/
+	//只判断深度是不行的，因为可能子树内部不行呢
+	bool flag_left = isBalanced(root->left);
+	bool flag_right = isBalanced(root->right);
+	if (flag_left && flag_right)  //左右两者都是平衡的，最后还得看一下深度是否满足
+	{
+		int l_depth = maxDepth(root->left);
+		int r_depth = maxDepth(root->right);
+		if (abs(r_depth - l_depth) <= 1)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool isBalanced_item(TreeNode* root, int &depth)  //depth为当前深度
+{
+	//后续遍历
+	if (!root)
+	{
+		depth = 0;
+		return true;
+	}
+	if (!root->left && !root->right)
+	{
+		depth = 1;
+		return true;
+	}
+	int depth_left = 0, depth_right = 0;
+	bool flag_left = isBalanced_item(root->left, depth_left);  //返回左子树是否是平衡，并返回深度
+	bool flag_right = isBalanced_item(root->right, depth_right);  //返回右子树是否是平衡，并返回深度
+	if (flag_left && flag_right && abs(depth_right - depth_left) <= 1)
+	{
+		depth = max(depth_left, depth_right) + 1;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+bool isBalanced(TreeNode* root)  //面试题55 - II. 平衡二叉树
+{
+	//后续遍历, 遍历的时候记录当前左右子树的深度以及左右子树是否是平衡的
+	if (!root || (!root->left && !root->right))
+	{
+		return true;
+	}
+	int tmp = 0;
+	return isBalanced_item(root, tmp);
+}
+
+vector<int> singleNumbers(vector<int>& nums)  //面试题56 - I. 数组中数字出现的次数
+{
+	if (nums.size() == 0)
+	{
+		return {};
+	}
+	int tmp = 0;
+	for (int i : nums)
+	{
+		tmp = tmp ^ i;
+	}
+	//出来的tmp就是不相同的数字异或的结果，由于两个数字不是同一个，那么异或结果肯定不是0
+	//接下来找到tmp的二进制中第一个为1的位置，说明这两个数字的二进制在这一位分别为0和1
+	int j = 1;
+	while ((tmp & j) == 0)
+	{
+		j <<= 1;
+	}
+	//接下来把与j&为0的放一组，为1的放一组，这样就可以把所有数字的二进制在这一位为1的分成一组，为0的为一组,而且重复的数字也正好分配到了一组
+	//如能分成4 4 2和3 3 1 这样的两组，这样每组做异或就可以得到
+	tmp = 0;
+	int temp = 0; //以上两个分别表示j&为0的一组的结果，为1的一组的结果
+	for (int i : nums)
+	{
+		if ((i & j) == 0)
+		{
+			tmp = tmp ^ i;
+		}
+		else
+		{
+			temp = temp ^ i;
+		}
+	}
+	return {tmp, temp};
+}
+
+int singleNumber(vector<int>& nums)  //面试题56 - II. 数组中数字出现的次数 II
+{
+	//哈希表解法
+	if (nums.size() == 0)
+	{
+		return -1;
+	}
+	unordered_map<int, int> um;
+	for (int i : nums)
+	{
+		um[i]++;
+	}
+	for (unordered_map<int, int>::iterator i = um.begin(); i != um.end(); i++)
+	{
+		if (i->second == 1)
+		{
+			return i->first;
+		}
+	}
+	return -1;
+}
+
+int singleNumber(vector<int>& nums)  //面试题56 - II. 数组中数字出现的次数 II
+{
+	//位运算解法
+	//重复三次的数字，他们的二进制每位数字加起来能被3整除，%3剩下的就是单独出现一次的数字的二进制位
+	if (nums.size() == 0)
+	{
+		return -1;
+	}
+	int bits[32] = { 0 };  //虽然是数组，但是长度为32固定了，相当于建立32个变量,从前往后二进制位增高,就是0下标是2的0次方，下标是2的一次方
+	for (int i : nums)
+	{
+		//对于每个数字，把其二进制位为1的，加入到数组中
+		long int b = 1;
+		for (int j = 0; j < 32; ++j)
+		{
+			if ((i & b) == 1)  //说明当前j位为1
+			{
+				bits[j]++;
+			}
+			b = b << 1; //右移,不管成不成功，都要看下一位
+		}
+	}
+	//得到的数组每一位%3
+	int result = 0;
+	for (int i=0; i < 32; ++i)
+	{
+		int tmp = bits[i];
+		tmp %= 3;
+		result += (tmp * pow(2, i));
+	}
+	return result;
+}
+
+vector<int> twoSum(vector<int>& nums, int target)  //面试题57. 和为s的两个数字
+{
+	if (nums.size() <= 1)
+	{
+		return {};
+	}
+	if (nums.size() == 2)
+	{
+		if (nums[0] + nums[1] == target)
+		{
+			return {nums[0], nums[1]};
+		}
+		else
+		{
+			return {};
+		}
+	}
+	//半二分查找
+	int l = 0, r = nums.size() - 1;
+	while (l <= r)
+	{
+		int mid = (r - l) / 2 + l;
+		if (nums[mid] >= target)  //省去一半
+		{
+			r = mid - 1;
+		}
+		else
+		{
+			mid = nums[l] + nums[r];
+			if (mid == target)
+			{
+				return { nums[l], nums[r] };
+			}
+			else if (mid < target)
+			{
+				++l;
+			}
+			else
+			{
+				--r;
+			}
+		}
+	}
+	return {};
+}
+
+vector<vector<int>> findContinuousSequence(int target)  //面试题57 - II. 和为s的连续正数序列
+{
+	if (target <= 2)
+	{
+		return {};
+	}
+	int l = 1, r = 2;
+	vector< vector<int> > result;
+	while (l < r)
+	{
+		//l->r的所有数的和位(l + r) * (r - l + 1) / 2
+		int sum = (r + l) * (r - l + 1) / 2;
+		if (sum == target)
+		{
+			vector<int> tmp;
+			for (int i=l; i<=r; ++i)
+			{
+				tmp.push_back(i);
+			}
+			result.push_back(tmp);
+			++l; //加进去之后，说明以l为最左边的序列已经完成使命了，需要向后走看看去
+			//++r; //其实这个也可以有，因为，没有这个的话，++l之后，下一个循环l->r的累加值sum肯定小于target了，那么就是++r，所以加上也可以
+		}
+		else if(sum < target)  //sum小，就往后加一个进来
+		{
+			++r;
+		}
+		else  //太大，就去掉最左边的
+		{
+			++l;
+		}
+	}
+	return result;
+}
+
 int main()
 {
 	//面试题03. 数组中重复的数字
@@ -3183,5 +3729,41 @@ int main()
 
 	//面试题50. 第一个只出现一次的字符
 	//firstUniqChar
+
+	//面试题51. 数组中的逆序对
+	//reversePairs
+
+	//面试题52. 两个链表的第一个公共节点
+	//getIntersectionNode
+
+	//面试题53 - I. 在排序数组中查找数字 I
+	//search
+
+	//面试题53 - II. 0～n-1中缺失的数字
+	//missingNumber
+
+	//53引申--数组中下标和数值相等的元素
+	//getNumberSameAsIndex
+
+	//面试题54. 二叉搜索树的第k大节点
+	//kthLargest
+
+	//面试题55 - I. 二叉树的深度
+	//maxDepth
+
+	//面试题55 - II. 平衡二叉树
+	//isBalanced
+
+	//面试题56 - I. 数组中数字出现的次数
+	//singleNumbers
+
+	//面试题56 - II. 数组中数字出现的次数 II
+	//singleNumber
+
+	//面试题57. 和为s的两个数字
+	//twoSum
+
+	//面试题57 - II. 和为s的连续正数序列
+	//findContinuousSequence
 	return 0;
 }
