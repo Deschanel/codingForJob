@@ -10,6 +10,7 @@
 #include <map>
 #include <unordered_map>
 #include <bitset>
+#include <deque>
 using namespace std;
 
 int findRepeatNumber_1(vector<int>& nums)    ////面试题03. 数组中重复的数字
@@ -3565,6 +3566,707 @@ vector<vector<int>> findContinuousSequence(int target)  //面试题57 - II. 和为s的
 	return result;
 }
 
+string reverseWords(string s)  //面试题58 - I. 翻转单词顺序
+{
+	//清除前后的空格
+	while (s.size() > 0 && s[s.size() - 1] == ' ')
+	{
+		s.pop_back();
+	}
+	while (s.size() > 0 && s[0] == ' ')
+	{
+		s = s.substr(1);
+	}
+	if (s.size() == 0)
+	{
+		return "";
+	}
+	string result;
+	for (int i = 0; i < s.size(); ++i)
+	{
+		string tmp;
+		while (i < s.size() && s[i] != ' ')
+		{
+			tmp = tmp + s[i];
+			++i;
+		}
+		if (tmp.size() > 0)
+		{
+			result = tmp + ' ' + result;
+		}
+	}
+	result.pop_back();  //去掉最后的空格
+	return result;
+}
+
+void reverseWords_item(string &s)
+{
+	if (s.size() <= 1)
+	{
+		return;
+	}
+	int i = 0, j = s.size() - 1;
+	while (i < j)
+	{
+		swap(s[i], s[j]);
+		++i;
+		--j;
+	}
+}
+string reverseWords(string s)  //面试题58 - I. 翻转单词顺序
+{
+	//两步反转
+	//清除前后的空格
+	while (s.size() > 0 && s[s.size() - 1] == ' ')
+	{
+		s.pop_back();
+	}
+	while (s.size() > 0 && s[0] == ' ')
+	{
+		s = s.substr(1);
+	}
+	if (s.size() <= 2)  //空了或只剩下一个字符或两个字符，返回
+	{
+		return s;
+	}
+	reverseWords_item(s); //翻转一次，abcd efg变成了 gfe dcba,然后每个单词反转
+	string result;
+	for (int i = 0; i < s.size(); ++i)
+	{
+		string tmp;
+		while (i < s.size() && s[i] != ' ')
+		{
+			tmp.push_back(s[i]);
+			++i;
+		}
+		if (tmp.size() > 0)
+		{
+			reverseWords_item(tmp);
+			result = result + ' ' + tmp;
+		}
+	}
+	result = result.substr(1);  //去掉前面的空格
+	return result;
+}
+
+string reverseLeftWords(string s, int n)  //面试题58 - II. 左旋转字符串
+{
+	if (s.size() == 0 || n >= s.size())
+	{
+		return s;
+	}
+	string s1 = s.substr(0, n), s2 = s.substr(n);
+	s2.append(s1);
+	return s2;
+}
+
+vector<int> maxSlidingWindow(vector<int>& nums, int k)  //面试题59 - I. 滑动窗口的最大值
+{
+	//暴力法
+	if (nums.size() == 0)
+	{
+		return {};
+	}
+	vector<int> result;
+	for (int i = 0; i < nums.size() - k + 1; ++i)
+	{
+		int maxValue = INT_MIN;
+		for (int j = 0; j < k && j + i < nums.size(); ++j)
+		{
+			maxValue = max(maxValue, nums[j + i]);
+		}
+		result.push_back(maxValue);
+	}
+	return result;
+}
+
+vector<int> maxSlidingWindow(vector<int>& nums, int k)  //面试题59 - I. 滑动窗口的最大值
+{
+	//双端队列
+	if (nums.size() <= 1)
+	{
+		return nums;
+	}
+	deque<int> d; //存值的下标
+	vector<int> result;
+	for (int i = 0; i < nums.size(); ++i)
+	{
+		if (d.empty())  //d为空，直接加进去
+		{
+			d.push_back(i);
+		}
+		else
+		{
+			while (!d.empty() && nums[d.back()] <= nums[i])  //把前面比他小的去掉
+			{
+				d.pop_back();
+			}
+			d.push_back(i); //加入进去，有可能是后面的最大值
+			while (!d.empty() && i - d.front() > k - 1)  //如果前几个已经超过了窗口的范围，就踢出去
+			{
+				d.pop_front();
+			}
+		}
+		if (i >= k - 1)  //保证刚开始的窗口要等到够了k个数再加入最大值进结果
+		{
+			result.push_back(nums[d.front()]);
+		}
+	}
+	return result;
+}
+
+class MaxQueue {  //面试题59 - II. 队列的最大值
+public:
+	deque<int> d; //辅助双端队列，用于存放以某元素为开头得最大值
+	queue<int> q;
+	MaxQueue() {
+
+	}
+
+	int max_value() {
+		if (d.empty() || q.empty())  //如果为空，直接返回-1
+		{
+			return -1;
+		}
+		return d.front();  //否则返回d
+	}
+
+	void push_back(int value) {
+		q.push(value);  //q直接加入
+		while (!d.empty() && d.back() < value) //把前面比当前元素小的都清除掉，那个当前元素就是以那些比他小的，前面的元素为开头的后面元素的最大值
+		{
+			d.pop_back();
+		}
+		d.push_back(value);
+	}
+
+	int pop_front() {
+		if (q.empty())
+		{
+			return -1;
+		}
+		int result = q.front();
+		q.pop();
+		if (result == d.front())  //如果最大元素在队首，那么就得清除掉，使得d中剩下的头元素为剩下元素的最大值
+		{
+			d.pop_front();
+		}
+		return result;
+	}
+};
+
+vector<double> twoSum(int n)  //面试题60. n个骰子的点数
+{
+	if (n <= 0)
+	{
+		return {};
+	}
+	if (n == 1)
+	{
+		return { 0.16667,0.16667,0.16667,0.16667,0.16667,0.16667 };
+	}
+	vector< vector<double> > dp; //投掷i个骰子的点数之和的概率
+	//假设已经投掷了i-1个骰子，并且概率已知了
+	//i个骰子的和s的范围是[i, 6i]，i-1个骰子的和s范围是[i-1, 6i-6]
+	//所以对于任意的点数之和x，x属于[i, 6i]，出现x的概率
+	//就是i-1个骰子投出和x-1,此次投出1，i-1个骰子投出和x-2,此次投出2。。。。
+	//f(i)(x)表示，投掷了i个骰子，得到和为x
+	//所以f(i)(x) = f(i-1)(x-1)*(1/6) + f(i-1)(x-2)*(1/6) + .... + f(i-1)(x-6)*(1/6)
+	dp.push_back({});
+	dp.push_back({ 0.166667,0.166667,0.166667,0.166667,0.166667,0.166667 }); //这里多写一位啊，否则最后精度会出问题，那样就得用出现的次数/总数
+	for (int i = 2; i <= n; ++i) //投掷两个骰子到投掷n个骰子
+	{
+		vector<double> tmp(5 * i + 1, 0);
+		//值应该是[i, 6i]，即j+i，这里简化为[0, 5i], i-1时候就是[0,5i-5]
+		//i-1时，应为[i-1, 6i-6],因此计算i-1的时候，其实际和值应该是j+i-k，属于[i-1, 6i-6],
+		//映射到[0,5i-5],就是j+i-k-(i-1) = j + 1 - k，就是i-1时候的vectot下标
+		for (int j = 0; j <= 5 * i; ++j)
+		{
+			//当前和为j+i的时候，等于i-1个骰子中相应的加起来
+			for (int k = 1; k <= 6; ++k)
+			{
+				if (j + 1 - k >= 0)
+				{
+					if (j + 1 - k <= 5 * i - 5)  //超过的话也不能要，但是随着k增加，会减小，所以不能break
+					{
+						tmp[j] = dp[i - 1][j + 1 - k] * (1.0 / 6) + tmp[j]; //这里
+					}
+				}
+				else  //接下来k增大还是会继续小于0，所以直接break
+				{
+					break;
+				}
+			}
+		}
+		dp.push_back(tmp);
+	}
+	return dp[n];
+}
+
+bool isStraight(vector<int>& nums)  //面试题61. 扑克牌中的顺子
+{
+	//记录0的个数，记录最大最小值
+	//统计最大最小值之间缺少几个
+	//如果缺少的小于等于0的个数，那么就可以，否则false
+	//如果有重复的数字，那肯定不是顺子了
+	if (nums.size() == 0)
+	{
+		return false;
+	}
+	sort(nums.begin(), nums.end());
+	int count = 0;  //统计0的个数
+	int ma = INT_MIN, mi = INT_MAX;  //排好序的数的最大最小值
+	unordered_set<int> us;
+	//统计0的个数，以及非0的放到一个哈希表里，并且找到最大最小值
+	for (int i : nums)
+	{
+		if (i == 0)
+		{
+			++count;
+		}
+		else
+		{
+			ma = max(ma, i);
+			mi = min(mi, i);
+			if (!us.count(i))
+			{
+				us.insert(i);
+			}
+			else  //如果有重复的，肯定不是顺子
+			{
+				return false;
+			}
+		}
+	}
+	//看看最大最小值之间缺少多少个
+	int sum = 0;
+	for (int i = mi + 1; i < ma; ++i)
+	{
+		if (!us.count(i))
+		{
+			++sum;
+		}
+	}
+	//如果缺少的个数少于等于0的个数，那么就可以用0来代替，因为0能代替任意数，否则false
+	return (sum <= count);
+}
+
+int lastRemaining(int n, int m)  //面试题62. 圆圈中最后剩下的数字,超时了
+{
+	//环形链表
+	if (n < 1 || m < 1)
+	{
+		return -1;
+	}
+	list<int> li;
+	for (int i = 0; i < n; ++i)  //创建链表
+	{
+		li.push_back(i);
+	}
+	list<int>::iterator index = li.begin();  //从链表开头开始
+	int num = m % n;
+	while (li.size() > 1)  //如果不剩下最后一个数字，就要继续
+	{
+		int i = 1;
+		while (i < num) //一直往后找
+		{
+			++i;
+			++index;
+			if (index == li.end())  //到头了就重新开始
+			{
+				index = li.begin();
+			}
+		}
+		list<int>::iterator next = ++index;  //记录下一个指针
+		li.erase(--index);  //删除掉当前指针
+		index = next;  //赋值下一个指针
+		if (index == li.end())  //如果是到头了，就重新开始
+		{
+			index = li.begin();
+		}
+		num = m % li.size(); 
+	}
+	return *(index);
+}
+
+int lastRemaining(int n, int m)  //面试题62. 圆圈中最后剩下的数字
+{
+	//递推公式，见剑指offer
+	if (n < 1 || m < 1)
+	{
+		return -1;
+	}
+	int last = 0;
+	for (int i = 2; i <= n; ++i)
+	{
+		last = (last + m) % i;  //i从2到n，这里递推式上应该是%i，不能一直写成n
+	}
+	return last;
+}
+
+int maxProfit(vector<int>& prices)  //面试题63. 股票的最大利润
+{
+	if (prices.size() < 2)
+	{
+		return 0;
+	}
+	int minPrice = prices[0];
+	int result = 0;
+	for (int i = 1; i < prices.size(); ++i)
+	{
+		if (prices[i] < minPrice)
+		{
+			minPrice = prices[i];
+		}
+		else
+		{
+			result = max(result, prices[i] - minPrice);
+		}
+	}
+	return result;
+}
+
+int maxProfit(vector<int>& prices)  //面试题63. 股票的最大利润
+{
+	if (prices.size() < 2)
+	{
+		return 0;
+	}
+	vector<int> dp(prices.size(), 0); //在第i天卖出，能够获得的最大利润
+	dp[0] = 0;
+	int minPrice = prices[0];
+	int result = 0;
+	for (int i = 1; i < prices.size(); ++i)
+	{
+		if (prices[i] < minPrice)
+		{
+			minPrice = prices[i];
+		}
+		else
+		{
+			dp[i] = prices[i] - minPrice;  //在第i天卖出，得到的最大值，应该减去之前元素的最小值
+		}
+		result = max(result, dp[i]);
+	}
+	return result;
+}
+
+int sumNums(int n)  //面试题64. 求1+2+…+n
+{
+	n && (n += sumNums(n - 1));  //短路特性，n为0的时候，后面就不会计算了,就不会递归下去了
+	return n;
+}
+
+int add(int a, int b)  //面试题65. 不用加减乘除做加法
+{
+	if (a == 0)
+	{
+		return b;
+	}
+	if (b == 0)
+	{
+		return a;
+	}
+	//这里必须要转化为unsigned int
+	unsigned int x = a, y = b; //x模拟加法，但是没有进位，y与运算，只有同为1的那一位才为1，并且需要向前进位，进位的话需要左移一位
+	while (y != 0)
+	{
+		int tmp = x ^ y;
+		y = (x & y) << 1;
+		x = tmp;
+	}
+	return x;
+}
+
+vector<int> constructArr(vector<int>& a)
+{
+	if (a.size() == 0)
+	{
+		return {};
+	}
+	//定义一个两个数组v1和v2存储当前为i的时候a[0]xa[1]xa[2]....xa[i-1]和a[i+1]xa[i+2]...xa[n-1]
+	//这样的话，v1[i] = v1[i - 1] * a[i - 1], v2[i] = v2[i + 1] * a[i + 1], 可以用一次循环即可
+	//当i为0时，相当于把v1[0] = 1; i为s.size() - 1时，v2[a.size() - 1] = 1,这样在计算结果时候，就是乘了1，相当于没乘，符合题意
+	vector<int> v1(a.size(), 1);
+	vector<int> v2(a.size(), 1);
+	int n = a.size();
+	for (int k = 1; k < a.size(); ++k)
+	{
+		v1[k] = v1[k - 1] * a[k - 1];
+		v2[n - k - 1] = v2[n - k] * a[n - k];
+	}
+	for (int i = 0; i < v1.size(); ++i)
+	{
+		v1[i] = v1[i] * v2[i];
+	}
+	return v1;
+}
+
+int strToInt(string str)  //面试题67. 把字符串转换成整数
+{
+	//清除最后的空格
+	while (str.size() > 0 && str[str.size() - 1] == ' ')
+	{
+		str.pop_back();
+	}
+	while (str.size() > 0 && str[0] == ' ')
+	{
+		str = str.substr(1);
+	}
+	if (str.size() == 0)
+	{
+		return 0;
+	}
+	bool flag = true; //是否为正数
+	int i = 0;
+	//跳过正负号
+	if (str[0] == '-')
+	{
+		flag = false;
+		++i;
+	}
+	else if (str[0] == '+')
+	{
+		++i;
+	}
+	//跳过后如果没了或者去掉正负号后第一个字符不是数字字符，就返回0, 
+	if (i >= str.size() || str[i] < '0' || str[i] > '9')
+	{
+		return 0;
+	}
+	int result = 0;
+	while (i < str.size())
+	{
+		if (str[i] < '0' || str[i] > '9')  //第一个循环时候肯定不是
+		{
+			break;
+		}
+		int tmp = str[i] - '0';
+		if (result > INT_MAX / 10)
+		{
+			return flag ? INT_MAX : INT_MIN;
+		}
+		else if (result == INT_MAX / 10)
+		{
+			if (flag && tmp >= 7)  //如果是正数，而且要加的值大于等于7了，也就是乘10加tmp后大于等于INT_MAX，直接返回最大值即可
+			{
+				return INT_MAX;
+			}
+			else if (!flag && tmp >= 8) //如果是负数，而且绝对值乘10加的值大于等于8，那么直接返回INT_MIN
+			{
+				//如果这里tmp=7时，绝对值就到了INT_MAX,但是还没溢出，不要紧,所以不能返回INT_MIN
+				return INT_MIN;
+			}
+			else
+			{
+				result = result * 10 + tmp;
+			}
+		}
+		else
+		{
+			result = result * 10 + tmp;
+		}
+		++i;
+	}
+	return flag ? result : -result;
+}
+
+TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q)  //面试题68 - I. 二叉搜索树的最近公共祖先
+{
+	if (!root)
+	{
+		return nullptr;
+	}
+	if (!p)
+	{
+		return q;
+	}
+	if (!q)
+	{
+		return p;
+	}
+	if (p == q)
+	{
+		return p;
+	}
+	if (p == root || q == root)
+	{
+		return root;
+	}
+	if ((p->val <= root->val && q->val >= root->val) || (p->val >= root->val && q->val <= root->val))
+	{
+		return root;
+	}
+	else if (p->val <= root->val && q->val <= root->val)
+	{
+		return lowestCommonAncestor(root->left, p, q);
+	}
+	else
+	{
+		return lowestCommonAncestor(root->right, p, q);
+	}
+}
+
+bool lowestCommonAncestor_item(TreeNode* root, TreeNode* &destiny, vector<TreeNode*> &v) //root指上一步添加的
+{
+	if (!root || !destiny)
+	{
+		v.clear();
+		return false;
+	}
+	if (root == destiny)  //在这里判断上一步递归添加的那个节点是否与目标节点同一个，这样的话，上一步递归中只需要pop_back一步即可，否则需要循环pop_back, 其实是一样的
+	{
+		return true;
+	}
+	bool flag = false;  //是否找到了目标节点的路径
+	if (root->left)  //去左节点寻找
+	{
+		v.push_back(root->left);
+		flag = lowestCommonAncestor_item(root->left, destiny, v);
+		if (flag)  //如果成功，直接返回
+		{
+			return true;
+		}
+		else
+		{
+			v.pop_back();
+		}
+	}
+	if (root->right) //右节点存在
+	{
+		v.push_back(root->right);
+		flag = lowestCommonAncestor_item(root->right, destiny, v);
+		if (flag)  //如果成功，直接返回
+		{
+			return true;
+		}
+		else
+		{
+			v.pop_back();
+		}
+	}
+	return false;
+}
+TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q)  //面试题68 - II. 二叉树的最近公共祖先
+{
+	if (!root)
+	{
+		return nullptr;
+	}
+	if (!p)
+	{
+		return q;
+	}
+	if (!q)
+	{
+		return p;
+	}
+	if (p == q)
+	{
+		return p;
+	}
+	if (p == root || q == root)
+	{
+		return root;
+	}
+	//找寻路径
+	vector<TreeNode*> v1; //p的路径
+	vector<TreeNode*> v2; //q的路径
+	//先添加再去判断
+	v1.push_back(root);
+	v2.push_back(root);
+	lowestCommonAncestor_item(root, p, v1);
+	lowestCommonAncestor_item(root, q, v2);
+	TreeNode* result = root;
+	for (int i = 0, j = 0; i < v1.size() && j < v2.size(); ++i, ++j)
+	{
+		if (v1[i] != v2[j])
+		{
+			break;;
+		}
+		result = v1[i];
+	}
+	return result;
+}
+
+bool lowestCommonAncestor_item(TreeNode* root, TreeNode* &destiny, vector<TreeNode*> &v)
+{
+	if (!root || !destiny)
+	{
+		v.clear();
+		return false;
+	}
+	v.push_back(root);
+	if (root == destiny)  //在这里判断上一步递归添加的那个节点是否与目标节点同一个，这样的话，上一步递归中只需要pop_back一步即可，否则需要循环pop_back, 其实是一样的
+	{
+		return true;
+	}
+	bool flag = false;  //是否找到了目标节点的路径
+	if (root->left)  //去左节点寻找
+	{
+		flag = lowestCommonAncestor_item(root->left, destiny, v);
+		if (flag)  //如果成功，直接返回
+		{
+			return true;
+		}
+		else
+		{
+			v.pop_back();
+		}
+	}
+	if (root->right) //右节点存在
+	{
+		flag = lowestCommonAncestor_item(root->right, destiny, v);
+		if (flag)  //如果成功，直接返回
+		{
+			return true;
+		}
+		else
+		{
+			v.pop_back();
+		}
+	}
+	return flag;
+}
+TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q)  //面试题68 - II. 二叉树的最近公共祖先
+{
+	if (!root)
+	{
+		return nullptr;
+	}
+	if (!p)
+	{
+		return q;
+	}
+	if (!q)
+	{
+		return p;
+	}
+	if (p == q)
+	{
+		return p;
+	}
+	if (p == root || q == root)
+	{
+		return root;
+	}
+	//找寻路径
+	vector<TreeNode*> v1; //p的路径
+	vector<TreeNode*> v2; //q的路径
+	lowestCommonAncestor_item(root, p, v1);
+	lowestCommonAncestor_item(root, q, v2);
+	TreeNode* result = root;
+	for (int i = 0, j = 0; i < v1.size() && j < v2.size(); ++i, ++j)
+	{
+		if (v1[i] != v2[j])
+		{
+			break;;
+		}
+		result = v1[i];
+	}
+	return result;
+}
+
 int main()
 {
 	//面试题03. 数组中重复的数字
@@ -3765,5 +4467,47 @@ int main()
 
 	//面试题57 - II. 和为s的连续正数序列
 	//findContinuousSequence
+
+	//面试题58 - I. 翻转单词顺序
+	//reverseWords
+
+	//面试题58 - II. 左旋转字符串
+	//reverseLeftWords
+
+	//面试题59 - I. 滑动窗口的最大值
+	//maxSlidingWindow
+
+	//面试题59 - II. 队列的最大值
+	//MaxQueue
+
+	//面试题60. n个骰子的点数
+	//twoSum
+
+	//面试题61. 扑克牌中的顺子
+	//isStraight
+
+	//面试题62. 圆圈中最后剩下的数字
+	//lastRemaining
+
+	//面试题63. 股票的最大利润
+	//maxProfit
+
+	//面试题64. 求1+2+…+n
+	//sumNums
+
+	//面试题65. 不用加减乘除做加法
+	//add
+
+	//面试题66. 构建乘积数组
+	//constructArr
+
+	//面试题67. 把字符串转换成整数
+	//strToInt
+
+	//面试题68 - I. 二叉搜索树的最近公共祖先
+	//lowestCommonAncestor
+
+	//面试题68 - II. 二叉树的最近公共祖先
+	//lowestCommonAncestor
 	return 0;
 }

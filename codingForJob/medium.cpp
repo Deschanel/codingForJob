@@ -998,30 +998,37 @@ int coinChange_1(vector<int>& coins, int amount)  //零钱兑换
 
 int coinChange_2(vector<int>& coins, int amount)  //零钱兑换
 {
-	/*
+	if (amount < 0 || coins.size() == 0)
+	{
+		return -1;
+	}
 	if (amount == 0)
 	{
 		return 0;
 	}
-	if (coins.size() == 0 || amount < 0)
+	sort(coins.begin(), coins.end());
+	if (amount < coins[0])
 	{
 		return -1;
 	}
-	int minCount = amount + 1;
-	for (int i = 0; i < coins.size(); ++i)
+	vector<int> dp(amount + 1, amount + 1);
+	dp[0] = 0;
+	for (int i = 1; i <= amount; ++i)
 	{
-		if (coins.at(i) <= amount)
+		for (int j = 0; j < coins.size(); ++j)
 		{
-			int tmp = coinChange_2(coins, amount - coins.at(i));
-			if (tmp == -1)
+			if (i == coins[j])
 			{
-				continue;
+				dp[i] = 1;
+				break;
 			}
-			minCount = min(minCount, tmp + 1);
+			else if (i - coins[j] > 0)
+			{
+				dp[i] = min(dp[i], dp[i - coins[j]] + 1);
+			}
 		}
 	}
-	return minCount > amount ? -1 : minCount;
-	*/   //超时了
+	return (dp[amount] == amount + 1 ? -1 : dp[amount]);
 }
 
 int numIslands(vector<vector<char>>& grid)  //岛屿数量--并查集
