@@ -38,5 +38,8 @@
     <ClCompile Include="sortAlgorithm.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="tcpSocket.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

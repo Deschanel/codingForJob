@@ -5884,6 +5884,58 @@ vector<vector<int>> findContinuousSequence(int target)  //面试题57 - II. 和�
 	return result;
 }
 
+bool canThreePartsEqualSum(vector<int>& A)
+{
+	if (A.size() < 0)
+	{
+		return false;
+	}
+	int sum = 0;
+	for (int i : A)
+	{
+		sum += i;
+	}
+	//如果能三部分的话，肯定是总和的1/3
+	if (sum % 3 != 0)
+	{
+		return false;
+	}
+	int preSum = 0, curSum = 0, nextSum = 0;
+	int i = 0;
+	while (i < A.size())
+	{
+		preSum += A[i];
+		++i;
+		if (preSum == sum / 3)
+		{
+			break;
+		}
+	}
+	if (i == A.size())
+	{
+		return false;
+	}
+	while (i < A.size())
+	{
+		curSum += A[i];
+		++i;
+		if (curSum == sum / 3)
+		{
+			break;
+		}
+	}
+	if (i == A.size())
+	{
+		return false;
+	}
+	while (i < A.size())
+	{
+		nextSum += A[i];
+		++i;
+	}
+	return (preSum == curSum && preSum == nextSum);
+}
+
 int main()
 {
 	//两数之和
@@ -6475,4 +6527,7 @@ int main()
 
 	//面试题57 - II. 和为s的连续正数序列
 	//findContinuousSequence	
+
+	//1013. 将数组分成和相等的三个部分
+	//canThreePartsEqualSum
 }
